@@ -1,0 +1,3 @@
+export const DIDCOMM_SERVICE_UUID = "d2f195b6-2e80-4ab0-be24-32ebe761352f"
+export const MESSAGE_CHARACTERISTIC_UUID =
+  "c3103ded-afd7-477c-b279-2ad264e20e74"
