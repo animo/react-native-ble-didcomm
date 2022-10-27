@@ -1,6 +1,6 @@
 import CoreBluetooth
-import os
 import Foundation
+import os
 import React
 
 @objc(BleDidcommSdk)
@@ -17,17 +17,19 @@ class BleDidcommSdk: React.RCTEventEmitter {
     var service: CBMutableService?
     var characteristic: CBMutableCharacteristic?
     var sendableCharacteristic: CBCharacteristic?
-    
+
     var peripherals: [CBPeripheral] = []
-    
-    var isPeripheralReady = false
-    
+
+    var isPeripheralReady = true
+
     var message: String = ""
-    
-    @objc func start(_ options: Dictionary<String, String>,
+
+    var connectedCentral: CBCentral?
+
+    @objc func start(_: [String: String],
                      resolve: RCTPromiseResolveBlock,
-                     reject: RCTPromiseRejectBlock
-    ) -> Void {
+                     reject _: RCTPromiseRejectBlock)
+    {
         peripheralManager = CBPeripheralManager(
             delegate: self,
             queue: nil,
@@ -38,15 +40,15 @@ class BleDidcommSdk: React.RCTEventEmitter {
             queue: nil,
             options: [CBCentralManagerOptionShowPowerAlertKey: true]
         )
-        
+
         resolve(nil)
     }
-    
+
     @objc func preparePeripheral(_ serviceUUID: String,
                                  characteristicUUID: String,
                                  resolve: RCTPromiseResolveBlock,
-                                 reject: RCTPromiseRejectBlock
-    ) -> Void {
+                                 reject: RCTPromiseRejectBlock)
+    {
         guard peripheralManager != nil else {
             reject("error", "Uninitialized, call `start()` first", nil)
             return
@@ -56,42 +58,47 @@ class BleDidcommSdk: React.RCTEventEmitter {
             reject("error", "Service UUID `" + serviceUUID + "` is not a UUID", nil)
             return
         }
-        
+
         guard UUID(uuidString: characteristicUUID) != nil else {
             reject("error", "characteristic UUID `" + characteristicUUID + "` is not a UUID", nil)
             return
         }
-        
-        self.preparePeripheral(serviceUUID: serviceUUID, characteristicUUID: characteristicUUID)
-        
+
+        preparePeripheral(serviceUUID: serviceUUID, characteristicUUID: characteristicUUID)
+
         resolve(nil)
     }
-    
-    @objc func advertise(_ options: Dictionary<String, String>,
-                        resolve: RCTPromiseResolveBlock,
-                        reject: RCTPromiseRejectBlock
-    ) -> Void {
+
+    @objc func advertise(_: [String: String],
+                         resolve: RCTPromiseResolveBlock,
+                         reject: RCTPromiseRejectBlock)
+    {
         guard peripheralManager != nil else {
             reject("error", "Uninitialized, call `start()` first", nil)
             return
         }
-        
+
         guard service != nil else {
             reject("error", "Service not set!", nil)
             return
         }
-        
-        self.advertise()
-        
+
+        advertise()
+
         resolve(nil)
     }
-    
+
     @objc func notify(_ message: String,
                       resolve: RCTPromiseResolveBlock,
-                      reject: RCTPromiseRejectBlock
-    ) -> Void {
+                      reject: RCTPromiseRejectBlock)
+    {
         guard peripheralManager != nil || characteristic != nil else {
             reject("error", "Uninitialized, call `start()` first", nil)
+            return
+        }
+
+        guard connectedCentral != nil else {
+            reject("error", "Could not find the connected central to notify", nil)
             return
         }
 
@@ -99,82 +106,82 @@ class BleDidcommSdk: React.RCTEventEmitter {
             reject("error", "Could not convert data to bytes. Invalid UTF-8 encoding?", nil)
             return
         }
-        
-        self.notify(data: data)
-        
+
+        notify(message: data)
+
         resolve(nil)
     }
-    
-    @objc func scan(_ options: Dictionary<String, String>,
+
+    @objc func scan(_: [String: String],
                     resolve: RCTPromiseResolveBlock,
-                    reject: RCTPromiseRejectBlock
-    ) -> Void {
+                    reject: RCTPromiseRejectBlock)
+    {
         guard centralManager != nil else {
             reject("error", "Uninitialized, call `start()` first", nil)
             return
         }
-        
-        self.scan()
-        
+
+        scan()
+
         resolve(nil)
     }
-    
+
     @objc func connect(_ peripheralId: String,
                        resolve: RCTPromiseResolveBlock,
-                       reject: RCTPromiseRejectBlock
-    ) -> Void {
-        guard  centralManager != nil else {
+                       reject: RCTPromiseRejectBlock)
+    {
+        guard centralManager != nil else {
             reject("error", "Uninitialized, call `start()` first", nil)
             return
         }
-        
+
         guard UUID(uuidString: peripheralId) != nil else {
             reject("error", "peripheralId `" + peripheralId + "` is not a UUID", nil)
             return
         }
-        
-        guard let peripheral = self.findPeripheralById(peripheralId: peripheralId) else {
+
+        guard let peripheral = findPeripheralById(peripheralId: peripheralId) else {
             reject("error", "peripheralId `" + peripheralId + "` could not be found.", nil)
             return
         }
-        
-        self.connect(peripheral: peripheral)
-        
+
+        connect(peripheral: peripheral)
+
         resolve(nil)
     }
-    
+
     @objc func write(_ peripheralId: String,
                      message: String,
                      resolve: RCTPromiseResolveBlock,
-                     reject: RCTPromiseRejectBlock
-    ) -> Void {
-        guard  centralManager != nil else {
+                     reject: RCTPromiseRejectBlock)
+    {
+        guard centralManager != nil else {
             reject("error", "Uninitialized, call `start()` first", nil)
             return
         }
-        
+
         guard UUID(uuidString: peripheralId) != nil else {
             reject("error", "peripheralId `" + peripheralId + "` is not a UUID", nil)
             return
         }
-        
-        guard let peripheral = self.findPeripheralById(peripheralId: peripheralId) else {
+
+        guard let peripheral = findPeripheralById(peripheralId: peripheralId) else {
             reject("error", "peripheralId `" + peripheralId + "` could not be found.", nil)
             return
         }
-        
+
         guard sendableCharacteristic != nil else {
             reject("error", "Could not find the characteristic to write to", nil)
             return
         }
-        
+
         guard let data = message.data(using: String.Encoding.utf8) else {
             reject("error", "Message `" + message + "` could not be encoded with UTF-8 ", nil)
             return
         }
-        
-        self.write(peripheral: peripheral, message: data)
-        
+
+        write(peripheral: peripheral, message: data)
+
         resolve(nil)
     }
 }
