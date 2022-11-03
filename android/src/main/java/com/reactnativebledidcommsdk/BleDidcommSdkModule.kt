@@ -235,7 +235,7 @@ class BleDidcommSdkModule(private val context: ReactApplicationContext) :
 
         override fun onNotificationSent(device: BluetoothDevice?, status: Int) {
             super.onNotificationSent(device, status)
-            if(status === BluetoothGatt.GATT_SUCCESS) {
+            if (status == BluetoothGatt.GATT_SUCCESS) {
                 peripheralManager.isConnectedClientReady = true
             }
         }

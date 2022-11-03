@@ -6,13 +6,13 @@ import android.bluetooth.le.AdvertiseData
 import android.bluetooth.le.AdvertiseSettings
 import android.content.Context
 import android.os.ParcelUuid
-import android.text.BoringLayout
 import androidx.annotation.RequiresPermission
 import com.facebook.react.bridge.ReactContext
 import java.util.*
 
 class PeripheralManager(private val context: ReactContext) {
-    private val bluetoothManager: BluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+    private val bluetoothManager: BluetoothManager =
+        context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     private val bluetoothAdapter: BluetoothAdapter = bluetoothManager.adapter
 
     var connectedClient: BluetoothDevice? = null
@@ -38,9 +38,9 @@ class PeripheralManager(private val context: ReactContext) {
 
         service = BluetoothGattService(serviceUUID, BluetoothGattService.SERVICE_TYPE_PRIMARY)
         characteristic = BluetoothGattCharacteristic(
-                characteristicUUID,
-                BluetoothGattCharacteristic.PROPERTY_WRITE,
-                BluetoothGattCharacteristic.PERMISSION_WRITE
+            characteristicUUID,
+            BluetoothGattCharacteristic.PROPERTY_WRITE,
+            BluetoothGattCharacteristic.PERMISSION_WRITE
         )
         notifyCharacteristic = BluetoothGattCharacteristic(
             notifyCharacteristicUUID,
@@ -58,14 +58,14 @@ class PeripheralManager(private val context: ReactContext) {
 
         val advertiser = bluetoothAdapter.bluetoothLeAdvertiser
         val advertiseSettings = AdvertiseSettings.Builder()
-                .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_POWER)
-                .setTimeout(0)
-                .build()
+            .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_POWER)
+            .setTimeout(0)
+            .build()
 
         val advertiseData = AdvertiseData.Builder()
-                .addServiceUuid(ParcelUuid(service?.uuid))
-                .setIncludeDeviceName(false)
-                .build()
+            .addServiceUuid(ParcelUuid(service?.uuid))
+            .setIncludeDeviceName(false)
+            .build()
 
         advertiser.startAdvertising(advertiseSettings, advertiseData, this.advertiseCallback)
     }
@@ -79,9 +79,9 @@ class PeripheralManager(private val context: ReactContext) {
 
     @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
     fun notify(message: ByteArray) {
-        if(isSending) throw PeripheralManagerException.AlreadySending()
+        if (isSending) throw PeripheralManagerException.AlreadySending()
         val characteristic = notifyCharacteristic
-                ?: throw PeripheralManagerException.CharacteristicNotSet()
+            ?: throw PeripheralManagerException.CharacteristicNotSet()
         val gattServer = gattServer ?: throw PeripheralManagerException.GattServerNotSet()
 
         Thread {
