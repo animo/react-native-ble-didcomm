@@ -44,7 +44,7 @@ class PeripheralManager(private val context: ReactContext) {
         )
         notifyCharacteristic = BluetoothGattCharacteristic(
             notifyCharacteristicUUID,
-            BluetoothGattCharacteristic.PROPERTY_NOTIFY,
+            BluetoothGattCharacteristic.PROPERTY_INDICATE,
             BluetoothGattCharacteristic.PERMISSION_READ
         )
         service?.addCharacteristic(characteristic)
