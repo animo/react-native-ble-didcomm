@@ -1,13 +1,16 @@
 import { sdk } from "./register"
-import { DIDCOMM_SERVICE_UUID, MESSAGE_CHARACTERISTIC_UUID } from "./constants"
+import {
+  DIDCOMM_SERVICE_UUID,
+  MESSAGE_CHARACTERISTIC_UUID,
+  NOTIFY_CHARACTERISTIC_UUID,
+} from "./constants"
 
 export const setupBle = async () => {
   try {
-    await sdk.start({})
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    await sdk.preparePeripheral(
+    await sdk.start(
       DIDCOMM_SERVICE_UUID,
-      MESSAGE_CHARACTERISTIC_UUID
+      MESSAGE_CHARACTERISTIC_UUID,
+      NOTIFY_CHARACTERISTIC_UUID
     )
   } catch (e) {
     throw new Error("An error occured during startup: " + e)
@@ -32,15 +35,9 @@ export const advertise = async () => {
   }
 }
 
-export const scan = async ({
-  serviceUUID,
-  characteristicUUID,
-}: {
-  serviceUUID: string
-  characteristicUUID: string
-}) => {
+export const scan = async () => {
   try {
-    await sdk.scan(serviceUUID, characteristicUUID)
+    await sdk.scan({})
   } catch (e) {
     throw new Error("An error occurred while scanning for devices: " + e)
   }

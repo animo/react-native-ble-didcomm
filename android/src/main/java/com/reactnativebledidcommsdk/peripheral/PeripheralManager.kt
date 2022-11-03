@@ -6,6 +6,7 @@ import android.bluetooth.le.AdvertiseData
 import android.bluetooth.le.AdvertiseSettings
 import android.content.Context
 import android.os.ParcelUuid
+import android.text.BoringLayout
 import androidx.annotation.RequiresPermission
 import com.facebook.react.bridge.ReactContext
 import java.util.*
@@ -15,13 +16,16 @@ class PeripheralManager(private val context: ReactContext) {
     private val bluetoothAdapter: BluetoothAdapter = bluetoothManager.adapter
 
     var connectedClient: BluetoothDevice? = null
-    var connectedMtu: Int? = null
+    var isConnectedClientReady: Boolean = true
 
     var service: BluetoothGattService? = null
     var characteristic: BluetoothGattCharacteristic? = null
+    var notifyCharacteristic: BluetoothGattCharacteristic? = null
     var gattServer: BluetoothGattServer? = null
 
     var advertiseCallback: AdvertiseCallback? = null
+
+    private var isSending: Boolean = false
 
     @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
     fun setupServer(gattServerCallback: BluetoothGattServerCallback) {
@@ -29,17 +33,22 @@ class PeripheralManager(private val context: ReactContext) {
     }
 
     @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
-    fun setupServiceAndCharacteristic(serviceUUID: UUID, characteristicUUID: UUID) {
+    fun initialize(serviceUUID: UUID, characteristicUUID: UUID, notifyCharacteristicUUID: UUID) {
         val gattServer = gattServer ?: throw PeripheralManagerException.GattServerNotSet()
 
         service = BluetoothGattService(serviceUUID, BluetoothGattService.SERVICE_TYPE_PRIMARY)
         characteristic = BluetoothGattCharacteristic(
                 characteristicUUID,
-                BluetoothGattCharacteristic.PROPERTY_NOTIFY or BluetoothGattCharacteristic.PROPERTY_WRITE,
-                BluetoothGattCharacteristic.PERMISSION_WRITE or BluetoothGattCharacteristic.PERMISSION_READ
+                BluetoothGattCharacteristic.PROPERTY_WRITE,
+                BluetoothGattCharacteristic.PERMISSION_WRITE
         )
-        characteristic?.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+        notifyCharacteristic = BluetoothGattCharacteristic(
+            notifyCharacteristicUUID,
+            BluetoothGattCharacteristic.PROPERTY_NOTIFY,
+            BluetoothGattCharacteristic.PERMISSION_READ
+        )
         service?.addCharacteristic(characteristic)
+        service?.addCharacteristic(notifyCharacteristic)
         gattServer.addService(service)
     }
 
@@ -70,11 +79,29 @@ class PeripheralManager(private val context: ReactContext) {
 
     @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
     fun notify(message: ByteArray) {
-        val characteristic = characteristic
+        if(isSending) throw PeripheralManagerException.AlreadySending()
+        val characteristic = notifyCharacteristic
                 ?: throw PeripheralManagerException.CharacteristicNotSet()
         val gattServer = gattServer ?: throw PeripheralManagerException.GattServerNotSet()
 
-        characteristic.value = message
-        gattServer.notifyCharacteristicChanged(connectedClient, characteristic, false)
+        Thread {
+            isSending = true
+            val chunkSize = Integer.min(20, message.count())
+            for (chunkIndexStart in 0..message.count() step chunkSize) {
+                val chunkIndexEnd = Integer.min(chunkIndexStart + chunkSize, message.count()) - 1
+                while (!isConnectedClientReady) {
+                    Thread.sleep(200)
+                }
+                characteristic.value = message.sliceArray(IntRange(chunkIndexStart, chunkIndexEnd))
+                gattServer.notifyCharacteristicChanged(connectedClient, characteristic, true)
+
+            }
+            while (!isConnectedClientReady) {
+                Thread.sleep(200)
+            }
+            characteristic.value = "EOM".toByteArray()
+            gattServer.notifyCharacteristicChanged(connectedClient, characteristic, true)
+            isSending = false
+        }.start()
     }
 }
