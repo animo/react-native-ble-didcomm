@@ -11,7 +11,12 @@ import com.facebook.react.bridge.ReactContext
 import java.lang.Integer.min
 import java.util.*
 
-class CentralManager(private val context: ReactContext) {
+class CentralManager(
+    private val context: ReactContext,
+    var serviceUUID: UUID,
+    var characteristicUUID: UUID,
+    var notifyCharacteristicUUID: UUID
+) {
     private val bluetoothManager: BluetoothManager =
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     private val bluetoothAdapter: BluetoothAdapter = bluetoothManager.adapter
@@ -21,10 +26,6 @@ class CentralManager(private val context: ReactContext) {
     var connectedPeripheral: BluetoothGatt? = null
     var isPeripheralReady: Boolean = true
 
-    var serviceUUID: UUID? = null
-
-    var notifyCharacteristicUUID: UUID? = null
-    var characteristicUUID: UUID? = null
     var characteristic: BluetoothGattCharacteristic? = null
 
     private var scanCallback: ScanCallback? = null
@@ -32,16 +33,8 @@ class CentralManager(private val context: ReactContext) {
 
     private var isSending: Boolean = false
 
-    fun initialize(serviceUUID: UUID, characteristicUUID: UUID, notifyCharacteristicUUID: UUID) {
-        this.serviceUUID = serviceUUID
-        this.characteristicUUID = characteristicUUID
-        this.notifyCharacteristicUUID = notifyCharacteristicUUID
-    }
-
     @RequiresPermission(value = "android.permission.BLUETOOTH_SCAN")
     fun scan(scanCallback: ScanCallback) {
-        val serviceUUID = serviceUUID ?: throw CentralManagerException.NotInitialized()
-
         if (this.scanCallback !== null) {
             throw CentralManagerException.AlreadyScanning()
         }

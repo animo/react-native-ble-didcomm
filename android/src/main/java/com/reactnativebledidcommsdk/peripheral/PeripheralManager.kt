@@ -1,5 +1,6 @@
 package com.reactnativebledidcommsdk.peripheral
 
+import android.annotation.SuppressLint
 import android.bluetooth.*
 import android.bluetooth.le.AdvertiseCallback
 import android.bluetooth.le.AdvertiseData
@@ -10,47 +11,46 @@ import androidx.annotation.RequiresPermission
 import com.facebook.react.bridge.ReactContext
 import java.util.*
 
-class PeripheralManager(private val context: ReactContext) {
+class PeripheralManager(
+    context: ReactContext,
+    serviceUUID: UUID,
+    characteristicUUID: UUID,
+    notifyCharacteristicUUID: UUID,
+    gattServerCallback: BluetoothGattServerCallback
+) {
     private val bluetoothManager: BluetoothManager =
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     private val bluetoothAdapter: BluetoothAdapter = bluetoothManager.adapter
 
+    private val characteristic: BluetoothGattCharacteristic = BluetoothGattCharacteristic(
+        characteristicUUID,
+        BluetoothGattCharacteristic.PROPERTY_WRITE,
+        BluetoothGattCharacteristic.PERMISSION_WRITE
+    )
+    private val notifyCharacteristic: BluetoothGattCharacteristic = BluetoothGattCharacteristic(
+        notifyCharacteristicUUID,
+        BluetoothGattCharacteristic.PROPERTY_NOTIFY,
+        BluetoothGattCharacteristic.PERMISSION_READ
+    )
+
+    private val service: BluetoothGattService =
+        BluetoothGattService(serviceUUID, BluetoothGattService.SERVICE_TYPE_PRIMARY).apply {
+            this.addCharacteristic(characteristic)
+            this.addCharacteristic(notifyCharacteristic)
+        }
+
     var connectedClient: BluetoothDevice? = null
     var isConnectedClientReady: Boolean = true
 
-    var service: BluetoothGattService? = null
-    var characteristic: BluetoothGattCharacteristic? = null
-    var notifyCharacteristic: BluetoothGattCharacteristic? = null
-    var gattServer: BluetoothGattServer? = null
+    @SuppressLint("MissingPermission")
+    var gattServer: BluetoothGattServer =
+        bluetoothManager.openGattServer(context, gattServerCallback).apply {
+            this.addService(service)
+        }
 
-    var advertiseCallback: AdvertiseCallback? = null
+    private var advertiseCallback: AdvertiseCallback? = null
 
     private var isSending: Boolean = false
-
-    @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
-    fun setupServer(gattServerCallback: BluetoothGattServerCallback) {
-        this.gattServer = bluetoothManager.openGattServer(context, gattServerCallback)
-    }
-
-    @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
-    fun initialize(serviceUUID: UUID, characteristicUUID: UUID, notifyCharacteristicUUID: UUID) {
-        val gattServer = gattServer ?: throw PeripheralManagerException.GattServerNotSet()
-
-        service = BluetoothGattService(serviceUUID, BluetoothGattService.SERVICE_TYPE_PRIMARY)
-        characteristic = BluetoothGattCharacteristic(
-            characteristicUUID,
-            BluetoothGattCharacteristic.PROPERTY_WRITE,
-            BluetoothGattCharacteristic.PERMISSION_WRITE
-        )
-        notifyCharacteristic = BluetoothGattCharacteristic(
-            notifyCharacteristicUUID,
-            BluetoothGattCharacteristic.PROPERTY_INDICATE,
-            BluetoothGattCharacteristic.PERMISSION_READ
-        )
-        service?.addCharacteristic(characteristic)
-        service?.addCharacteristic(notifyCharacteristic)
-        gattServer.addService(service)
-    }
 
     @RequiresPermission(value = "android.permission.BLUETOOTH_ADVERTISE")
     fun advertise(advertiseCallback: AdvertiseCallback) {
@@ -63,7 +63,7 @@ class PeripheralManager(private val context: ReactContext) {
             .build()
 
         val advertiseData = AdvertiseData.Builder()
-            .addServiceUuid(ParcelUuid(service?.uuid))
+            .addServiceUuid(ParcelUuid(service.uuid))
             .setIncludeDeviceName(false)
             .build()
 
@@ -80,9 +80,6 @@ class PeripheralManager(private val context: ReactContext) {
     @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
     fun notify(message: ByteArray) {
         if (isSending) throw PeripheralManagerException.AlreadySending()
-        val characteristic = notifyCharacteristic
-            ?: throw PeripheralManagerException.CharacteristicNotSet()
-        val gattServer = gattServer ?: throw PeripheralManagerException.GattServerNotSet()
 
         Thread {
             isSending = true
@@ -92,15 +89,15 @@ class PeripheralManager(private val context: ReactContext) {
                 while (!isConnectedClientReady) {
                     Thread.sleep(200)
                 }
-                characteristic.value = message.sliceArray(IntRange(chunkIndexStart, chunkIndexEnd))
-                gattServer.notifyCharacteristicChanged(connectedClient, characteristic, true)
+                notifyCharacteristic.value = message.sliceArray(IntRange(chunkIndexStart, chunkIndexEnd))
+                gattServer.notifyCharacteristicChanged(connectedClient, notifyCharacteristic, true)
 
             }
             while (!isConnectedClientReady) {
                 Thread.sleep(200)
             }
-            characteristic.value = "EOM".toByteArray()
-            gattServer.notifyCharacteristicChanged(connectedClient, characteristic, true)
+            notifyCharacteristic.value = "EOM".toByteArray()
+            gattServer.notifyCharacteristicChanged(connectedClient, notifyCharacteristic, true)
             isSending = false
         }.start()
     }

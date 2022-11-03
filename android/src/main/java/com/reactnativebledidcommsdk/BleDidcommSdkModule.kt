@@ -5,6 +5,7 @@ import android.bluetooth.*
 import android.bluetooth.le.AdvertiseCallback
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
+import android.util.Log
 import androidx.annotation.RequiresPermission
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule
@@ -15,32 +16,48 @@ import java.util.*
 
 class BleDidcommSdkModule(private val context: ReactApplicationContext) :
     ReactContextBaseJavaModule(context) {
-    private val centralManager: CentralManager = CentralManager(context)
-    private val peripheralManager: PeripheralManager = PeripheralManager(context)
+    private lateinit var centralManager: CentralManager
+    private lateinit var peripheralManager: PeripheralManager
 
     override fun getName(): String {
         return Constants.TAG
     }
 
     @ReactMethod
-    @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
-    fun start(
+    fun startCentral(
         serviceUUID: String,
         characteristicUUID: String,
         notifyCharacteristicUUID: String,
         promise: Promise
     ) {
         try {
-            peripheralManager.setupServer(GattServerCallback())
-            centralManager.initialize(
+            centralManager = CentralManager(
+                context,
                 UUID.fromString(serviceUUID),
                 UUID.fromString(characteristicUUID),
                 UUID.fromString(notifyCharacteristicUUID)
             )
-            peripheralManager.initialize(
+            promise.resolve(null)
+        } catch (e: Exception) {
+            promise.reject("error", e)
+        }
+    }
+
+    @ReactMethod
+    @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
+    fun startPeripheral(
+        serviceUUID: String,
+        characteristicUUID: String,
+        notifyCharacteristicUUID: String,
+        promise: Promise
+    ) {
+        try {
+            peripheralManager = PeripheralManager(
+                context,
                 UUID.fromString(serviceUUID),
                 UUID.fromString(characteristicUUID),
-                UUID.fromString(notifyCharacteristicUUID)
+                UUID.fromString(notifyCharacteristicUUID),
+                GattServerCallback()
             )
             promise.resolve(null)
         } catch (e: Exception) {
@@ -83,7 +100,7 @@ class BleDidcommSdkModule(private val context: ReactApplicationContext) :
 
     @ReactMethod
     @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
-    fun write(peripheralId: String, message: String, promise: Promise) {
+    fun write(message: String, promise: Promise) {
         try {
             this.centralManager.write(message.toByteArray(Charsets.UTF_8))
             promise.resolve(null)
@@ -124,6 +141,7 @@ class BleDidcommSdkModule(private val context: ReactApplicationContext) :
             gatt: BluetoothGatt,
             characteristic: BluetoothGattCharacteristic
         ) {
+            Log.d(Constants.TAG, "char changed!")
             super.onCharacteristicChanged(gatt, characteristic)
             val msg = characteristic.value
             if (msg.toString(Charsets.UTF_8) == "EOM") {
@@ -223,7 +241,7 @@ class BleDidcommSdkModule(private val context: ReactApplicationContext) :
             }
 
             if (responseNeeded) {
-                peripheralManager.gattServer?.sendResponse(
+                peripheralManager.gattServer.sendResponse(
                     device,
                     requestId,
                     BluetoothGatt.GATT_SUCCESS,
@@ -243,7 +261,7 @@ class BleDidcommSdkModule(private val context: ReactApplicationContext) :
         @SuppressLint("MissingPermission")
         override fun onExecuteWrite(device: BluetoothDevice?, requestId: Int, execute: Boolean) {
             super.onExecuteWrite(device, requestId, execute)
-            peripheralManager.gattServer?.sendResponse(
+            peripheralManager.gattServer.sendResponse(
                 device,
                 requestId,
                 BluetoothGatt.GATT_SUCCESS,
