@@ -1,123 +1,254 @@
 package com.reactnativebledidcommsdk
 
-import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.ReactContextBaseJavaModule
-import com.facebook.react.bridge.ReactMethod
-import com.facebook.react.bridge.Promise
-import com.facebook.react.bridge.ReadableMap
-
-import java.util.UUID
-import java.util.regex.Pattern
-
-import android.util.Log
-import android.content.Context
+import android.Manifest
+import android.annotation.SuppressLint
 import android.bluetooth.*
+import android.bluetooth.le.AdvertiseCallback
+import android.bluetooth.le.ScanCallback
+import android.bluetooth.le.ScanResult
+import android.content.pm.PackageManager
+import android.util.Log
+import androidx.annotation.RequiresPermission
+import androidx.core.app.ActivityCompat
+import com.facebook.react.bridge.*
+import com.facebook.react.modules.core.DeviceEventManagerModule
+import com.reactnativebledidcommsdk.central.CentralManager
+import com.reactnativebledidcommsdk.peripheral.PeripheralManager
+import java.util.*
 
-object RegexConstants {
-    const val UUID_REGEX = "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
-}
 
-class BleDidcommSdkModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
-    private val context: Context = reactContext
+class BleDidcommSdkModule(private val context: ReactApplicationContext) : ReactContextBaseJavaModule(context) {
+    private val centralManager: CentralManager = CentralManager(context)
+    private val peripheralManager: PeripheralManager = PeripheralManager(context)
 
-    private val adapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-    private lateinit var manager: BluetoothManager
-    public var gattServer: BluetoothGattServer? = null
-    
-    private var gattService: BluetoothGattService? = null
-    private var gattCharacteristic: BluetoothGattCharacteristic? = null
+    override fun getName(): String {
+        return Constants.TAG
+    }
 
-    override fun getName(): String { return "BleDidcommSdk" }
+    @ReactMethod
+    @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
+    fun start(options: ReadableMap, promise: Promise) {
+        try {
+            this.peripheralManager.setupServer(GattServerCallback())
+            Log.d(Constants.TAG, "Initialized the peripheral Server")
+            promise.resolve(null)
+        }catch(e: Exception) {
+            promise.reject("error", e)
+        }
+    }
 
-    private fun setupGattServer() {
-        val gattServerCallback = GattServerCallback()
-        gattServer = manager.openGattServer(context, gattServerCallback).apply {
-            addService(gattService)
+    @ReactMethod
+    @RequiresPermission(value = "android.permission.BLUETOOTH_SCAN")
+    fun scan(serviceUUID: String, characteristicUUID: String, promise: Promise) {
+        try {
+            this.centralManager.scan(
+                    UUID.fromString(serviceUUID),
+                    UUID.fromString(characteristicUUID),
+                    BluetoothScanCallback()
+            )
+            Log.d(Constants.TAG, "Started scanning...")
+            promise.resolve(null)
+        } catch (e: Exception) {
+            promise.reject("error", e)
+        }
+    }
+
+    @ReactMethod
+    @RequiresPermission(value = "android.permission.BLUETOOTH_ADVERTISE")
+    fun advertise(options: ReadableMap, promise: Promise) {
+        try {
+            this.peripheralManager.advertise(DeviceAdvertiseCallback())
+            Log.d(Constants.TAG, "Started advertising...")
+            promise.resolve(null)
+        } catch (e: Exception) {
+            promise.reject("error", e)
+        }
+    }
+
+    @ReactMethod
+    @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
+    fun preparePeripheral(serviceUUID: String, characteristicUUID: String, promise: Promise) {
+        try {
+            peripheralManager.setupServiceAndCharacteristic(UUID.fromString(serviceUUID), UUID.fromString(characteristicUUID))
+            Log.d(Constants.TAG, "Setting up the service and characteristic...")
+            promise.resolve(null)
+        } catch (e: Exception) {
+            promise.reject("error", e)
+        }
+    }
+
+    @ReactMethod
+    @RequiresPermission(allOf = ["android.permission.BLUETOOTH_CONNECT", "android.permission.BLUETOOTH_SCAN"])
+    fun connect(peripheralId: String, promise: Promise) {
+        try {
+            this.centralManager.connect(peripheralId, GattClientCallback())
+
+            Log.d(Constants.TAG, "Connecting to peripheral $peripheralId...")
+            promise.resolve(null)
+        } catch (e: Exception) {
+            promise.reject("error", e)
+        }
+    }
+
+    @ReactMethod
+    @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
+    fun write(peripheralId: String, message: String, promise: Promise) {
+        try {
+            this.centralManager.write(message.toByteArray(Charsets.UTF_8))
+            Log.d(Constants.TAG, "Written $message to $peripheralId...")
+            promise.resolve(null)
+        } catch (e: Exception) {
+            promise.reject("error", e)
+        }
+    }
+
+    @ReactMethod
+    @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
+    fun notify(message: String, promise: Promise) {
+        try {
+            this.peripheralManager.notify(message.toByteArray(Charsets.UTF_8))
+            Log.d(Constants.TAG, "Notifying $message...")
+            promise.resolve(null)
+        } catch (e: Exception) {
+            promise.reject("error", e)
+        }
+    }
+
+    @ReactMethod
+    fun addListener(eventName: String) {}
+
+    @ReactMethod
+    fun removeListeners(count: Int) {}
+
+    private fun sendEvent(event: BleDidcommEvent, params: WritableMap?) {
+        this.context
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                .emit(event.token, params)
+    }
+
+    private inner class GattClientCallback : BluetoothGattCallback() {
+        var message: String? = null
+
+        override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
+            super.onCharacteristicChanged(gatt, characteristic)
+            Log.d(Constants.TAG, "[CLIENT]: onCharacteristicChanged called!")
+            val msg = String(characteristic.value, Charsets.UTF_8)
+            if(msg == "EOM") {
+                val params = Arguments.createMap().apply {
+                    putString("message", message)
+                }
+                sendEvent(BleDidcommEvent.OnReceivedNotification, params)
+                message = null
+            } else {
+                message += msg
+            }
+        }
+
+        override fun onCharacteristicWrite(
+            gatt: BluetoothGatt,
+            characteristic: BluetoothGattCharacteristic,
+            status: Int
+        ) {
+            super.onCharacteristicWrite(gatt, characteristic, status)
+
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                Log.d(Constants.TAG, "IS READY")
+                centralManager.isPeripheralReady = true
+            }
+        }
+
+        override fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int) {
+            super.onMtuChanged(gatt, mtu, status)
+            Log.d(Constants.TAG, "[MTU]: $mtu")
+            centralManager.connectedMtu = mtu
+        }
+
+
+        @SuppressLint("MissingPermission")
+        override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
+            super.onServicesDiscovered(gatt, status)
+            Log.d(Constants.TAG, "[CLIENT]: onServicesDiscovered called!")
+            val service = gatt.getService(centralManager.serviceUUID)
+            centralManager.characteristic = service.getCharacteristic(centralManager.characteristicUUID)
+            gatt.setCharacteristicNotification(centralManager.characteristic, true)
+        }
+
+        @SuppressLint("MissingPermission")
+        override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
+            super.onConnectionStateChange(gatt, status, newState)
+            Log.d(Constants.TAG, "[CLIENT]: onConnectionStateChange called! NEW STATE: $newState")
+            if (newState == BluetoothProfile.STATE_CONNECTED) {
+                val params = Arguments.createMap().apply {
+                    putString("peripheralId", gatt.device.address)
+                }
+                sendEvent(BleDidcommEvent.OnConnectedPeripheral, params)
+                gatt.discoverServices()
+//                gatt.requestMtu(512)
+                centralManager.stopScan()
+            } else if(newState == BluetoothProfile.STATE_DISCONNECTED) {
+                centralManager.connectedPeripheral = null
+            }
+        }
+    }
+
+    private inner class BluetoothScanCallback : ScanCallback() {
+        override fun onScanResult(callbackType: Int, result: ScanResult?) {
+            super.onScanResult(callbackType, result)
+            Log.d(Constants.TAG, "[CLIENT]: onScanResult called!")
+            super.onScanResult(callbackType, result)
+            val device = result?.device ?: return
+            centralManager.discoveredPeripherals.add(device)
+            val params = Arguments.createMap().apply {
+                putString("peripheralId", device.address)
+            }
+            sendEvent(BleDidcommEvent.OnDiscoverPeripheral, params)
         }
     }
 
     private inner class GattServerCallback : BluetoothGattServerCallback() {
-        override fun onConnectionStateChange(device: BluetoothDevice, status: Int, newState: Int) {
-            Log.d("BLEDIDComm", "onConnecteionStateChange")
-            super.onConnectionStateChange(device, status, newState)
+        var message: ByteArray = byteArrayOf()
+
+        override fun onMtuChanged(device: BluetoothDevice, mtu: Int) {
+            super.onMtuChanged(device, mtu)
+            peripheralManager.connectedMtu = mtu
         }
 
-        override fun onCharacteristicWriteRequest(
-            device: BluetoothDevice,
-            requestId: Int,
-            characteristic: BluetoothGattCharacteristic,
-            preparedWrite: Boolean,
-            responseNeeded: Boolean,
-            offset: Int,
-            value: ByteArray?
-        ) {
+        @SuppressLint("MissingPermission")
+        override fun onCharacteristicWriteRequest(device: BluetoothDevice, requestId: Int, characteristic: BluetoothGattCharacteristic?, preparedWrite: Boolean, responseNeeded: Boolean, offset: Int, value: ByteArray) {
             super.onCharacteristicWriteRequest(device, requestId, characteristic, preparedWrite, responseNeeded, offset, value)
-            gattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, 0, null)
-            val message = value?.toString(Charsets.UTF_8)
-            Log.d("BLEDIDComm", "onCharacteristicWriteRequest: with message: \"$message\"")
+            Log.d(Constants.TAG, "[SERVER]: onCharacteristicWriteRequest called!")
+
+            if("EOM" == value.toString(Charsets.UTF_8)) {
+                val params = Arguments.createMap().apply {
+                    putString("message", message.toString(Charsets.UTF_8))
+                }
+                sendEvent(BleDidcommEvent.OnReceivedWriteWithoutResponse, params)
+                message = byteArrayOf()
+            } else {
+                message += value
+            }
+
+            if(responseNeeded) {
+                peripheralManager.gattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, value)
+            }
+        }
+
+        @SuppressLint("MissingPermission")
+        override fun onExecuteWrite(device: BluetoothDevice?, requestId: Int, execute: Boolean) {
+            super.onExecuteWrite(device, requestId, execute)
+            peripheralManager.gattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, 0, null)
+        }
+
+        override fun onConnectionStateChange(device: BluetoothDevice, status: Int, newState: Int) {
+            Log.d(Constants.TAG, "[SERVER]: onConnectionStateChanged called")
+            super.onConnectionStateChange(device, status, newState)
+            if(newState == BluetoothProfile.STATE_CONNECTED) {
+                peripheralManager.connectedClient = device
+            } else if(newState == BluetoothProfile.STATE_DISCONNECTED) {
+                peripheralManager.connectedClient = null
+            }
         }
     }
 
-    @ReactMethod
-    fun start(options: ReadableMap, promise: Promise) {
-        manager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-        if(adapter.isEnabled) {
-            setupGattServer()
-        } else {
-          // TODO: request permissions
-        }
-        promise.resolve(null)
-    }
-
-    @ReactMethod
-    fun setService(serviceUUID: String, promise: Promise) {
-          if(!Pattern.matches(RegexConstants.UUID_REGEX, serviceUUID)) { 
-              promise.reject("Service UUID `" + serviceUUID + "` is not a UUID")
-          }
-
-          gattService = BluetoothGattService(UUID.fromString(serviceUUID), BluetoothGattService.SERVICE_TYPE_PRIMARY)
-
-          promise.resolve(null)
-    }
-
-    @ReactMethod
-    fun addCharacteristic(characteristicUUID: String, promise: Promise) {
-          if(!Pattern.matches(RegexConstants.UUID_REGEX, characteristicUUID)) { 
-              promise.reject("charateristic UUID `" + characteristicUUID + "` is not a UUID")
-          }
-
-          gattCharacteristic = BluetoothGattCharacteristic(
-              UUID.fromString(characteristicUUID),
-              BluetoothGattCharacteristic.PROPERTY_BROADCAST or
-              BluetoothGattCharacteristic.PROPERTY_WRITE or
-              BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE or
-              BluetoothGattCharacteristic.PROPERTY_READ or
-              BluetoothGattCharacteristic.PROPERTY_NOTIFY,
-              BluetoothGattCharacteristic.PERMISSION_READ or
-              BluetoothGattCharacteristic.PERMISSION_WRITE
-          )
-
-          // TODO: we should throw an error if this is not defined
-          gattService?.addCharacteristic(gattCharacteristic)
-
-          promise.resolve(null)
-    }
-
-    @ReactMethod
-    fun notify(message: String, promise: Promise) {
-          val devices = manager.getConnectedDevices(BluetoothProfile.GATT)
-          gattCharacteristic?.setValue(message)
-          
-          for(device in devices) {
-              Log.d("BLEDIDComm", "Sending " + message)
-              val resp = gattServer?.notifyCharacteristicChanged(
-                  device,
-                  gattCharacteristic,
-                  false
-              )
-              Log.d("BLEDIDComm", "Response: $resp")
-          }
-          
-          promise.resolve(null)
-    }
+    private inner class DeviceAdvertiseCallback : AdvertiseCallback()
 }

@@ -112,7 +112,9 @@ class BleDidcommSdk: React.RCTEventEmitter {
         resolve(nil)
     }
 
-    @objc func scan(_: [String: String],
+    @objc func scan(_ 
+                    serviceUUID: String,
+                    _: String,
                     resolve: RCTPromiseResolveBlock,
                     reject: RCTPromiseRejectBlock)
     {
@@ -121,7 +123,12 @@ class BleDidcommSdk: React.RCTEventEmitter {
             return
         }
 
-        scan()
+        guard UUID(uuidString: serviceUUID) != nil else {
+            reject("error", "serviceUUID`" + serviceUUID + "` is not a UUID", nil)
+            return
+        }
+
+        scan(UUID(uuidString: serviceUUID))
 
         resolve(nil)
     }

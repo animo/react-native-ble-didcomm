@@ -7,7 +7,7 @@ extension BleDidcommSdk {
         return peripherals.first(where: { $0.identifier.uuidString == peripheralId })
     }
 
-    func scan() {
+    func scan(serviceUUID: String) {
         let centralManager = centralManager.unsafelyUnwrapped
         let service = service.unsafelyUnwrapped
 

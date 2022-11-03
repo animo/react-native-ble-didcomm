@@ -22,7 +22,8 @@ RCT_EXTERN_METHOD(write:
                   reject:(RCTPromiseRejectBlock)reject)
 
 RCT_EXTERN_METHOD(scan:
-                  (NSDictionary *)options
+                  (NSString *)serviceUUID
+                  characteristicUUID:(NSString *)characteristicUUID
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
 

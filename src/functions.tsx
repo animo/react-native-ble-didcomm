@@ -32,9 +32,15 @@ export const advertise = async () => {
   }
 }
 
-export const scan = async () => {
+export const scan = async ({
+  serviceUUID,
+  characteristicUUID,
+}: {
+  serviceUUID: string
+  characteristicUUID: string
+}) => {
   try {
-    await sdk.scan({})
+    await sdk.scan(serviceUUID, characteristicUUID)
   } catch (e) {
     throw new Error("An error occurred while scanning for devices: " + e)
   }

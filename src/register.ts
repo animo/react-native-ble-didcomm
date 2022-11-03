@@ -19,7 +19,7 @@ const BleDidcommSdk = NativeModules.BleDidcommSdk
 
 type Sdk = {
   start({}: Record<never, never>): Promise<void>
-  scan({}: Record<never, never>): Promise<void>
+  scan(serviceUUID: string, characteristicUUID: string): Promise<void>
   advertise({}: Record<never, never>): Promise<void>
   preparePeripheral(
     serviceUUID: string,
