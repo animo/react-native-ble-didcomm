@@ -1,13 +1,28 @@
 import { sdk } from "./register"
-import { DIDCOMM_SERVICE_UUID, MESSAGE_CHARACTERISTIC_UUID } from "./constants"
+import {
+  DIDCOMM_SERVICE_UUID,
+  MESSAGE_CHARACTERISTIC_UUID,
+  NOTIFY_CHARACTERISTIC_UUID,
+} from "./constants"
 
-export const setupBle = async () => {
+export const startCentral = async () => {
   try {
-    await sdk.start({})
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    await sdk.preparePeripheral(
+    await sdk.startCentral(
       DIDCOMM_SERVICE_UUID,
-      MESSAGE_CHARACTERISTIC_UUID
+      MESSAGE_CHARACTERISTIC_UUID,
+      NOTIFY_CHARACTERISTIC_UUID
+    )
+  } catch (e) {
+    throw new Error("An error occured during startup: " + e)
+  }
+}
+
+export const startPeripheral = async () => {
+  try {
+    await sdk.startPeripheral(
+      DIDCOMM_SERVICE_UUID,
+      MESSAGE_CHARACTERISTIC_UUID,
+      NOTIFY_CHARACTERISTIC_UUID
     )
   } catch (e) {
     throw new Error("An error occured during startup: " + e)
@@ -50,13 +65,10 @@ export const connect = async (peripheralId: string) => {
   }
 }
 
-export const write = async (peripheralId: string, message: string) => {
+export const write = async (message: string) => {
   try {
-    await sdk.write(peripheralId, message)
+    await sdk.write(message)
   } catch (e) {
-    throw new Error(
-      `An error occurred while trying to write message ${message} to ${peripheralId}: ` +
-        e
-    )
+    throw new Error(`An error occurred while trying to write message` + e)
   }
 }
