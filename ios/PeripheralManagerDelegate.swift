@@ -8,13 +8,23 @@ extension PeripheralManager: CBPeripheralManagerDelegate {
     case .poweredOn:
       isPoweredOn = true
     default:
-      os_log("other...")
+      os_log("Unknown state")
     }
   }
 
   func peripheralManagerIsReady(toUpdateSubscribers _: CBPeripheralManager) {
-    os_log("Central is ready again! let's send some stuff!")
     isCentralReady = true
+  }
+
+  func peripheralManager(
+    _ peripheral: CBPeripheralManager, central: CBCentral,
+    didSubscribeTo characteristic: CBCharacteristic
+  ) {
+    guard connectedCentral == nil else {
+      os_log("Error already connected to a single central")
+      return
+    }
+    connectedCentral = central
   }
 
   func peripheralManager(
@@ -40,15 +50,5 @@ extension PeripheralManager: CBPeripheralManagerDelegate {
         }
       }
     }
-  }
-
-  func peripheralManager(
-    _: CBPeripheralManager, central: CBCentral, didSubscribeTo _: CBCharacteristic
-  ) {
-    guard connectedCentral == nil else {
-      os_log("Already connected to a single central")
-      return
-    }
-    connectedCentral = central
   }
 }

@@ -38,7 +38,6 @@ extension CentralManager: CBPeripheralDelegate {
   func peripheral(
     _: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?
   ) {
-    os_log("Hello! update")
     if let error = error {
       os_log("Error updating value for characteristic: %s", error.localizedDescription)
       return

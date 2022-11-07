@@ -27,6 +27,7 @@ class CentralManager(
     var isPeripheralReady: Boolean = true
 
     var characteristic: BluetoothGattCharacteristic? = null
+    var notifyCharacteristic: BluetoothGattCharacteristic? = null
 
     private var scanCallback: ScanCallback? = null
     private var gattCallback: BluetoothGattCallback? = null

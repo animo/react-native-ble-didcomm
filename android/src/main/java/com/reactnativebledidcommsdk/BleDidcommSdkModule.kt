@@ -5,7 +5,6 @@ import android.bluetooth.*
 import android.bluetooth.le.AdvertiseCallback
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
-import android.util.Log
 import androidx.annotation.RequiresPermission
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule
@@ -18,6 +17,8 @@ class BleDidcommSdkModule(private val context: ReactApplicationContext) :
     ReactContextBaseJavaModule(context) {
     private lateinit var centralManager: CentralManager
     private lateinit var peripheralManager: PeripheralManager
+
+    private var CCC_DESCRIPTOR_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
 
     override fun getName(): String {
         return Constants.TAG
@@ -141,7 +142,6 @@ class BleDidcommSdkModule(private val context: ReactApplicationContext) :
             gatt: BluetoothGatt,
             characteristic: BluetoothGattCharacteristic
         ) {
-            Log.d(Constants.TAG, "char changed!")
             super.onCharacteristicChanged(gatt, characteristic)
             val msg = characteristic.value
             if (msg.toString(Charsets.UTF_8) == "EOM") {
@@ -173,9 +173,13 @@ class BleDidcommSdkModule(private val context: ReactApplicationContext) :
             val service = gatt.getService(centralManager.serviceUUID)
             centralManager.characteristic =
                 service.getCharacteristic(centralManager.characteristicUUID)
-            val notifyCharacteristic =
+            centralManager.notifyCharacteristic =
                 service.getCharacteristic(centralManager.notifyCharacteristicUUID)
-            gatt.setCharacteristicNotification(notifyCharacteristic, true)
+            val descriptor =
+                centralManager.notifyCharacteristic?.getDescriptor(CCC_DESCRIPTOR_UUID)
+            descriptor?.value = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
+            gatt.writeDescriptor(descriptor)
+            gatt.setCharacteristicNotification(centralManager.notifyCharacteristic, true)
         }
 
         @SuppressLint("MissingPermission")

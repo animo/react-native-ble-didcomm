@@ -29,7 +29,7 @@ class PeripheralManager(
     )
     private val notifyCharacteristic: BluetoothGattCharacteristic = BluetoothGattCharacteristic(
         notifyCharacteristicUUID,
-        BluetoothGattCharacteristic.PROPERTY_NOTIFY,
+        BluetoothGattCharacteristic.PROPERTY_INDICATE,
         BluetoothGattCharacteristic.PERMISSION_READ
     )
 
@@ -89,7 +89,8 @@ class PeripheralManager(
                 while (!isConnectedClientReady) {
                     Thread.sleep(200)
                 }
-                notifyCharacteristic.value = message.sliceArray(IntRange(chunkIndexStart, chunkIndexEnd))
+                notifyCharacteristic.value =
+                    message.sliceArray(IntRange(chunkIndexStart, chunkIndexEnd))
                 gattServer.notifyCharacteristicChanged(connectedClient, notifyCharacteristic, true)
 
             }
