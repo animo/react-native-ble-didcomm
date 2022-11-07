@@ -195,6 +195,5 @@ guidelines](./CONTRIBUTING.md).
 
 ## License
 
-<!-- TODO: Add license like MIT or Apache 2.0 here -->
-<!-- This project is licensed under the [Apache 2.0
-License](https://opensource.org/licenses/Apache-2.0). -->
+This project is licensed under the [Apache 2.0
+License](https://opensource.org/licenses/Apache-2.0).
