@@ -1,12 +1,17 @@
 {
   "name": "@animo-id/react-native-ble-didcomm-sdk",
   "version": "0.1.0",
-  "description": "test",
+  "description": "react native bluetooth low energy sdk for didcomm",
   "main": "build/index",
   "source": "src/index",
   "files": ["src", "android", "ios", "*.podspec"],
   "scripts": {
-    "example": "yarn --cwd example"
+    "check-types": "tsc --noEmit -p tsconfig.build.json",
+    "check-format": "yarn prettier --check",
+    "prettier": "prettier --ignore-path .gitignore '**/*.+(js|json|ts|md|yml|yaml)'",
+    "build": "yarn clean && yarn compile",
+    "clean": "rimraf -rf ./build",
+    "compile": "tsc -p tsconfig.build.json",
     "release": "release-it"
   },
   "repository": "https://github.com/animo/react-native-ble-didcomm-sdk",
