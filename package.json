@@ -4,11 +4,17 @@
   "description": "react native bluetooth low energy sdk for didcomm",
   "main": "build/index",
   "source": "src/index",
-  "files": ["src", "android", "ios", "*.podspec"],
+  "files": [
+    "src",
+    "android",
+    "ios",
+    "*.podspec"
+  ],
   "scripts": {
     "check-types": "tsc --noEmit -p tsconfig.build.json",
     "check-format": "yarn prettier --check",
     "prettier": "prettier --ignore-path .gitignore '**/*.+(js|json|ts|md|yml|yaml)'",
+    "format": "yarn prettier --write",
     "build": "yarn clean && yarn compile",
     "clean": "rimraf -rf ./build",
     "compile": "tsc -p tsconfig.build.json",
