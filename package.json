@@ -37,8 +37,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "dependencies": {
-    "convert-string": "0.1.0",
-    "rimraf": "^3.0.2"
+    "convert-string": "0.1.0"
   },
   "peerDependencies": {
     "react": "*",
@@ -57,6 +56,7 @@
     "react-native": "0.70.3",
     "react-native-builder-bob": "0.20.0",
     "release-it": "^14.13.1",
+    "rimraf": "^3.0.2",
     "typescript": "4.5.2"
   },
   "resolutions": {
