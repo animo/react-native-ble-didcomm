@@ -7,8 +7,12 @@
   "files": [
     "src",
     "android",
+    "build",
+    "example",
     "ios",
-    "*.podspec"
+    "react-native-ble-didcomm-sdk.podspec",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "check-types": "tsc --noEmit -p tsconfig.build.json",
