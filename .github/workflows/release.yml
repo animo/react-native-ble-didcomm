@@ -6,7 +6,7 @@ on:
       releaseType:
         description: The type of release. Should be one of "major", "minor", "patch"
         required: true
-        default: "patch"
+        default: 'patch'
   pull_request:
     branches:
       - main

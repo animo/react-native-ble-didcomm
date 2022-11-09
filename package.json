@@ -13,6 +13,7 @@
   "scripts": {
     "check-types": "tsc --noEmit -p tsconfig.build.json",
     "check-format": "yarn prettier --check",
+    "example": "yarn --cwd example",
     "prettier": "prettier --ignore-path .gitignore '**/*.+(js|json|ts|md|yml|yaml)'",
     "format": "yarn prettier --write",
     "build": "yarn clean && yarn compile",
@@ -32,7 +33,8 @@
     "registry": "https://registry.npmjs.org/"
   },
   "dependencies": {
-    "convert-string": "0.1.0"
+    "convert-string": "0.1.0",
+    "rimraf": "^3.0.2"
   },
   "peerDependencies": {
     "react": "*",
