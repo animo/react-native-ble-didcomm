@@ -24,6 +24,7 @@ class CentralManager(
     val discoveredPeripherals: ArrayList<BluetoothDevice> = arrayListOf()
 
     var connectedPeripheral: BluetoothGatt? = null
+    var connectedMtu = 20
     var isPeripheralReady: Boolean = true
 
     var characteristic: BluetoothGattCharacteristic? = null
@@ -77,19 +78,18 @@ class CentralManager(
 
         Thread {
             isSending = true
-            // TODO: test interoperability with a chunkSize of 512
-            val chunkSize = min(512, message.count())
+            val chunkSize = min(connectedMtu, message.count())
             for (chunkIndexStart in 0..message.count() step chunkSize) {
                 val chunkIndexEnd = min(chunkIndexStart + chunkSize, message.count()) - 1
                 characteristic.value = message.sliceArray(IntRange(chunkIndexStart, chunkIndexEnd))
                 while (!isPeripheralReady) {
-                    Thread.sleep(200)
+                    Thread.sleep(20)
                 }
                 connectedPeripheral.writeCharacteristic(characteristic)
                 isPeripheralReady = false
             }
             while (!isPeripheralReady) {
-                Thread.sleep(200)
+                Thread.sleep(20)
             }
             characteristic.value = "EOM".toByteArray()
             connectedPeripheral.writeCharacteristic(characteristic)

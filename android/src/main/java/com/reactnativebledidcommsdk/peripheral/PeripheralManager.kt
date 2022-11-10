@@ -29,7 +29,7 @@ class PeripheralManager(
     )
     private val notifyCharacteristic: BluetoothGattCharacteristic = BluetoothGattCharacteristic(
         notifyCharacteristicUUID,
-        BluetoothGattCharacteristic.PROPERTY_INDICATE,
+        BluetoothGattCharacteristic.PROPERTY_INDICATE and BluetoothGattCharacteristic.PROPERTY_READ,
         BluetoothGattCharacteristic.PERMISSION_READ
     )
 
@@ -40,6 +40,7 @@ class PeripheralManager(
         }
 
     var connectedClient: BluetoothDevice? = null
+    var connectedMtu: Int = 20
     var isConnectedClientReady: Boolean = true
 
     @SuppressLint("MissingPermission")
@@ -49,6 +50,7 @@ class PeripheralManager(
         }
 
     private var advertiseCallback: AdvertiseCallback? = null
+    var gattClientCallback: BluetoothGattCallback? = null
 
     private var isSending: Boolean = false
 
@@ -83,11 +85,11 @@ class PeripheralManager(
 
         Thread {
             isSending = true
-            val chunkSize = Integer.min(20, message.count())
+            val chunkSize = Integer.min(connectedMtu, message.count())
             for (chunkIndexStart in 0..message.count() step chunkSize) {
                 val chunkIndexEnd = Integer.min(chunkIndexStart + chunkSize, message.count()) - 1
                 while (!isConnectedClientReady) {
-                    Thread.sleep(200)
+                    Thread.sleep(20)
                 }
                 notifyCharacteristic.value =
                     message.sliceArray(IntRange(chunkIndexStart, chunkIndexEnd))
@@ -95,7 +97,7 @@ class PeripheralManager(
 
             }
             while (!isConnectedClientReady) {
-                Thread.sleep(200)
+                Thread.sleep(20)
             }
             notifyCharacteristic.value = "EOM".toByteArray()
             gattServer.notifyCharacteristicChanged(connectedClient, notifyCharacteristic, true)

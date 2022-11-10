@@ -19,13 +19,13 @@ import {
   write,
   notify,
 } from "react-native-ble-didcomm-sdk"
+import { presentationMsg } from "./presentationMsg"
 
 const bleDidcommSdkEmitter = new NativeEventEmitter(NativeModules.BleDidcommSdk)
 
 const Spacer = () => <View style={{ height: 20, width: 20 }} />
 
-const msg =
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sed ultricies odio, ut tincidunt ante. In hac habitasse platea dictumst. Nulla sagittis erat eget lectus accumsan, vitae tincidunt nisi feugiat. Proin mollis ligula consequat, efficitur nibh nec, sagittis lectus. Curabitur lacus mi, egestas eu maximus in, tristique ut arcu. Nam rhoncus sed tortor at sollicitudin. Sed pharetra luctus erat nec volutpat. Mauris dapibus augue a sem elementum posuere. Phasellus pulvinar sodales tellus a maximus. Nam lobortis a purus in luctus. Donec justo libero, feugiat quis erat eget, tempor cursus et."
+const msg = JSON.stringify(presentationMsg)
 
 const requestPermissions = async () => {
   await PermissionsAndroid.requestMultiple([
