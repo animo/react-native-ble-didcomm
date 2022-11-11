@@ -11,14 +11,14 @@ extension CentralManager: CBPeripheralDelegate {
     }
     guard let characteristics = service.characteristics else { return }
 
-    let notifyCharacteristic = characteristics.first(where: { $0.uuid == notifyCharacteristicUUID })
-    let characteristic = characteristics.first(where: { $0.uuid == characteristicUUID })
+    let indicationCharacteristicUUID = characteristics.first(where: { $0.uuid == self.indicationCharacteristicUUID })
+      let writeCharacteristic = characteristics.first(where: { $0.uuid == self.writeCharacteristicUUID })
 
-    if let notifyCharacteristic = notifyCharacteristic {
-      peripheral.setNotifyValue(true, for: notifyCharacteristic)
+    if let indicationCharacteristicUUID = indicationCharacteristicUUID {
+      peripheral.setNotifyValue(true, for: indicationCharacteristicUUID)
     }
-    if let characteristic = characteristic {
-      self.writeCharacteristic = characteristic
+    if let writeCharacteristic = writeCharacteristic {
+      self.writeCharacteristic = writeCharacteristic
     }
   }
 
@@ -31,7 +31,7 @@ extension CentralManager: CBPeripheralDelegate {
     guard let peripheralServices = peripheral.services else { return }
     for service in peripheralServices {
       peripheral.discoverCharacteristics(
-        [characteristicUUID, notifyCharacteristicUUID], for: service)
+        [writeCharacteristicUUID, indicationCharacteristicUUID], for: service)
     }
   }
 
