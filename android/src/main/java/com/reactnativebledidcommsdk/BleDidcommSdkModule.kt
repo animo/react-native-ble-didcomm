@@ -27,16 +27,16 @@ class BleDidcommSdkModule(private val context: ReactApplicationContext) :
     @Suppress("unused")
     fun startCentral(
         serviceUUID: String,
-        characteristicUUID: String,
-        notifyCharacteristicUUID: String,
+        writeCharacteristicUUID: String,
+        indicationCharacteristicUUID: String,
         promise: Promise
     ) {
         try {
             centralManager = CentralManager(
                 context,
                 UUID.fromString(serviceUUID),
-                UUID.fromString(characteristicUUID),
-                UUID.fromString(notifyCharacteristicUUID)
+                UUID.fromString(writeCharacteristicUUID),
+                UUID.fromString(indicationCharacteristicUUID)
             )
             promise.resolve(null)
         } catch (e: Exception) {
@@ -49,16 +49,16 @@ class BleDidcommSdkModule(private val context: ReactApplicationContext) :
     @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
     fun startPeripheral(
         serviceUUID: String,
-        characteristicUUID: String,
-        notifyCharacteristicUUID: String,
+        writeCharacteristicUUID: String,
+        indicationCharacteristicUUID: String,
         promise: Promise
     ) {
         try {
             peripheralManager = PeripheralManager(
                 context,
                 UUID.fromString(serviceUUID),
-                UUID.fromString(characteristicUUID),
-                UUID.fromString(notifyCharacteristicUUID),
+                UUID.fromString(writeCharacteristicUUID),
+                UUID.fromString(indicationCharacteristicUUID),
                 GattServerCallback()
             )
             promise.resolve(null)
@@ -118,9 +118,9 @@ class BleDidcommSdkModule(private val context: ReactApplicationContext) :
     @ReactMethod
     @Suppress("unused")
     @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
-    fun notify(message: String, promise: Promise) {
+    fun indicate(message: String, promise: Promise) {
         try {
-            this.peripheralManager.notify(message.toByteArray(Charsets.UTF_8))
+            this.peripheralManager.indicate(message.toByteArray(Charsets.UTF_8))
             promise.resolve(null)
         } catch (e: Exception) {
             promise.reject("error", e)
@@ -189,14 +189,14 @@ class BleDidcommSdkModule(private val context: ReactApplicationContext) :
         override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
             super.onServicesDiscovered(gatt, status)
             val service = gatt.getService(centralManager.serviceUUID)
-            centralManager.characteristic =
-                service.getCharacteristic(centralManager.characteristicUUID)
-            centralManager.notifyCharacteristic =
-                service.getCharacteristic(centralManager.notifyCharacteristicUUID)
-            gatt.setCharacteristicNotification(centralManager.notifyCharacteristic, true)
+            centralManager.writeCharacteristic =
+                service.getCharacteristic(centralManager.writeCharacteristicUUID)
+            centralManager.indicationCharacteristic =
+                service.getCharacteristic(centralManager.indicationCharacteristicUUID)
+            gatt.setCharacteristicNotification(centralManager.indicationCharacteristic, true)
             gatt.requestMtu(512)
             val descriptor =
-                centralManager.notifyCharacteristic?.getDescriptor(UUID.fromString(Constants.CCC_DESCRIPTOR_UUID))
+                centralManager.indicationCharacteristic?.getDescriptor(UUID.fromString(Constants.CCC_DESCRIPTOR_UUID))
             descriptor?.value = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
             gatt.writeDescriptor(descriptor)
 

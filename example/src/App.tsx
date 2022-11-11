@@ -17,8 +17,13 @@ import {
   scan,
   connect,
   write,
-  notify,
+  indicate,
 } from "react-native-ble-didcomm-sdk"
+import {
+  DIDCOMM_SERVICE_UUID,
+  MESSAGE_CHARACTERISTIC_UUID,
+  NOTIFY_CHARACTERISTIC_UUID,
+} from "./constants"
 import { presentationMsg } from "./presentationMsg"
 
 const bleDidcommSdkEmitter = new NativeEventEmitter(NativeModules.BleDidcommSdk)
@@ -102,14 +107,22 @@ export default function App() {
       <Button
         title="start: central"
         onPress={async () => {
-          await startCentral()
+          await startCentral({
+            serviceUUID: DIDCOMM_SERVICE_UUID,
+            messagingUUID: MESSAGE_CHARACTERISTIC_UUID,
+            indicationUUID: NOTIFY_CHARACTERISTIC_UUID,
+          })
           setIsCentral(true)
         }}
       />
       <Button
         title="start: peripheral"
         onPress={async () => {
-          await startPeripheral()
+          await startPeripheral({
+            serviceUUID: DIDCOMM_SERVICE_UUID,
+            messagingUUID: MESSAGE_CHARACTERISTIC_UUID,
+            indicationUUID: NOTIFY_CHARACTERISTIC_UUID,
+          })
           setIsPeripheral(true)
         }}
       />
@@ -125,7 +138,7 @@ export default function App() {
       {isPeripheral && (
         <>
           <Button title="advertise" onPress={advertise} />
-          <Button title="notify" onPress={() => notify(msg)} />
+          <Button title="notify" onPress={() => indicate(msg)} />
         </>
       )}
     </View>

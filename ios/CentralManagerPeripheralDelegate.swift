@@ -18,7 +18,7 @@ extension CentralManager: CBPeripheralDelegate {
       peripheral.setNotifyValue(true, for: notifyCharacteristic)
     }
     if let characteristic = characteristic {
-      self.characterisitc = characteristic
+      self.writeCharacteristic = characteristic
     }
   }
 

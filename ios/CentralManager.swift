@@ -10,14 +10,14 @@ class CentralManager: NSObject {
   }
 
   var serviceUUID: CBUUID
-  var characteristicUUID: CBUUID
-  var notifyCharacteristicUUID: CBUUID
+  var writeCharacteristicUUID: CBUUID
+  var indicationCharacteristicUUID: CBUUID
 
   var centralManager: CBCentralManager!
 
   var peripherals: [CBPeripheral] = []
 
-  var characterisitc: CBCharacteristic?
+  var writeCharacteristic: CBCharacteristic?
   var connectedPeripheral: CBPeripheral?
   var isPeripheralReady: Bool = true
   var sendEvent: (_ withName: String?, _ body: Any?) -> Void
@@ -27,13 +27,13 @@ class CentralManager: NSObject {
   init(
     sendEvent: @escaping (_ withName: String?, _ body: Any?) -> Void,
     serviceUUID: String,
-    characteristicUUID: String,
-    notifyCharacteristicUUID: String
+    writeCharacteristicUUID: String,
+    indicationCharacteristicUUID: String
   ) {
     self.sendEvent = sendEvent
     self.serviceUUID = CBUUID(string: serviceUUID)
-    self.characteristicUUID = CBUUID(string: characteristicUUID)
-    self.notifyCharacteristicUUID = CBUUID(string: notifyCharacteristicUUID)
+    self.writeCharacteristicUUID = CBUUID(string: writeCharacteristicUUID)
+    self.indicationCharacteristicUUID = CBUUID(string: indicationCharacteristicUUID)
 
     super.init()
     self.centralManager = CBCentralManager(
@@ -68,7 +68,7 @@ class CentralManager: NSObject {
     guard let peripheral = connectedPeripheral else {
       throw CentralManagerError.NotConnectedToPeripheral
     }
-    guard let characteristic = characterisitc else {
+    guard let characteristic = writeCharacteristic else {
       throw CentralManagerError.NoWriteableCharacteristicFound
     }
 

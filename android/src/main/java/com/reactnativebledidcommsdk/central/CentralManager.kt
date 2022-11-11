@@ -14,8 +14,8 @@ import java.util.*
 class CentralManager(
     private val context: ReactContext,
     var serviceUUID: UUID,
-    var characteristicUUID: UUID,
-    var notifyCharacteristicUUID: UUID
+    var writeCharacteristicUUID: UUID,
+    var indicationCharacteristicUUID: UUID
 ) {
     private val bluetoothManager: BluetoothManager =
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
@@ -27,8 +27,8 @@ class CentralManager(
     var connectedMtu = 20
     var isPeripheralReady: Boolean = true
 
-    var characteristic: BluetoothGattCharacteristic? = null
-    var notifyCharacteristic: BluetoothGattCharacteristic? = null
+    var writeCharacteristic: BluetoothGattCharacteristic? = null
+    var indicationCharacteristic: BluetoothGattCharacteristic? = null
 
     private var scanCallback: ScanCallback? = null
     private var gattCallback: BluetoothGattCallback? = null
@@ -72,7 +72,8 @@ class CentralManager(
     @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
     fun write(message: ByteArray) {
         if (isSending) throw CentralManagerException.AlreadySending()
-        val characteristic = characteristic ?: throw CentralManagerException.NoCharacteristicFound()
+        val characteristic =
+            writeCharacteristic ?: throw CentralManagerException.NoCharacteristicFound()
         val connectedPeripheral = connectedPeripheral
             ?: throw CentralManagerException.NoConnectedPeripheralFound()
 

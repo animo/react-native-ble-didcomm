@@ -7,15 +7,15 @@
 
 RCT_EXTERN_METHOD(startCentral
                   :(NSString *)serviceUUID
-                  characteristicUUID:(NSString *)characteristicUUID
-                  notifyCharacteristicUUID:(NSString *)notifyCharacteristicUUID
+                  writeCharacteristicUUID:(NSString *)writeCharacteristicUUID
+                  indicationCharacteristicUUID:(NSString *)indicationCharacteristicUUID
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
 
 RCT_EXTERN_METHOD(startPeripheral
                   :(NSString *)serviceUUID
-                  characteristicUUID:(NSString *)characteristicUUID
-                  notifyCharacteristicUUID:(NSString *)notifyCharacteristicUUID
+                  writeCharacteristicUUID:(NSString *)writeCharacteristicUUID
+                  indicationCharacteristicUUID:(NSString *)indicationCharacteristicUUID
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
 
@@ -39,7 +39,7 @@ RCT_EXTERN_METHOD(connect
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
 
-RCT_EXTERN_METHOD(notify
+RCT_EXTERN_METHOD(indicate
                   :(NSString *)message
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
