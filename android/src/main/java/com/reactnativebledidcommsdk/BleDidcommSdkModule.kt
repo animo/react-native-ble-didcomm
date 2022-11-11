@@ -212,7 +212,6 @@ class BleDidcommSdkModule(private val context: ReactApplicationContext) :
     private inner class BluetoothScanCallback : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
-            super.onScanResult(callbackType, result)
             val device = result?.device ?: return
             centralManager.discoveredPeripherals.add(device)
             val params = Arguments.createMap().apply {
