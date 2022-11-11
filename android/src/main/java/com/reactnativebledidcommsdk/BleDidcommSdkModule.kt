@@ -5,6 +5,7 @@ import android.bluetooth.*
 import android.bluetooth.le.AdvertiseCallback
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
+import android.util.Log
 import androidx.annotation.RequiresPermission
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule
@@ -18,13 +19,12 @@ class BleDidcommSdkModule(private val context: ReactApplicationContext) :
     private lateinit var centralManager: CentralManager
     private lateinit var peripheralManager: PeripheralManager
 
-    private var CCC_DESCRIPTOR_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
-
     override fun getName(): String {
         return Constants.TAG
     }
 
     @ReactMethod
+    @Suppress("unused")
     fun startCentral(
         serviceUUID: String,
         characteristicUUID: String,
@@ -45,6 +45,7 @@ class BleDidcommSdkModule(private val context: ReactApplicationContext) :
     }
 
     @ReactMethod
+    @Suppress("unused")
     @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
     fun startPeripheral(
         serviceUUID: String,
@@ -67,8 +68,9 @@ class BleDidcommSdkModule(private val context: ReactApplicationContext) :
     }
 
     @ReactMethod
+    @Suppress("unused")
     @RequiresPermission(value = "android.permission.BLUETOOTH_SCAN")
-    fun scan(options: ReadableMap, promise: Promise) {
+    fun scan(@Suppress("UNUSED_PARAMETER") options: ReadableMap, promise: Promise) {
         try {
             this.centralManager.scan(BluetoothScanCallback())
             promise.resolve(null)
@@ -78,8 +80,9 @@ class BleDidcommSdkModule(private val context: ReactApplicationContext) :
     }
 
     @ReactMethod
+    @Suppress("unused")
     @RequiresPermission(value = "android.permission.BLUETOOTH_ADVERTISE")
-    fun advertise(options: ReadableMap, promise: Promise) {
+    fun advertise(@Suppress("UNUSED_PARAMETER") options: ReadableMap, promise: Promise) {
         try {
             this.peripheralManager.advertise(DeviceAdvertiseCallback())
             promise.resolve(null)
@@ -89,6 +92,7 @@ class BleDidcommSdkModule(private val context: ReactApplicationContext) :
     }
 
     @ReactMethod
+    @Suppress("unused")
     @RequiresPermission(allOf = ["android.permission.BLUETOOTH_CONNECT", "android.permission.BLUETOOTH_SCAN"])
     fun connect(peripheralId: String, promise: Promise) {
         try {
@@ -100,6 +104,7 @@ class BleDidcommSdkModule(private val context: ReactApplicationContext) :
     }
 
     @ReactMethod
+    @Suppress("unused")
     @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
     fun write(message: String, promise: Promise) {
         try {
@@ -111,6 +116,7 @@ class BleDidcommSdkModule(private val context: ReactApplicationContext) :
     }
 
     @ReactMethod
+    @Suppress("unused")
     @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
     fun notify(message: String, promise: Promise) {
         try {
@@ -121,12 +127,16 @@ class BleDidcommSdkModule(private val context: ReactApplicationContext) :
         }
     }
 
-    @ReactMethod
-    fun addListener(eventName: String) {
-    }
 
     @ReactMethod
-    fun removeListeners(count: Int) {
+    @Suppress("unused")
+    fun addListener(@Suppress("UNUSED_PARAMETER") eventName: String) {
+    }
+
+
+    @ReactMethod
+    @Suppress("unused")
+    fun removeListeners(@Suppress("UNUSED_PARAMETER") count: Int) {
     }
 
     private fun sendEvent(event: BleDidcommEvent, params: WritableMap?) {
@@ -161,10 +171,18 @@ class BleDidcommSdkModule(private val context: ReactApplicationContext) :
             status: Int
         ) {
             super.onCharacteristicWrite(gatt, characteristic, status)
-
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 centralManager.isPeripheralReady = true
             }
+        }
+
+        override fun onMtuChanged(gatt: BluetoothGatt?, mtu: Int, status: Int) {
+            super.onMtuChanged(gatt, mtu, status)
+            if (status != BluetoothGatt.GATT_SUCCESS) {
+                Log.e(Constants.TAG, "error occurred while requesting MTU. Status $status")
+                return
+            }
+            centralManager.connectedMtu = mtu
         }
 
         @SuppressLint("MissingPermission")
@@ -175,11 +193,13 @@ class BleDidcommSdkModule(private val context: ReactApplicationContext) :
                 service.getCharacteristic(centralManager.characteristicUUID)
             centralManager.notifyCharacteristic =
                 service.getCharacteristic(centralManager.notifyCharacteristicUUID)
+            gatt.setCharacteristicNotification(centralManager.notifyCharacteristic, true)
+            gatt.requestMtu(512)
             val descriptor =
-                centralManager.notifyCharacteristic?.getDescriptor(CCC_DESCRIPTOR_UUID)
+                centralManager.notifyCharacteristic?.getDescriptor(UUID.fromString(Constants.CCC_DESCRIPTOR_UUID))
             descriptor?.value = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
             gatt.writeDescriptor(descriptor)
-            gatt.setCharacteristicNotification(centralManager.notifyCharacteristic, true)
+
         }
 
         @SuppressLint("MissingPermission")
@@ -200,7 +220,6 @@ class BleDidcommSdkModule(private val context: ReactApplicationContext) :
 
     private inner class BluetoothScanCallback : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
-            super.onScanResult(callbackType, result)
             super.onScanResult(callbackType, result)
             val device = result?.device ?: return
             centralManager.discoveredPeripherals.add(device)
@@ -274,13 +293,35 @@ class BleDidcommSdkModule(private val context: ReactApplicationContext) :
             )
         }
 
+        @SuppressLint("MissingPermission")
         override fun onConnectionStateChange(device: BluetoothDevice, status: Int, newState: Int) {
             super.onConnectionStateChange(device, status, newState)
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 peripheralManager.connectedClient = device
+                peripheralManager.gattClientCallback = GattClientMtuOnlyCallback()
+                device.connectGatt(context, false, peripheralManager.gattClientCallback)
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 peripheralManager.connectedClient = null
             }
+        }
+    }
+
+    private inner class GattClientMtuOnlyCallback : BluetoothGattCallback() {
+        @SuppressLint("MissingPermission")
+        override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
+            super.onConnectionStateChange(gatt, status, newState)
+            if (newState == BluetoothProfile.STATE_CONNECTED) {
+                gatt.requestMtu(512)
+            }
+        }
+
+        override fun onMtuChanged(gatt: BluetoothGatt?, mtu: Int, status: Int) {
+            super.onMtuChanged(gatt, mtu, status)
+            if (status != BluetoothGatt.GATT_SUCCESS) {
+                Log.e(Constants.TAG, "error occurred while requesting the MTU. Status: $status")
+                return
+            }
+            peripheralManager.connectedMtu = mtu
         }
     }
 
