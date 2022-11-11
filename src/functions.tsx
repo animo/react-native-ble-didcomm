@@ -30,21 +30,23 @@ export const startPeripheral = async ({
   }
 }
 
-export const shutdownCentral = async () => {
-  try {
-  await sdk.shutdownCentral({})
-  } catch (e) {
-    throw new Error("An error occured during shutdown central: " + e)
-  }
-}
+// TODO
+// export const shutdownCentral = async () => {
+//   try {
+//   await sdk.shutdownCentral({})
+//   } catch (e) {
+//     throw new Error("An error occured during shutdown central: " + e)
+//   }
+// }
+// 
+// export const shutdownPeripheral = async () => {
+//   try {
+//   await sdk.shutdownPeripheral({})
+//   } catch (e) {
+//     throw new Error("An error occured during shutdown peripheral: " + e)
+//   }
+// }
 
-export const shutdownPeripheral = async () => {
-  try {
-  await sdk.shutdownPeripheral({})
-  } catch (e) {
-    throw new Error("An error occured during shutdown peripheral: " + e)
-  }
-}
 
 export const indicate = async (message: string) => {
   try {
