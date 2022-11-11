@@ -72,6 +72,7 @@ class PeripheralManager(
         advertiser.startAdvertising(advertiseSettings, advertiseData, this.advertiseCallback)
     }
 
+    @Suppress("unused")
     @RequiresPermission(value = "android.permission.BLUETOOTH_ADVERTISE")
     fun stopAdvertising() {
         val advertiser = bluetoothAdapter.bluetoothLeAdvertiser

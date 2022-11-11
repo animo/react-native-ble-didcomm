@@ -1,7 +1,6 @@
 package com.reactnativebledidcommsdk.central
 
 class CentralManagerException {
-    class NotInitialized : Exception("Central is not initialized")
     class NoCharacteristicFound : Exception("No characteristic found")
     class NoConnectedPeripheralFound : Exception("No connected peripheral found")
     class NotScanning : Exception("No scanning in progress")
