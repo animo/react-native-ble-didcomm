@@ -18,12 +18,10 @@ import {
   connect,
   write,
   indicate,
+  DEFAULT_DIDCOMM_SERVICE_UUID,
+  DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
+  DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
 } from "react-native-ble-didcomm-sdk"
-import {
-  DIDCOMM_SERVICE_UUID,
-  MESSAGE_CHARACTERISTIC_UUID,
-  NOTIFY_CHARACTERISTIC_UUID,
-} from "./constants"
 import { presentationMsg } from "./presentationMsg"
 
 const bleDidcommSdkEmitter = new NativeEventEmitter(NativeModules.BleDidcommSdk)
@@ -108,9 +106,9 @@ export default function App() {
         title="start: central"
         onPress={async () => {
           await startCentral({
-            serviceUUID: DIDCOMM_SERVICE_UUID,
-            messagingUUID: MESSAGE_CHARACTERISTIC_UUID,
-            indicationUUID: NOTIFY_CHARACTERISTIC_UUID,
+            serviceUUID: DEFAULT_DIDCOMM_SERVICE_UUID,
+            messagingUUID: DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
+            indicationUUID: DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
           })
           setIsCentral(true)
         }}
@@ -119,9 +117,9 @@ export default function App() {
         title="start: peripheral"
         onPress={async () => {
           await startPeripheral({
-            serviceUUID: DIDCOMM_SERVICE_UUID,
-            messagingUUID: MESSAGE_CHARACTERISTIC_UUID,
-            indicationUUID: NOTIFY_CHARACTERISTIC_UUID,
+            serviceUUID: DEFAULT_DIDCOMM_SERVICE_UUID,
+            messagingUUID: DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
+            indicationUUID: DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
           })
           setIsPeripheral(true)
         }}
