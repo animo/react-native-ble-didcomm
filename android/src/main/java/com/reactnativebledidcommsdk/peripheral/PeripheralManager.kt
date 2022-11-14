@@ -14,29 +14,29 @@ import java.util.*
 class PeripheralManager(
     context: ReactContext,
     serviceUUID: UUID,
-    characteristicUUID: UUID,
-    notifyCharacteristicUUID: UUID,
+    writeCharacteristicUUID: UUID,
+    indicationCharacteristicUUID: UUID,
     gattServerCallback: BluetoothGattServerCallback
 ) {
     private val bluetoothManager: BluetoothManager =
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     private val bluetoothAdapter: BluetoothAdapter = bluetoothManager.adapter
 
-    private val characteristic: BluetoothGattCharacteristic = BluetoothGattCharacteristic(
-        characteristicUUID,
+    private val writeCharacteristic: BluetoothGattCharacteristic = BluetoothGattCharacteristic(
+        writeCharacteristicUUID,
         BluetoothGattCharacteristic.PROPERTY_WRITE,
         BluetoothGattCharacteristic.PERMISSION_WRITE
     )
-    private val notifyCharacteristic: BluetoothGattCharacteristic = BluetoothGattCharacteristic(
-        notifyCharacteristicUUID,
+    private val indicationCharacteristic: BluetoothGattCharacteristic = BluetoothGattCharacteristic(
+        indicationCharacteristicUUID,
         BluetoothGattCharacteristic.PROPERTY_INDICATE and BluetoothGattCharacteristic.PROPERTY_READ,
         BluetoothGattCharacteristic.PERMISSION_READ
     )
 
     private val service: BluetoothGattService =
         BluetoothGattService(serviceUUID, BluetoothGattService.SERVICE_TYPE_PRIMARY).apply {
-            this.addCharacteristic(characteristic)
-            this.addCharacteristic(notifyCharacteristic)
+            this.addCharacteristic(writeCharacteristic)
+            this.addCharacteristic(indicationCharacteristic)
         }
 
     var connectedClient: BluetoothDevice? = null
@@ -81,7 +81,7 @@ class PeripheralManager(
     }
 
     @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
-    fun notify(message: ByteArray) {
+    fun indicate(message: ByteArray) {
         if (isSending) throw PeripheralManagerException.AlreadySending()
 
         Thread {
@@ -92,16 +92,20 @@ class PeripheralManager(
                 while (!isConnectedClientReady) {
                     Thread.sleep(20)
                 }
-                notifyCharacteristic.value =
+                indicationCharacteristic.value =
                     message.sliceArray(IntRange(chunkIndexStart, chunkIndexEnd))
-                gattServer.notifyCharacteristicChanged(connectedClient, notifyCharacteristic, true)
+                gattServer.notifyCharacteristicChanged(
+                    connectedClient,
+                    indicationCharacteristic,
+                    true
+                )
 
             }
             while (!isConnectedClientReady) {
                 Thread.sleep(20)
             }
-            notifyCharacteristic.value = "EOM".toByteArray()
-            gattServer.notifyCharacteristicChanged(connectedClient, notifyCharacteristic, true)
+            indicationCharacteristic.value = "EOM".toByteArray()
+            gattServer.notifyCharacteristicChanged(connectedClient, indicationCharacteristic, true)
             isSending = false
         }.start()
     }

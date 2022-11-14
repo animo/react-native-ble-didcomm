@@ -1,40 +1,59 @@
 import { sdk } from "./register"
-import {
-  DIDCOMM_SERVICE_UUID,
-  MESSAGE_CHARACTERISTIC_UUID,
-  NOTIFY_CHARACTERISTIC_UUID,
-} from "./constants"
 
-export const startCentral = async () => {
+type StartOptions = {
+  serviceUUID: string
+  messagingUUID: string
+  indicationUUID: string
+}
+
+export const startCentral = async ({
+  serviceUUID,
+  messagingUUID,
+  indicationUUID,
+}: StartOptions) => {
   try {
-    await sdk.startCentral(
-      DIDCOMM_SERVICE_UUID,
-      MESSAGE_CHARACTERISTIC_UUID,
-      NOTIFY_CHARACTERISTIC_UUID
-    )
+    await sdk.startCentral(serviceUUID, messagingUUID, indicationUUID)
   } catch (e) {
     throw new Error("An error occured during startup: " + e)
   }
 }
 
-export const startPeripheral = async () => {
+export const startPeripheral = async ({
+  serviceUUID,
+  messagingUUID,
+  indicationUUID,
+}: StartOptions) => {
   try {
-    await sdk.startPeripheral(
-      DIDCOMM_SERVICE_UUID,
-      MESSAGE_CHARACTERISTIC_UUID,
-      NOTIFY_CHARACTERISTIC_UUID
-    )
+    await sdk.startPeripheral(serviceUUID, messagingUUID, indicationUUID)
   } catch (e) {
     throw new Error("An error occured during startup: " + e)
   }
 }
 
-export const notify = async (message: string) => {
+// TODO
+// export const shutdownCentral = async () => {
+//   try {
+//   await sdk.shutdownCentral({})
+//   } catch (e) {
+//     throw new Error("An error occured during shutdown central: " + e)
+//   }
+// }
+// 
+// export const shutdownPeripheral = async () => {
+//   try {
+//   await sdk.shutdownPeripheral({})
+//   } catch (e) {
+//     throw new Error("An error occured during shutdown peripheral: " + e)
+//   }
+// }
+
+
+export const indicate = async (message: string) => {
   try {
-    await sdk.notify(message)
+    await sdk.indicate(message)
   } catch (e) {
     throw new Error(
-      "An error occurred while sending a message as a peripheral: " + e
+      "An error occurred while sending an indication as a peripheral: " + e
     )
   }
 }

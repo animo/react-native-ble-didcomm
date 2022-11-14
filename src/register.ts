@@ -28,11 +28,13 @@ type Sdk = {
     characteristicUUID: string,
     notifyCharacteristicUUID: string
   ): Promise<void>
+  shutdownCentral({}: Record<never, never>): Promise<void>
+  shutdownPeripheral({}: Record<never, never>): Promise<void>
   scan({}: Record<never, never>): Promise<void>
   advertise({}: Record<never, never>): Promise<void>
   connect(peripheralId: string): Promise<void>
   write(message: string): Promise<void>
-  notify(message: string): Promise<void>
+  indicate(message: string): Promise<void>
 }
 
 export const sdk = BleDidcommSdk as Sdk
