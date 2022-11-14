@@ -197,3 +197,8 @@ guidelines](./CONTRIBUTING.md).
 
 This project is licensed under the [Apache 2.0
 License](https://opensource.org/licenses/Apache-2.0).
+
+## Credits
+
+The initial work for this library was funded and started by [ID
+Crypt](https://www.idcrypt.global).
