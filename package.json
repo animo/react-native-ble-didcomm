@@ -1,21 +1,31 @@
 {
-  "name": "react-native-ble-didcomm-sdk",
+  "name": "@animo-id/react-native-ble-didcomm-sdk",
   "version": "0.1.0",
-  "description": "test",
+  "description": "react native bluetooth low energy sdk for didcomm",
   "main": "build/index",
   "source": "src/index",
   "files": [
     "src",
     "android",
+    "build",
+    "example",
+    "ios",
+    "react-native-ble-didcomm-sdk.podspec",
+    "README.md",
+    "LICENSE",
     "ios",
     "*.podspec"
   ],
   "scripts": {
+    "check-types": "tsc --noEmit -p tsconfig.build.json",
+    "check-format": "yarn prettier --check",
     "example": "yarn --cwd example",
-    "check-types": "tsc -p tsconfig.json --noEmit",
-    "check-format": "yarn prettier --list-different",
-    "prettier": "prettier --ignore-path .gitignore '**/*.+(js|json|ts|md|yml|yaml)'",
-    "format": "yarn prettier --write"
+    "prettier": "prettier --ignore-path .gitignore '**/*.+(js|json|ts|md|yml|yaml|tsx|jsx)'",
+    "format": "yarn prettier --write",
+    "build": "yarn clean && yarn compile",
+    "clean": "rimraf -rf ./build",
+    "compile": "tsc -p tsconfig.build.json",
+    "release": "release-it"
   },
   "repository": "https://github.com/animo/react-native-ble-didcomm-sdk",
   "author": "Animo <development@animo.id> (https://github.com/animo)",
@@ -25,6 +35,7 @@
   },
   "homepage": "https://github.com/animo/react-native-ble-didcomm-sdk#readme",
   "publishConfig": {
+    "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
   "dependencies": {
@@ -46,9 +57,28 @@
     "react": "18.1.0",
     "react-native": "0.70.3",
     "react-native-builder-bob": "0.20.0",
+    "release-it": "14.13.1",
+    "rimraf": "3.0.2",
     "typescript": "4.5.2"
   },
   "resolutions": {
     "@types/react": "17.0.21"
+  },
+  "release-it": {
+    "github": {
+      "release": true
+    },
+    "npm": {
+      "skipChecks": true,
+      "ignoreVersion": true,
+      "tag": "latest"
+    },
+    "git": {
+      "push": false,
+      "commit": false,
+      "requireCommits": true,
+      "tagAnnotation": "${version}",
+      "requireBranch": "main"
+    }
   }
 }
