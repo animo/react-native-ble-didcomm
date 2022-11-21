@@ -21,10 +21,10 @@ import {
   DEFAULT_DIDCOMM_SERVICE_UUID,
   DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
   DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
-} from 'react-native-ble-didcomm-sdk'
+} from '@animo-id/react-native-ble-didcomm'
 import { presentationMsg } from './presentationMsg'
 
-const bleDidcommSdkEmitter = new NativeEventEmitter(NativeModules.BleDidcommSdk)
+const bleDidcommEmitter = new NativeEventEmitter(NativeModules.BleDidcomm)
 
 const Spacer = () => <View style={{ height: 20, width: 20 }} />
 
@@ -47,7 +47,7 @@ export default function App() {
   const [connected, setConnected] = React.useState(false)
 
   React.useEffect(() => {
-    const onDiscoverPeripheralListener = bleDidcommSdkEmitter.addListener(
+    const onDiscoverPeripheralListener = bleDidcommEmitter.addListener(
       'onDiscoverPeripheral',
       ({
         peripheralId: pId,
@@ -61,7 +61,7 @@ export default function App() {
       }
     )
 
-    const onConnectedPeripheralListener = bleDidcommSdkEmitter.addListener(
+    const onConnectedPeripheralListener = bleDidcommEmitter.addListener(
       'onConnectedPeripheral',
       ({ peripheralId: pId }: { peripheralId: string }) => {
         console.log(`Connected to: ${pId}`)
@@ -69,12 +69,12 @@ export default function App() {
       }
     )
 
-    const onReceivedNotificationListener = bleDidcommSdkEmitter.addListener(
+    const onReceivedNotificationListener = bleDidcommEmitter.addListener(
       'onReceivedNotification',
       console.log
     )
 
-    const onReceivedWriteWithoutResponseListener = bleDidcommSdkEmitter.addListener(
+    const onReceivedWriteWithoutResponseListener = bleDidcommEmitter.addListener(
       'onReceivedWriteWithoutResponse',
       console.log
     )

@@ -1,4 +1,4 @@
-package com.reactnativebledidcommsdk.central
+package com.reactnativebledidcomm.central
 
 import android.bluetooth.*
 import android.bluetooth.le.ScanCallback

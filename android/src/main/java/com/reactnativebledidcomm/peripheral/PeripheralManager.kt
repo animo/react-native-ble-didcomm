@@ -1,4 +1,4 @@
-package com.reactnativebledidcommsdk.peripheral
+package com.reactnativebledidcomm.peripheral
 
 import android.annotation.SuppressLint
 import android.bluetooth.*

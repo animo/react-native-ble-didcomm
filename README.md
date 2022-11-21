@@ -6,7 +6,7 @@
   </picture>
 </p>
 
-<h1 align="center" ><b>React Native Ble DIDComm SDK</b></h1>
+<h1 align="center" ><b>React Native Ble DIDComm</b></h1>
 
 <h4 align="center">Powered by &nbsp; 
   <picture>
@@ -51,7 +51,7 @@ First, you need to add the dependency to your project:
 > TODO: this is not released yet
 
 ```sh
-yarn add react-native-ble-didcomm-sdk
+yarn add react-native-ble-didcomm
 ```
 
 ### Android
@@ -96,22 +96,22 @@ await PermissionsAndroid.requestMultiple([
 
 ```typescript
 React.useEffect(() => {
-  const onDiscoverPeripheralListener = bleDidcommSdkEmitter.addListener(
+  const onDiscoverPeripheralListener = bleDidcommEmitter.addListener(
     'onDiscoverPeripheral',
     console.log
   )
 
-  const onConnectedPeripheralListener = bleDidcommSdkEmitter.addListener(
+  const onConnectedPeripheralListener = bleDidcommEmitter.addListener(
     'onConnectedPeripheral',
     console.log
   )
 
-  const onReceivedNotificationListener = bleDidcommSdkEmitter.addListener(
+  const onReceivedNotificationListener = bleDidcommEmitter.addListener(
     'onReceivedNotification',
     console.log
   )
 
-  const onReceivedWriteWithoutResponseListener = bleDidcommSdkEmitter.addListener(
+  const onReceivedWriteWithoutResponseListener = bleDidcommEmitter.addListener(
     'onReceivedWriteWithoutResponse',
     console.log
   )
@@ -128,7 +128,7 @@ React.useEffect(() => {
 ### Start advertising (peripheral):
 
 ```typescript
-import { startPeripheral, advertise } from 'react-native-ble-didcomm-sdk'
+import { startPeripheral, advertise } from 'react-native-ble-didcomm'
 
 await startPeripheral()
 await advertise()
@@ -137,7 +137,7 @@ await advertise()
 ### Start scanning (central):
 
 ```typescript
-import { startCentral, scan } from 'react-native-ble-didcomm-sdk'
+import { startCentral, scan } from 'react-native-ble-didcomm'
 
 await startCentral()
 await scan()
@@ -146,7 +146,7 @@ await scan()
 ### Connect (central):
 
 ```typescript
-import { connect } from 'react-native-ble-didcomm-sdk'
+import { connect } from 'react-native-ble-didcomm'
 
 // peripheralId can be retrieved from the `onDiscoverPeripheralListener`
 // as shown above with the listeners
@@ -157,7 +157,7 @@ await connect(peripheralId)
 ### Send message (central):
 
 ```typescript
-import { write } from 'react-native-ble-didcomm-sdk'
+import { write } from 'react-native-ble-didcomm'
 
 await write('Hello World!')
 ```
@@ -165,7 +165,7 @@ await write('Hello World!')
 ### Send indication / message (peripheral):
 
 ```typescript
-import { notify } from 'react-native-ble-didcomm-sdk'
+import { notify } from 'react-native-ble-didcomm'
 
 await notify('Hello World!')
 ```

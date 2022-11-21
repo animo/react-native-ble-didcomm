@@ -1,13 +1,13 @@
 import { NativeModules, Platform } from 'react-native'
 
 const LINKING_ERROR =
-  'The package "react-native-ble-didcomm-sdk" doesn\'t seem to be linked. Make sure: \n\n' +
+  'The package "react-native-ble-didcomm" doesn\'t seem to be linked. Make sure: \n\n' +
   Platform.select({ ios: "- You have run 'pod install'\n", default: '' }) +
   '- You rebuilt the app after installing the package\n' +
   '- You are not using Expo Go\n'
 
-const BleDidcommSdk = NativeModules.BleDidcommSdk
-  ? NativeModules.BleDidcommSdk
+const BleDidcomm = NativeModules.BleDidcomm
+  ? NativeModules.BleDidcomm
   : new Proxy(
       {},
       {
@@ -37,4 +37,4 @@ type Sdk = {
   indicate(message: string): Promise<void>
 }
 
-export const sdk = BleDidcommSdk as Sdk
+export const sdk = BleDidcomm as Sdk
