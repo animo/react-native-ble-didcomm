@@ -84,11 +84,11 @@ An example can be found here: [example](./example/src/App.tsx)
 
 ```typescript
 await PermissionsAndroid.requestMultiple([
-  "android.permission.ACCESS_FINE_LOCATION",
-  "android.permission.BLUETOOTH_CONNECT",
-  "android.permission.BLUETOOTH_SCAN",
-  "android.permission.BLUETOOTH_ADVERTISE",
-  "android.permission.ACCESS_COARSE_LOCATION",
+  'android.permission.ACCESS_FINE_LOCATION',
+  'android.permission.BLUETOOTH_CONNECT',
+  'android.permission.BLUETOOTH_SCAN',
+  'android.permission.BLUETOOTH_ADVERTISE',
+  'android.permission.ACCESS_COARSE_LOCATION',
 ])
 ```
 
@@ -96,14 +96,14 @@ await PermissionsAndroid.requestMultiple([
 
 ```typescript
 React.useEffect(() => {
-  const onDiscoverPeripheralListener = bleDidcommSdkEmitter.addListener("onDiscoverPeripheral", console.log)
+  const onDiscoverPeripheralListener = bleDidcommSdkEmitter.addListener('onDiscoverPeripheral', console.log)
 
-  const onConnectedPeripheralListener = bleDidcommSdkEmitter.addListener("onConnectedPeripheral", console.log)
+  const onConnectedPeripheralListener = bleDidcommSdkEmitter.addListener('onConnectedPeripheral', console.log)
 
-  const onReceivedNotificationListener = bleDidcommSdkEmitter.addListener("onReceivedNotification", console.log)
+  const onReceivedNotificationListener = bleDidcommSdkEmitter.addListener('onReceivedNotification', console.log)
 
   const onReceivedWriteWithoutResponseListener = bleDidcommSdkEmitter.addListener(
-    "onReceivedWriteWithoutResponse",
+    'onReceivedWriteWithoutResponse',
     console.log
   )
 
@@ -119,7 +119,7 @@ React.useEffect(() => {
 ### Start advertising (peripheral):
 
 ```typescript
-import { startPeripheral, advertise } from "react-native-ble-didcomm-sdk"
+import { startPeripheral, advertise } from 'react-native-ble-didcomm-sdk'
 
 await startPeripheral()
 await advertise()
@@ -128,7 +128,7 @@ await advertise()
 ### Start scanning (central):
 
 ```typescript
-import { startCentral, scan } from "react-native-ble-didcomm-sdk"
+import { startCentral, scan } from 'react-native-ble-didcomm-sdk'
 
 await startCentral()
 await scan()
@@ -137,7 +137,7 @@ await scan()
 ### Connect (central):
 
 ```typescript
-import { connect } from "react-native-ble-didcomm-sdk"
+import { connect } from 'react-native-ble-didcomm-sdk'
 
 // peripheralId can be retrieved from the `onDiscoverPeripheralListener`
 // as shown above with the listeners
@@ -148,17 +148,17 @@ await connect(peripheralId)
 ### Send message (central):
 
 ```typescript
-import { write } from "react-native-ble-didcomm-sdk"
+import { write } from 'react-native-ble-didcomm-sdk'
 
-await write("Hello World!")
+await write('Hello World!')
 ```
 
 ### Send indication / message (peripheral):
 
 ```typescript
-import { notify } from "react-native-ble-didcomm-sdk"
+import { notify } from 'react-native-ble-didcomm-sdk'
 
-await notify("Hello World!")
+await notify('Hello World!')
 ```
 
 ## Development
