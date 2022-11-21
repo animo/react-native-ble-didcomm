@@ -1,4 +1,4 @@
-package com.reactnativebledidcommsdk.central
+package com.reactnativebledidcomm.central
 
 class CentralManagerException {
     class NoCharacteristicFound : Exception("No characteristic found")

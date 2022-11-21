@@ -1,13 +1,13 @@
-package com.reactnativebledidcommsdk
+package com.reactnativebledidcomm
 
 import com.facebook.react.ReactPackage
 import com.facebook.react.bridge.NativeModule
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.uimanager.ViewManager
 
-class BleDidcommSdkPackage : ReactPackage {
+class BleDidcommPackage : ReactPackage {
     override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> {
-        return listOf(BleDidcommSdkModule(reactContext))
+        return listOf(BleDidcommModule(reactContext))
     }
 
     override fun createViewManagers(reactContext: ReactApplicationContext): List<ViewManager<*, *>> {

@@ -1,6 +1,6 @@
 import Foundation
 
-extension BleDidcommSdk {
+extension BleDidcomm {
   override open func supportedEvents() -> [String] {
     [
       "onDiscoverPeripheral", "onConnectedPeripheral", "onReceivedWriteWithoutResponse",

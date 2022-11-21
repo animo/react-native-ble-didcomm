@@ -3,8 +3,8 @@ import Foundation
 import React
 import os
 
-@objc(BleDidcommSdk)
-class BleDidcommSdk: React.RCTEventEmitter {
+@objc(BleDidcomm)
+class BleDidcomm: React.RCTEventEmitter {
   var peripheralManager: PeripheralManager?
   var centralManager: CentralManager?
 

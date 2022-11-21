@@ -1,4 +1,4 @@
-package com.reactnativebledidcommsdk
+package com.reactnativebledidcomm
 
 import android.annotation.SuppressLint
 import android.bluetooth.*
@@ -9,12 +9,12 @@ import android.util.Log
 import androidx.annotation.RequiresPermission
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule
-import com.reactnativebledidcommsdk.central.CentralManager
-import com.reactnativebledidcommsdk.peripheral.PeripheralManager
+import com.reactnativebledidcomm.central.CentralManager
+import com.reactnativebledidcomm.peripheral.PeripheralManager
 import java.util.*
 
 
-class BleDidcommSdkModule(private val context: ReactApplicationContext) :
+class BleDidcommModule(private val context: ReactApplicationContext) :
     ReactContextBaseJavaModule(context) {
     private lateinit var centralManager: CentralManager
     private lateinit var peripheralManager: PeripheralManager

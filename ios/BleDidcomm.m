@@ -3,7 +3,7 @@
 #import <React/RCTEventEmitter.h>
 #import "React/RCTEventDispatcher.h"
 
-@interface RCT_EXTERN_MODULE(BleDidcommSdk, RCTEventEmitter)
+@interface RCT_EXTERN_MODULE(BleDidcomm, RCTEventEmitter)
 
 RCT_EXTERN_METHOD(startCentral
                   :(NSString *)serviceUUID
