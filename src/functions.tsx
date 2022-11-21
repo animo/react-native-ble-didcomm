@@ -1,4 +1,4 @@
-import { sdk } from "./register"
+import { sdk } from './register'
 
 type StartOptions = {
   serviceUUID: string
@@ -14,7 +14,7 @@ export const startCentral = async ({
   try {
     await sdk.startCentral(serviceUUID, messagingUUID, indicationUUID)
   } catch (e) {
-    throw new Error("An error occured during startup: " + e)
+    throw new Error('An error occured during startup: ' + e)
   }
 }
 
@@ -26,7 +26,7 @@ export const startPeripheral = async ({
   try {
     await sdk.startPeripheral(serviceUUID, messagingUUID, indicationUUID)
   } catch (e) {
-    throw new Error("An error occured during startup: " + e)
+    throw new Error('An error occured during startup: ' + e)
   }
 }
 
@@ -38,7 +38,7 @@ export const startPeripheral = async ({
 //     throw new Error("An error occured during shutdown central: " + e)
 //   }
 // }
-// 
+//
 // export const shutdownPeripheral = async () => {
 //   try {
 //   await sdk.shutdownPeripheral({})
@@ -47,13 +47,12 @@ export const startPeripheral = async ({
 //   }
 // }
 
-
 export const indicate = async (message: string) => {
   try {
     await sdk.indicate(message)
   } catch (e) {
     throw new Error(
-      "An error occurred while sending an indication as a peripheral: " + e
+      'An error occurred while sending an indication as a peripheral: ' + e
     )
   }
 }
@@ -62,7 +61,7 @@ export const advertise = async () => {
   try {
     await sdk.advertise({})
   } catch (e) {
-    throw new Error("An error occurred while trying to advertise: " + e)
+    throw new Error('An error occurred while trying to advertise: ' + e)
   }
 }
 
@@ -70,7 +69,7 @@ export const scan = async () => {
   try {
     await sdk.scan({})
   } catch (e) {
-    throw new Error("An error occurred while scanning for devices: " + e)
+    throw new Error('An error occurred while scanning for devices: ' + e)
   }
 }
 

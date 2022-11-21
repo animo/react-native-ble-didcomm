@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import * as React from "react"
+import * as React from 'react'
 import {
   StyleSheet,
   View,
@@ -9,7 +9,7 @@ import {
   Platform,
   NativeEventEmitter,
   NativeModules,
-} from "react-native"
+} from 'react-native'
 import {
   startCentral,
   startPeripheral,
@@ -21,8 +21,8 @@ import {
   DEFAULT_DIDCOMM_SERVICE_UUID,
   DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
   DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
-} from "react-native-ble-didcomm-sdk"
-import { presentationMsg } from "./presentationMsg"
+} from 'react-native-ble-didcomm-sdk'
+import { presentationMsg } from './presentationMsg'
 
 const bleDidcommSdkEmitter = new NativeEventEmitter(NativeModules.BleDidcommSdk)
 
@@ -32,11 +32,11 @@ const msg = JSON.stringify(presentationMsg)
 
 const requestPermissions = async () => {
   await PermissionsAndroid.requestMultiple([
-    "android.permission.ACCESS_FINE_LOCATION",
-    "android.permission.BLUETOOTH_CONNECT",
-    "android.permission.BLUETOOTH_SCAN",
-    "android.permission.BLUETOOTH_ADVERTISE",
-    "android.permission.ACCESS_COARSE_LOCATION",
+    'android.permission.ACCESS_FINE_LOCATION',
+    'android.permission.BLUETOOTH_CONNECT',
+    'android.permission.BLUETOOTH_SCAN',
+    'android.permission.BLUETOOTH_ADVERTISE',
+    'android.permission.ACCESS_COARSE_LOCATION',
   ])
 }
 
@@ -48,7 +48,7 @@ export default function App() {
 
   React.useEffect(() => {
     const onDiscoverPeripheralListener = bleDidcommSdkEmitter.addListener(
-      "onDiscoverPeripheral",
+      'onDiscoverPeripheral',
       ({
         peripheralId: pId,
         name,
@@ -56,13 +56,13 @@ export default function App() {
         peripheralId: string
         name?: string
       }) => {
-        console.log(`Discovered: ${pId} ${name ? "with name:" + name : ""}`)
+        console.log(`Discovered: ${pId} ${name ? 'with name:' + name : ''}`)
         setPeripheralId(pId)
       }
     )
 
     const onConnectedPeripheralListener = bleDidcommSdkEmitter.addListener(
-      "onConnectedPeripheral",
+      'onConnectedPeripheral',
       ({ peripheralId: pId }: { peripheralId: string }) => {
         console.log(`Connected to: ${pId}`)
         setConnected(true)
@@ -70,12 +70,12 @@ export default function App() {
     )
 
     const onReceivedNotificationListener = bleDidcommSdkEmitter.addListener(
-      "onReceivedNotification",
+      'onReceivedNotification',
       console.log
     )
 
     const onReceivedWriteWithoutResponseListener = bleDidcommSdkEmitter.addListener(
-      "onReceivedWriteWithoutResponse",
+      'onReceivedWriteWithoutResponse',
       console.log
     )
 
@@ -91,7 +91,7 @@ export default function App() {
     <View style={styles.container}>
       <Text>Bluetooth demo screen</Text>
       <Spacer />
-      {Platform.OS === "android" && (
+      {Platform.OS === 'android' && (
         <>
           <Button
             title="requestPermissions"
@@ -146,8 +146,8 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   box: {
     width: 60,
