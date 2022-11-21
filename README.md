@@ -31,6 +31,8 @@
 </p>
 
 <p align="center">
+  <a href="#introduction">Introduction</a> 
+  &nbsp;|&nbsp;
   <a href="#getting-started">Getting started</a> 
   &nbsp;|&nbsp;
   <a href="#usage">Usage</a> 
@@ -43,6 +45,16 @@
 </p>
 
 ---
+
+## Introduction
+
+This package can be used as a transport for [DIDComm](https://didcomm.org) messages over Bluetooh Low Energy (BLE).
+Before using this package, roles must be established. With BLE you have a "central" and "peripheral".
+The peripheral advertises that it is able to connect with any central that is looking for the same unique identifier
+(DIDComm UUIDs are defined here [didcomm bluetooth - identifiers](https://github.com/decentralized-identity/didcomm-bluetooth/blob/main/spec.md#identifiers)).
+A central can then scan for any peripheral advertising the DIDComm service UUID. When the central finds the peripheral, it can connect and establish a connection.
+Note that this does not establish a DIDComm connection, just the underlying BLE connection. After this, as defined in the examples below, the peripheral and central
+can listen to incoming messages and send messages to the other participant.
 
 ## Getting Started
 
