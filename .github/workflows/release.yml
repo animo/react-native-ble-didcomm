@@ -15,7 +15,7 @@ on:
 # Ideally we only add this to the 'release' job so it doesn't limit PR runs, but github can't guarantee the job order in that case:
 # "When concurrency is specified at the job level, order is not guaranteed for jobs or runs that queue within 5 minutes of each other."
 concurrency:
-  group: react-native-ble-didcomm-sdk${{ github.ref }}-${{ github.repository }}-{{ github.event_name }}
+  group: react-native-ble-didcomm${{ github.ref }}-${{ github.repository }}-{{ github.event_name }}
   cancel-in-progress: true
 
 jobs:
@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-20.04
     name: Validate
     steps:
-      - name: Checkout react-native-ble-didcomm-sdk
+      - name: Checkout react-native-ble-didcomm
         uses: actions/checkout@v2
 
       - name: Get yarn cache directory path
@@ -53,18 +53,18 @@ jobs:
   native-tests:
     runs-on: ubuntu-20.04
     steps:
-      - name: Checkout react-native-ble-didcomm-sdk
+      - name: Checkout react-native-ble-didcomm
         uses: actions/checkout@v3
         with:
-          path: react-native-ble-didcomm-sdk
+          path: react-native-ble-didcomm
   release:
     runs-on: ubuntu-20.04
     name: Release
     needs: [validate, native-tests]
     # Only run on workflow dispatch to main branch
-    if: github.ref == 'refs/heads/main' && github.repository == 'animo/react-native-ble-didcomm-sdk' && github.event_name == 'workflow_dispatch'
+    if: github.ref == 'refs/heads/main' && github.repository == 'animo/react-native-ble-didcomm' && github.event_name == 'workflow_dispatch'
     steps:
-      - name: Checkout react-native-ble-didcomm-sdk
+      - name: Checkout react-native-ble-didcomm
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
