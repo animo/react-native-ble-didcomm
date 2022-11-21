@@ -4,9 +4,18 @@
   "description": "test",
   "main": "build/index",
   "source": "src/index",
-  "files": ["src", "android", "ios", "*.podspec"],
+  "files": [
+    "src",
+    "android",
+    "ios",
+    "*.podspec"
+  ],
   "scripts": {
-    "example": "yarn --cwd example"
+    "example": "yarn --cwd example",
+    "check-types": "tsc -p tsconfig.json --noEmit",
+    "check-format": "yarn prettier --list-different",
+    "prettier": "prettier --ignore-path .gitignore '**/*.+(js|json|ts|md|yml|yaml)'",
+    "format": "yarn prettier --write"
   },
   "repository": "https://github.com/animo/react-native-ble-didcomm-sdk",
   "author": "Animo <development@animo.id> (https://github.com/animo)",

@@ -96,20 +96,11 @@ await PermissionsAndroid.requestMultiple([
 
 ```typescript
 React.useEffect(() => {
-  const onDiscoverPeripheralListener = bleDidcommSdkEmitter.addListener(
-    "onDiscoverPeripheral",
-    console.log
-  )
+  const onDiscoverPeripheralListener = bleDidcommSdkEmitter.addListener("onDiscoverPeripheral", console.log)
 
-  const onConnectedPeripheralListener = bleDidcommSdkEmitter.addListener(
-    "onConnectedPeripheral",
-    console.log
-  )
+  const onConnectedPeripheralListener = bleDidcommSdkEmitter.addListener("onConnectedPeripheral", console.log)
 
-  const onReceivedNotificationListener = bleDidcommSdkEmitter.addListener(
-    "onReceivedNotification",
-    console.log
-  )
+  const onReceivedNotificationListener = bleDidcommSdkEmitter.addListener("onReceivedNotification", console.log)
 
   const onReceivedWriteWithoutResponseListener = bleDidcommSdkEmitter.addListener(
     "onReceivedWriteWithoutResponse",
