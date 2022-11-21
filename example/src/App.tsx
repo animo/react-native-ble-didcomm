@@ -17,15 +17,18 @@ import {
   scan,
   connect,
   write,
-  notify,
+  indicate,
+  DEFAULT_DIDCOMM_SERVICE_UUID,
+  DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
+  DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
 } from "react-native-ble-didcomm-sdk"
+import { presentationMsg } from "./presentationMsg"
 
 const bleDidcommSdkEmitter = new NativeEventEmitter(NativeModules.BleDidcommSdk)
 
 const Spacer = () => <View style={{ height: 20, width: 20 }} />
 
-const msg =
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sed ultricies odio, ut tincidunt ante. In hac habitasse platea dictumst. Nulla sagittis erat eget lectus accumsan, vitae tincidunt nisi feugiat. Proin mollis ligula consequat, efficitur nibh nec, sagittis lectus. Curabitur lacus mi, egestas eu maximus in, tristique ut arcu. Nam rhoncus sed tortor at sollicitudin. Sed pharetra luctus erat nec volutpat. Mauris dapibus augue a sem elementum posuere. Phasellus pulvinar sodales tellus a maximus. Nam lobortis a purus in luctus. Donec justo libero, feugiat quis erat eget, tempor cursus et."
+const msg = JSON.stringify(presentationMsg)
 
 const requestPermissions = async () => {
   await PermissionsAndroid.requestMultiple([
@@ -102,14 +105,22 @@ export default function App() {
       <Button
         title="start: central"
         onPress={async () => {
-          await startCentral()
+          await startCentral({
+            serviceUUID: DEFAULT_DIDCOMM_SERVICE_UUID,
+            messagingUUID: DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
+            indicationUUID: DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
+          })
           setIsCentral(true)
         }}
       />
       <Button
         title="start: peripheral"
         onPress={async () => {
-          await startPeripheral()
+          await startPeripheral({
+            serviceUUID: DEFAULT_DIDCOMM_SERVICE_UUID,
+            messagingUUID: DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
+            indicationUUID: DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
+          })
           setIsPeripheral(true)
         }}
       />
@@ -125,7 +136,7 @@ export default function App() {
       {isPeripheral && (
         <>
           <Button title="advertise" onPress={advertise} />
-          <Button title="notify" onPress={() => notify(msg)} />
+          <Button title="notify" onPress={() => indicate(msg)} />
         </>
       )}
     </View>

@@ -10,32 +10,32 @@ class BleDidcommSdk: React.RCTEventEmitter {
 
   @objc func startPeripheral(
     _ serviceUUID: String,
-    characteristicUUID: String,
-    notifyCharacteristicUUID: String,
+    writeCharacteristicUUID: String,
+    indicationCharacteristicUUID: String,
     resolve: RCTPromiseResolveBlock,
     reject _: RCTPromiseRejectBlock
   ) {
     peripheralManager = PeripheralManager(
       sendEvent: self.sendEvent,
       serviceUUID: serviceUUID,
-      characteristicUUID: characteristicUUID,
-      notifyCharacteristicUUID: notifyCharacteristicUUID
+      writeCharacteristicUUID: writeCharacteristicUUID,
+      indicationCharacteristicUUID: indicationCharacteristicUUID
     )
     resolve(nil)
   }
 
   @objc func startCentral(
     _ serviceUUID: String,
-    characteristicUUID: String,
-    notifyCharacteristicUUID: String,
+    writeCharacteristicUUID: String,
+    indicationCharacteristicUUID: String,
     resolve: RCTPromiseResolveBlock,
     reject: RCTPromiseRejectBlock
   ) {
     centralManager = CentralManager(
       sendEvent: self.sendEvent,
       serviceUUID: serviceUUID,
-      characteristicUUID: characteristicUUID,
-      notifyCharacteristicUUID: notifyCharacteristicUUID
+      writeCharacteristicUUID: writeCharacteristicUUID,
+      indicationCharacteristicUUID: indicationCharacteristicUUID
     )
     resolve(nil)
   }
@@ -55,7 +55,7 @@ class BleDidcommSdk: React.RCTEventEmitter {
     resolve(nil)
   }
 
-  @objc func notify(
+  @objc func indicate(
     _ message: String,
     resolve: RCTPromiseResolveBlock,
     reject: RCTPromiseRejectBlock
@@ -71,7 +71,7 @@ class BleDidcommSdk: React.RCTEventEmitter {
     }
 
     do {
-      try peripheralManager.notify(message: data)
+      try peripheralManager.indicate(message: data)
       resolve(nil)
     } catch PeripheralManager.PeripheralManagerError.NotConnectedToCentral {
       reject("error", "Not connected to any central", nil)

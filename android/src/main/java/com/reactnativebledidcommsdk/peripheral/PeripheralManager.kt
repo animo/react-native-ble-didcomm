@@ -14,32 +14,33 @@ import java.util.*
 class PeripheralManager(
     context: ReactContext,
     serviceUUID: UUID,
-    characteristicUUID: UUID,
-    notifyCharacteristicUUID: UUID,
+    writeCharacteristicUUID: UUID,
+    indicationCharacteristicUUID: UUID,
     gattServerCallback: BluetoothGattServerCallback
 ) {
     private val bluetoothManager: BluetoothManager =
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     private val bluetoothAdapter: BluetoothAdapter = bluetoothManager.adapter
 
-    private val characteristic: BluetoothGattCharacteristic = BluetoothGattCharacteristic(
-        characteristicUUID,
+    private val writeCharacteristic: BluetoothGattCharacteristic = BluetoothGattCharacteristic(
+        writeCharacteristicUUID,
         BluetoothGattCharacteristic.PROPERTY_WRITE,
         BluetoothGattCharacteristic.PERMISSION_WRITE
     )
-    private val notifyCharacteristic: BluetoothGattCharacteristic = BluetoothGattCharacteristic(
-        notifyCharacteristicUUID,
-        BluetoothGattCharacteristic.PROPERTY_INDICATE,
+    private val indicationCharacteristic: BluetoothGattCharacteristic = BluetoothGattCharacteristic(
+        indicationCharacteristicUUID,
+        BluetoothGattCharacteristic.PROPERTY_INDICATE and BluetoothGattCharacteristic.PROPERTY_READ,
         BluetoothGattCharacteristic.PERMISSION_READ
     )
 
     private val service: BluetoothGattService =
         BluetoothGattService(serviceUUID, BluetoothGattService.SERVICE_TYPE_PRIMARY).apply {
-            this.addCharacteristic(characteristic)
-            this.addCharacteristic(notifyCharacteristic)
+            this.addCharacteristic(writeCharacteristic)
+            this.addCharacteristic(indicationCharacteristic)
         }
 
     var connectedClient: BluetoothDevice? = null
+    var connectedMtu: Int = 20
     var isConnectedClientReady: Boolean = true
 
     @SuppressLint("MissingPermission")
@@ -49,6 +50,7 @@ class PeripheralManager(
         }
 
     private var advertiseCallback: AdvertiseCallback? = null
+    var gattClientCallback: BluetoothGattCallback? = null
 
     private var isSending: Boolean = false
 
@@ -70,6 +72,7 @@ class PeripheralManager(
         advertiser.startAdvertising(advertiseSettings, advertiseData, this.advertiseCallback)
     }
 
+    @Suppress("unused")
     @RequiresPermission(value = "android.permission.BLUETOOTH_ADVERTISE")
     fun stopAdvertising() {
         val advertiser = bluetoothAdapter.bluetoothLeAdvertiser
@@ -78,27 +81,31 @@ class PeripheralManager(
     }
 
     @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
-    fun notify(message: ByteArray) {
+    fun indicate(message: ByteArray) {
         if (isSending) throw PeripheralManagerException.AlreadySending()
 
         Thread {
             isSending = true
-            val chunkSize = Integer.min(20, message.count())
+            val chunkSize = Integer.min(connectedMtu, message.count())
             for (chunkIndexStart in 0..message.count() step chunkSize) {
                 val chunkIndexEnd = Integer.min(chunkIndexStart + chunkSize, message.count()) - 1
                 while (!isConnectedClientReady) {
-                    Thread.sleep(200)
+                    Thread.sleep(20)
                 }
-                notifyCharacteristic.value =
+                indicationCharacteristic.value =
                     message.sliceArray(IntRange(chunkIndexStart, chunkIndexEnd))
-                gattServer.notifyCharacteristicChanged(connectedClient, notifyCharacteristic, true)
+                gattServer.notifyCharacteristicChanged(
+                    connectedClient,
+                    indicationCharacteristic,
+                    true
+                )
 
             }
             while (!isConnectedClientReady) {
-                Thread.sleep(200)
+                Thread.sleep(20)
             }
-            notifyCharacteristic.value = "EOM".toByteArray()
-            gattServer.notifyCharacteristicChanged(connectedClient, notifyCharacteristic, true)
+            indicationCharacteristic.value = "EOM".toByteArray()
+            gattServer.notifyCharacteristicChanged(connectedClient, indicationCharacteristic, true)
             isSending = false
         }.start()
     }

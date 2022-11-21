@@ -14,8 +14,8 @@ import java.util.*
 class CentralManager(
     private val context: ReactContext,
     var serviceUUID: UUID,
-    var characteristicUUID: UUID,
-    var notifyCharacteristicUUID: UUID
+    var writeCharacteristicUUID: UUID,
+    var indicationCharacteristicUUID: UUID
 ) {
     private val bluetoothManager: BluetoothManager =
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
@@ -24,10 +24,11 @@ class CentralManager(
     val discoveredPeripherals: ArrayList<BluetoothDevice> = arrayListOf()
 
     var connectedPeripheral: BluetoothGatt? = null
+    var connectedMtu = 20
     var isPeripheralReady: Boolean = true
 
-    var characteristic: BluetoothGattCharacteristic? = null
-    var notifyCharacteristic: BluetoothGattCharacteristic? = null
+    var writeCharacteristic: BluetoothGattCharacteristic? = null
+    var indicationCharacteristic: BluetoothGattCharacteristic? = null
 
     private var scanCallback: ScanCallback? = null
     private var gattCallback: BluetoothGattCallback? = null
@@ -71,25 +72,25 @@ class CentralManager(
     @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
     fun write(message: ByteArray) {
         if (isSending) throw CentralManagerException.AlreadySending()
-        val characteristic = characteristic ?: throw CentralManagerException.NoCharacteristicFound()
+        val characteristic =
+            writeCharacteristic ?: throw CentralManagerException.NoCharacteristicFound()
         val connectedPeripheral = connectedPeripheral
             ?: throw CentralManagerException.NoConnectedPeripheralFound()
 
         Thread {
             isSending = true
-            // TODO: test interoperability with a chunkSize of 512
-            val chunkSize = min(512, message.count())
+            val chunkSize = min(connectedMtu, message.count())
             for (chunkIndexStart in 0..message.count() step chunkSize) {
                 val chunkIndexEnd = min(chunkIndexStart + chunkSize, message.count()) - 1
                 characteristic.value = message.sliceArray(IntRange(chunkIndexStart, chunkIndexEnd))
                 while (!isPeripheralReady) {
-                    Thread.sleep(200)
+                    Thread.sleep(20)
                 }
                 connectedPeripheral.writeCharacteristic(characteristic)
                 isPeripheralReady = false
             }
             while (!isPeripheralReady) {
-                Thread.sleep(200)
+                Thread.sleep(20)
             }
             characteristic.value = "EOM".toByteArray()
             connectedPeripheral.writeCharacteristic(characteristic)

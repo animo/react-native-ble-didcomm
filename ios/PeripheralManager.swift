@@ -9,8 +9,8 @@ class PeripheralManager: NSObject {
 
   var isPoweredOn: Bool = false
   var service: CBMutableService
-  var characteristic: CBMutableCharacteristic
-  var notifyCharacteristic: CBMutableCharacteristic
+  var writeCharacteristic: CBMutableCharacteristic
+  var indicationCharacteristic: CBMutableCharacteristic
 
   var peripheralManager: CBPeripheralManager!
 
@@ -24,16 +24,16 @@ class PeripheralManager: NSObject {
   init(
     sendEvent: @escaping (_ withName: String?, _ body: Any?) -> Void,
     serviceUUID: String,
-    characteristicUUID: String,
-    notifyCharacteristicUUID: String
+    writeCharacteristicUUID: String,
+    indicationCharacteristicUUID: String
   ) {
     self.sendEvent = sendEvent
     self.service = CBMutableService(type: CBUUID(string: serviceUUID), primary: true)
-    self.characteristic = CBMutableCharacteristic(
-      type: CBUUID(string: characteristicUUID), properties: [.write], value: nil,
+    self.writeCharacteristic = CBMutableCharacteristic(
+      type: CBUUID(string: writeCharacteristicUUID), properties: [.write], value: nil,
       permissions: [.writeable])
-    self.notifyCharacteristic = CBMutableCharacteristic(
-      type: CBUUID(string: notifyCharacteristicUUID), properties: [.indicate], value: nil,
+    self.indicationCharacteristic = CBMutableCharacteristic(
+      type: CBUUID(string: indicationCharacteristicUUID), properties: [.indicate], value: nil,
       permissions: [.writeable])
 
     super.init()
@@ -42,7 +42,7 @@ class PeripheralManager: NSObject {
       queue: nil,
       options: [CBPeripheralManagerOptionShowPowerAlertKey: true]
     )
-    self.service.characteristics = [characteristic, notifyCharacteristic]
+    self.service.characteristics = [writeCharacteristic, indicationCharacteristic]
     while !isPoweredOn { Thread.sleep(forTimeInterval: 0.05) }
     self.peripheralManager.removeAllServices()
     self.peripheralManager.add(self.service)
@@ -52,7 +52,7 @@ class PeripheralManager: NSObject {
     self.peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [service.uuid]])
   }
 
-  func notify(message: Data) throws {
+  func indicate(message: Data) throws {
     guard let connectedCentral = connectedCentral else {
       throw PeripheralManagerError.NotConnectedToCentral
     }
@@ -64,20 +64,20 @@ class PeripheralManager: NSObject {
       let chunkIndexEnd = min(chunkIndexStart + chunkSize, message.count) - 1
       let chunkedMessage = message[chunkIndexStart...chunkIndexEnd]
       isCentralReady = self.peripheralManager.updateValue(
-        chunkedMessage, for: notifyCharacteristic, onSubscribedCentrals: [connectedCentral])
+        chunkedMessage, for: indicationCharacteristic, onSubscribedCentrals: [connectedCentral])
       if !isCentralReady {
         while !isCentralReady { Thread.sleep(forTimeInterval: 0.05) }
         self.peripheralManager.updateValue(
-          chunkedMessage, for: notifyCharacteristic, onSubscribedCentrals: [connectedCentral])
+          chunkedMessage, for: indicationCharacteristic, onSubscribedCentrals: [connectedCentral])
       }
     }
     isCentralReady = self.peripheralManager.updateValue(
-      "EOM".data(using: String.Encoding.utf8)!, for: notifyCharacteristic,
+      "EOM".data(using: String.Encoding.utf8)!, for: indicationCharacteristic,
       onSubscribedCentrals: [connectedCentral])
     if !isCentralReady {
       while !isCentralReady { Thread.sleep(forTimeInterval: 0.05) }
       self.peripheralManager.updateValue(
-        "EOM".data(using: String.Encoding.utf8)!, for: notifyCharacteristic,
+        "EOM".data(using: String.Encoding.utf8)!, for: indicationCharacteristic,
         onSubscribedCentrals: [connectedCentral])
     }
   }
