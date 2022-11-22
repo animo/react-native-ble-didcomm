@@ -54,8 +54,6 @@ can listen to incoming messages and send messages to the other participant.
 
 First, you need to add the dependency to your project:
 
-> TODO: this is not released yet
-
 ```sh
 yarn add react-native-ble-didcomm
 ```
