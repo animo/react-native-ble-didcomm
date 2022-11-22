@@ -8,13 +8,7 @@
 
 <h1 align="center" ><b>React Native Ble DIDComm</b></h1>
 
-<h4 align="center">Powered by &nbsp; 
-  <picture>
-    <source media="(prefers-color-scheme: light)" srcset="https://res.cloudinary.com/animo-solutions/image/upload/v1656579715/animo-logo-light-text_cma2yo.svg">
-    <source media="(prefers-color-scheme: dark)" srcset="https://res.cloudinary.com/animo-solutions/image/upload/v1656579715/animo-logo-dark-text_uccvqa.svg">
-    <img alt="Animo Logo" height="12px" />
-  </picture>
-</h4><br>
+<h4 align="center">Powered by Animo & ID Crypt</h4><br>
 
 <!-- TODO: Add relevant badges, like CI/CD, license, codecov, etc. -->
 
