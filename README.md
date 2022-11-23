@@ -14,13 +14,13 @@
 
 <p align="center">
   <a href="https://typescriptlang.org">
-    <img src="https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg" />
-  </a>
-  <a href="https://yarnpkg.com">
-    <img src="https://img.shields.io/badge/yarn-workspaces-2188b6" />
+    <img src="https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg" alt="TypeScript" />
   </a>
   <a href="https://opensource.org/licenses/Apache-2.0">
-    <img src="https://img.shields.io/badge/License-Apache_2.0-yellowgreen.svg" />
+    <img src="https://img.shields.io/badge/License-Apache_2.0-yellowgreen.svg" alt="Apache 2.0 License" />
+  </a>
+  <a href="https://badge.fury.io/js/@animo-id%2Freact-native-ble-didcomm">
+    <img src="https://badge.fury.io/js/@animo-id%2Freact-native-ble-didcomm.svg" alt="npm version">
   </a>
 </p>
 
