@@ -11,13 +11,8 @@ import {
   NativeModules,
 } from 'react-native'
 import {
-  startCentral,
-  startPeripheral,
-  advertise,
-  scan,
-  connect,
-  write,
-  indicate,
+  Central,
+  Peripheral,
   DEFAULT_DIDCOMM_SERVICE_UUID,
   DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
   DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
@@ -39,6 +34,9 @@ const requestPermissions = async () => {
     'android.permission.ACCESS_COARSE_LOCATION',
   ])
 }
+
+const central = new Central()
+const peripheral = new Peripheral()
 
 export default function App() {
   const [isCentral, setIsCentral] = React.useState(false)
@@ -105,38 +103,65 @@ export default function App() {
       <Button
         title="start: central"
         onPress={async () => {
-          await startCentral({
-            serviceUUID: DEFAULT_DIDCOMM_SERVICE_UUID,
-            messagingUUID: DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
-            indicationUUID: DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
+          central.setIds({
+            serviceId: DEFAULT_DIDCOMM_SERVICE_UUID,
+            messagingId: DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
+            indicationId: DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
           })
+          await central.start()
           setIsCentral(true)
         }}
       />
       <Button
         title="start: peripheral"
         onPress={async () => {
-          await startPeripheral({
-            serviceUUID: DEFAULT_DIDCOMM_SERVICE_UUID,
-            messagingUUID: DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
-            indicationUUID: DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
+          peripheral.setIds({
+            serviceId: DEFAULT_DIDCOMM_SERVICE_UUID,
+            messagingId: DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
+            indicationId: DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
           })
+          await peripheral.start()
           setIsPeripheral(true)
         }}
       />
       {isCentral && (
         <>
-          <Button title="scan" onPress={scan} />
+          <Button
+            title="scan"
+            onPress={async () => {
+              await central.scan()
+            }}
+          />
           {peripheralId && (
-            <Button title="connect" onPress={() => connect(peripheralId)} />
+            <Button
+              title="connect"
+              onPress={() => central.connect(peripheralId)}
+            />
           )}
-          {connected && <Button title="write" onPress={() => write(msg)} />}
+          {connected && (
+            <Button
+              title="write"
+              onPress={async () => {
+                await central.sendMessage(msg)
+              }}
+            />
+          )}
         </>
       )}
       {isPeripheral && (
         <>
-          <Button title="advertise" onPress={advertise} />
-          <Button title="notify" onPress={() => indicate(msg)} />
+          <Button
+            title="advertise"
+            onPress={async () => {
+              await peripheral.advertise()
+            }}
+          />
+          <Button
+            title="notify"
+            onPress={async () => {
+              await peripheral.sendMessage(msg)
+            }}
+          />
         </>
       )}
     </View>
