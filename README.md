@@ -8,7 +8,7 @@
 
 <h1 align="center" ><b>React Native Ble DIDComm</b></h1>
 
-<h4 align="center">Powered by Animo & ID Crypt</h4><br>
+<h4 align="center">Powered by Animo & ID Crypt Global Ltd</h4><br>
 
 <!-- TODO: Add relevant badges, like CI/CD, license, codecov, etc. -->
 
@@ -205,4 +205,4 @@ License](https://opensource.org/licenses/Apache-2.0).
 ## Credits
 
 The initial work for this library was funded and started by [ID
-Crypt](https://www.idcrypt.global).
+Crypt Global Ltd](https://www.idcrypt.global).
