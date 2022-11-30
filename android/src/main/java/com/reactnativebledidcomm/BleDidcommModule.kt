@@ -188,18 +188,44 @@ class BleDidcommModule(private val context: ReactApplicationContext) :
         @SuppressLint("MissingPermission")
         override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
             super.onServicesDiscovered(gatt, status)
+            gatt.requestMtu(512)
+            centralManager.serviceUUID
             val service = gatt.getService(centralManager.serviceUUID)
+            if (service == null) {
+                Log.e(Constants.TAG, "Could not find service for ${centralManager.serviceUUID}")
+                return
+            }
             centralManager.writeCharacteristic =
                 service.getCharacteristic(centralManager.writeCharacteristicUUID)
+            if (centralManager.writeCharacteristic == null) {
+                Log.e(
+                    Constants.TAG,
+                    "Could not find write characteristic for ${centralManager.writeCharacteristicUUID}"
+                )
+                return
+            }
             centralManager.indicationCharacteristic =
                 service.getCharacteristic(centralManager.indicationCharacteristicUUID)
-            gatt.setCharacteristicNotification(centralManager.indicationCharacteristic, true)
-            gatt.requestMtu(512)
+            centralManager.indicationCharacteristic
+            if (centralManager.indicationCharacteristic == null) {
+                Log.e(
+                    Constants.TAG,
+                    "Could not find indication characteristic for ${centralManager.indicationCharacteristicUUID}"
+                )
+                return
+            }
             val descriptor =
                 centralManager.indicationCharacteristic?.getDescriptor(UUID.fromString(Constants.CCC_DESCRIPTOR_UUID))
-            descriptor?.value = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
+            if (descriptor == null) {
+                Log.e(
+                    Constants.TAG,
+                    "Could not find descriptor on indication characteristic for ${Constants.CCC_DESCRIPTOR_UUID}"
+                )
+                return
+            }
+            descriptor.value = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
             gatt.writeDescriptor(descriptor)
-
+            gatt.setCharacteristicNotification(centralManager.indicationCharacteristic, true)
         }
 
         @SuppressLint("MissingPermission")

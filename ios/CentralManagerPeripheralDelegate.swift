@@ -5,7 +5,6 @@ extension CentralManager: CBPeripheralDelegate {
   func peripheral(
     _ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?
   ) {
-    os_log("DISCOVERED")
     if let error = error {
       os_log("Error discovering characteristics: %s", error.localizedDescription)
       return
