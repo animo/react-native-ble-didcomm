@@ -41,6 +41,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "dependencies": {
+    "@animo-id/react-native-ble-didcomm": "^0.1.0",
     "convert-string": "0.1.0"
   },
   "peerDependencies": {
