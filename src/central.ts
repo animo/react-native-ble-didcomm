@@ -1,5 +1,6 @@
+import { NativeEventEmitter, NativeModules } from 'react-native'
 import { BaseBLE } from './base'
-import { startCentral, write, advertise, scan, connect } from './functions'
+import { startCentral, write, scan, connect } from './functions'
 
 export class Central extends BaseBLE {
   async sendMessage(message: string) {
@@ -19,13 +20,17 @@ export class Central extends BaseBLE {
 
   async shutdown() {
     // TODO: Implement native
-    return await Promise.resolve()
+    throw new Error('Not implemented')
   }
 
   async registerMessageListener(cb: (msg: string) => void): Promise<void> {
-    // TODO: what's this supposed to do?
-    cb(cb.arguments as string)
-    return await Promise.resolve()
+    const bleDidcommEmitter = new NativeEventEmitter(NativeModules.BleDidcomm)
+    const onReceivedNotificationListener = bleDidcommEmitter.addListener(
+      'onReceivedNotification',
+      cb
+    )
+
+    return onReceivedNotificationListener.remove()
   }
 
   async scan() {
@@ -37,8 +42,14 @@ export class Central extends BaseBLE {
   }
 
   async registerOnScan(cb: (peripheralId: string) => void): Promise<void> {
-    cb(cb.arguments)
-    return await Promise.resolve()
+    const bleDidcommEmitter = new NativeEventEmitter(NativeModules.BleDidcomm)
+    const onDiscoverPeripheralListener = bleDidcommEmitter.addListener(
+      'onDiscoverPeripheral',
+      ({ peripheralId: pId }: { peripheralId: string; name?: string }) => {
+        cb(pId)
+      }
+    )
+    return onDiscoverPeripheralListener.remove()
   }
 
   constructor(
