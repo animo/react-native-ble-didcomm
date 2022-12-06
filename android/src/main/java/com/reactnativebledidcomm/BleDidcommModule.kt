@@ -183,6 +183,10 @@ class BleDidcommModule(private val context: ReactApplicationContext) :
                 return
             }
             centralManager.connectedMtu = mtu
+            val descriptor =
+                centralManager.indicationCharacteristic?.getDescriptor(UUID.fromString(Constants.CCC_DESCRIPTOR_UUID))
+            descriptor?.value = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
+            gatt?.writeDescriptor(descriptor)
         }
 
         @SuppressLint("MissingPermission")
@@ -195,11 +199,6 @@ class BleDidcommModule(private val context: ReactApplicationContext) :
                 service.getCharacteristic(centralManager.indicationCharacteristicUUID)
             gatt.setCharacteristicNotification(centralManager.indicationCharacteristic, true)
             gatt.requestMtu(512)
-            val descriptor =
-                centralManager.indicationCharacteristic?.getDescriptor(UUID.fromString(Constants.CCC_DESCRIPTOR_UUID))
-            descriptor?.value = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
-            gatt.writeDescriptor(descriptor)
-
         }
 
         @SuppressLint("MissingPermission")
