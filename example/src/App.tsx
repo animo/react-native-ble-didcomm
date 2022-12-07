@@ -12,11 +12,7 @@ import {
 } from 'react-native'
 import {
   Central,
-  startPeripheral,
-  advertise,
-  scan,
-  write,
-  indicate,
+  Peripheral,
   DEFAULT_DIDCOMM_SERVICE_UUID,
   DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
   DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
@@ -45,10 +41,11 @@ export default function App() {
   const [peripheralId, setPeripheralId] = React.useState<string>()
   const [connected, setConnected] = React.useState(false)
   const central = new Central()
+  const peripheral = new Peripheral()
 
   React.useEffect(() => {
     const onDiscoverPeripheralListener = central.registerOnScannedListener(
-      (pId: string) => {
+      ({ peripheralId: pId }: { peripheralId: string }) => {
         console.log(`Discovered: ${pId}`)
         setPeripheralId(pId)
       }
@@ -108,7 +105,7 @@ export default function App() {
       <Button
         title="start: peripheral"
         onPress={async () => {
-          await startPeripheral({
+          await peripheral.start({
             serviceUUID: DEFAULT_DIDCOMM_SERVICE_UUID,
             messagingUUID: DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
             indicationUUID: DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
@@ -118,20 +115,30 @@ export default function App() {
       />
       {isCentral && (
         <>
-          <Button title="scan" onPress={scan} />
+          <Button
+            title="scan"
+            onPress={async () => {
+              await central.scan()
+            }}
+          />
           {peripheralId && (
             <Button
               title="connect"
-              onPress={() => central.connect(peripheralId)}
+              onPress={async () => await central.connect(peripheralId)}
             />
           )}
-          {connected && <Button title="write" onPress={() => write(msg)} />}
+          {connected && (
+            <Button
+              title="write"
+              onPress={async () => await central.sendMessage(msg)}
+            />
+          )}
         </>
       )}
       {isPeripheral && (
         <>
-          <Button title="advertise" onPress={advertise} />
-          <Button title="notify" onPress={() => indicate(msg)} />
+          <Button title="advertise" onPress={() => peripheral.advertise()} />
+          <Button title="notify" onPress={() => peripheral.indicate(msg)} />
         </>
       )}
     </View>

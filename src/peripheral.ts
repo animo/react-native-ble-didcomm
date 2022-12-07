@@ -1,8 +1,8 @@
-import type { StartOptions, Ble } from './ble'
+import type { Ble, StartOptions } from './ble'
 import { NativeEventEmitter, NativeModules } from 'react-native'
 import { sdk } from './register'
 
-export class Central implements Ble {
+export class Peripheral implements Ble {
   async sendMessage(message: string) {
     try {
       await sdk.write(message)
@@ -38,46 +38,21 @@ export class Central implements Ble {
     return onReceivedNotificationListener
   }
 
-  async scan() {
+  async indicate(message: string) {
     try {
-      await sdk.scan({})
-    } catch (e) {
-      throw new Error('An error occurred while scanning for devices: ' + e)
-    }
-  }
-
-  async connect(peripheralId: string) {
-    try {
-      await sdk.connect(peripheralId)
+      await sdk.indicate(message)
     } catch (e) {
       throw new Error(
-        `An error occurred while trying to connect to ${peripheralId}: ` + e
+        'An error occurred while sending an indication as a peripheral: ' + e
       )
     }
   }
 
-  registerOnScannedListener(
-    cb: ({
-      peripheralId: pId,
-      name,
-    }: {
-      peripheralId: string
-      name?: string
-    }) => void
-  ) {
-    const bleDidcommEmitter = new NativeEventEmitter(NativeModules.BleDidcomm)
-    const onDiscoverPeripheralListener = bleDidcommEmitter.addListener(
-      'onDiscoverPeripheral',
-      ({
-        peripheralId: pId,
-        name,
-      }: {
-        peripheralId: string
-        name?: string
-      }) => {
-        cb({ peripheralId: pId, name })
-      }
-    )
-    return onDiscoverPeripheralListener
+  async advertise() {
+    try {
+      await sdk.advertise({})
+    } catch (e) {
+      throw new Error('An error occurred while trying to advertise: ' + e)
+    }
   }
 }
