@@ -14,7 +14,7 @@ export const startCentral = async ({
   try {
     await sdk.startCentral(serviceUUID, messagingUUID, indicationUUID)
   } catch (e) {
-    throw new Error('An error occured during startup: ' + e)
+    throw new Error('An error occurred during startup: ' + e)
   }
 }
 
@@ -26,7 +26,7 @@ export const startPeripheral = async ({
   try {
     await sdk.startPeripheral(serviceUUID, messagingUUID, indicationUUID)
   } catch (e) {
-    throw new Error('An error occured during startup: ' + e)
+    throw new Error('An error occurred during startup: ' + e)
   }
 }
 
@@ -35,7 +35,7 @@ export const startPeripheral = async ({
 //   try {
 //   await sdk.shutdownCentral({})
 //   } catch (e) {
-//     throw new Error("An error occured during shutdown central: " + e)
+//     throw new Error("An error occurred during shutdown central: " + e)
 //   }
 // }
 //
@@ -43,7 +43,7 @@ export const startPeripheral = async ({
 //   try {
 //   await sdk.shutdownPeripheral({})
 //   } catch (e) {
-//     throw new Error("An error occured during shutdown peripheral: " + e)
+//     throw new Error("An error occurred during shutdown peripheral: " + e)
 //   }
 // }
 

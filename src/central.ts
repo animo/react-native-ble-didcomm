@@ -1,21 +1,25 @@
 import { NativeEventEmitter, NativeModules } from 'react-native'
-import { BaseBLE } from './base'
-import { startCentral, write, scan, connect } from './functions'
+import { BaseBLE, StartOptions } from './base'
+import { sdk } from './register'
 
 export class Central extends BaseBLE {
   async sendMessage(message: string) {
-    return await write(message)
+    try {
+      await sdk.write(message)
+    } catch (e) {
+      throw new Error(`An error occurred while trying to write message` + e)
+    }
   }
-  async start(
-    serviceUUID: string,
-    writeCharacteristicUUID: string,
-    indicationCharacteristicUUID: string
-  ) {
-    return await startCentral({
-      serviceUUID: serviceUUID,
-      messagingUUID: writeCharacteristicUUID,
-      indicationUUID: indicationCharacteristicUUID,
-    })
+  async start(options: StartOptions) {
+    try {
+      await sdk.startCentral(
+        options.serviceUUID,
+        options.characteristicUUID,
+        options.notifyCharacteristicUUID
+      )
+    } catch (e) {
+      throw new Error('An error occurred during startup: ' + e)
+    }
   }
 
   async shutdown() {
@@ -23,25 +27,35 @@ export class Central extends BaseBLE {
     throw new Error('Not implemented')
   }
 
-  async registerMessageListener(cb: (msg: string) => void): Promise<void> {
+  registerMessageListener(cb: (msg: string) => void) {
     const bleDidcommEmitter = new NativeEventEmitter(NativeModules.BleDidcomm)
     const onReceivedNotificationListener = bleDidcommEmitter.addListener(
       'onReceivedNotification',
       cb
     )
 
-    return onReceivedNotificationListener.remove()
+    return onReceivedNotificationListener
   }
 
   async scan() {
-    return await scan()
+    try {
+      await sdk.scan({})
+    } catch (e) {
+      throw new Error('An error occurred while scanning for devices: ' + e)
+    }
   }
 
   async connect(peripheralId: string) {
-    return await connect(peripheralId)
+    try {
+      await sdk.connect(peripheralId)
+    } catch (e) {
+      throw new Error(
+        `An error occurred while trying to connect to ${peripheralId}: ` + e
+      )
+    }
   }
 
-  async registerOnScan(cb: (peripheralId: string) => void): Promise<void> {
+  async registerOnScannedListener(cb: (peripheralId: string) => void) {
     const bleDidcommEmitter = new NativeEventEmitter(NativeModules.BleDidcomm)
     const onDiscoverPeripheralListener = bleDidcommEmitter.addListener(
       'onDiscoverPeripheral',
@@ -49,30 +63,6 @@ export class Central extends BaseBLE {
         cb(pId)
       }
     )
-    return onDiscoverPeripheralListener.remove()
-  }
-
-  constructor(
-    start: (
-      serviceUUID: string,
-      writeCharacteristicUUID: string,
-      indicationCharacteristicUUID: string
-    ) => Promise<void>,
-    sendMessage: (message: string) => Promise<void>,
-    shutdown: () => Promise<void>,
-    registerMessageListener: (cb: (msg: string) => void) => Promise<void>,
-    scan: () => Promise<void>,
-    connect: (peripheralId: string) => Promise<void>,
-    registerOnScan: (cb: (peripheralId: string) => void) => Promise<void>
-  ) {
-    super()
-
-    this.start = start
-    this.sendMessage = sendMessage
-    this.shutdown = shutdown
-    this.registerMessageListener = registerMessageListener
-    this.scan = scan
-    this.connect = connect
-    this.registerOnScan = registerOnScan
+    return onDiscoverPeripheralListener
   }
 }
