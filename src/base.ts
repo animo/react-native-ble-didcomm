@@ -7,7 +7,5 @@ export abstract class BaseBLE {
   ): Promise<void>
   //   TODO: implement native shutdown
   abstract shutdown(): Promise<void>
-  abstract registerMessageListener(
-    cb: (msg: string) => void
-  ): Promise<void> | void
+  abstract registerMessageListener(cb: (msg: string) => void): void
 }
