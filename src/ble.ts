@@ -1,4 +1,4 @@
-export interface BaseBLE {
+export interface Ble {
   sendMessage(message: string): Promise<void>
   start(
     serviceUUID: string,
