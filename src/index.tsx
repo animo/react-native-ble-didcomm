@@ -1,4 +1,3 @@
-export * from './functions'
 export * from './constants'
-export * from './base'
-export * from './peripheral'
+export * from './central'
+export * from './ble'
