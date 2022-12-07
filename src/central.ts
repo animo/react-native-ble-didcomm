@@ -1,8 +1,8 @@
+import type { StartOptions, Ble} from './ble'
 import { NativeEventEmitter, NativeModules } from 'react-native'
-import { BaseBLE, StartOptions } from './base'
 import { write, startCentral, scan, connect } from './functions'
 
-export class Central extends BaseBLE {
+export class Central implements Ble {
   async sendMessage(message: string) {
     await write(message)
   }

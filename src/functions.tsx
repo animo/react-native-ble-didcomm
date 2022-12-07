@@ -1,4 +1,4 @@
-import type { StartOptions } from './base'
+import type { StartOptions } from './ble'
 import { sdk } from './register'
 
 export const startPeripheral = async ({
