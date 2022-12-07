@@ -50,17 +50,10 @@ jobs:
 
       - name: Check typescript
         run: yarn check-types
-  native-tests:
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Checkout react-native-ble-didcomm
-        uses: actions/checkout@v3
-        with:
-          path: react-native-ble-didcomm
   release:
     runs-on: ubuntu-20.04
     name: Release
-    needs: [validate, native-tests]
+    needs: [validate]
     # Only run on workflow dispatch to main branch
     if: github.ref == 'refs/heads/main' && github.repository == 'animo/react-native-ble-didcomm' && github.event_name == 'workflow_dispatch'
     steps:
