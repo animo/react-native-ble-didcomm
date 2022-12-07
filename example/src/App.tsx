@@ -137,7 +137,7 @@ export default function App() {
       )}
       {isPeripheral && (
         <>
-          <Button title="advertise" onPress={peripheral.advertise} />
+          <Button title="advertise" onPress={() => peripheral.advertise()} />
           <Button title="notify" onPress={() => peripheral.indicate(msg)} />
         </>
       )}
