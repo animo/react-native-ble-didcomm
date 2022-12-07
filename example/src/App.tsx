@@ -11,11 +11,10 @@ import {
   NativeModules,
 } from 'react-native'
 import {
-  startCentral,
+  Central,
   startPeripheral,
   advertise,
   scan,
-  connect,
   write,
   indicate,
   DEFAULT_DIDCOMM_SERVICE_UUID,
@@ -45,17 +44,11 @@ export default function App() {
   const [isPeripheral, setIsPeripheral] = React.useState(false)
   const [peripheralId, setPeripheralId] = React.useState<string>()
   const [connected, setConnected] = React.useState(false)
+  const central = new Central()
 
   React.useEffect(() => {
-    const onDiscoverPeripheralListener = bleDidcommEmitter.addListener(
-      'onDiscoverPeripheral',
-      ({
-        peripheralId: pId,
-        name,
-      }: {
-        peripheralId: string
-        name?: string
-      }) => {
+    const onDiscoverPeripheralListener = central.registerOnScannedListener(
+      ({ peripheralId: pId, name }) => {
         console.log(`Discovered: ${pId} ${name ? 'with name:' + name : ''}`)
         setPeripheralId(pId)
       }
@@ -69,8 +62,7 @@ export default function App() {
       }
     )
 
-    const onReceivedNotificationListener = bleDidcommEmitter.addListener(
-      'onReceivedNotification',
+    const onReceivedNotificationListener = central.registerMessageListener(
       console.log
     )
 
@@ -105,7 +97,7 @@ export default function App() {
       <Button
         title="start: central"
         onPress={async () => {
-          await startCentral({
+          await central.start({
             serviceUUID: DEFAULT_DIDCOMM_SERVICE_UUID,
             messagingUUID: DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
             indicationUUID: DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
@@ -128,7 +120,10 @@ export default function App() {
         <>
           <Button title="scan" onPress={scan} />
           {peripheralId && (
-            <Button title="connect" onPress={() => connect(peripheralId)} />
+            <Button
+              title="connect"
+              onPress={() => central.connect(peripheralId)}
+            />
           )}
           {connected && <Button title="write" onPress={() => write(msg)} />}
         </>

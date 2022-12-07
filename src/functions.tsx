@@ -1,22 +1,5 @@
+import type { StartOptions } from './base'
 import { sdk } from './register'
-
-type StartOptions = {
-  serviceUUID: string
-  messagingUUID: string
-  indicationUUID: string
-}
-
-export const startCentral = async ({
-  serviceUUID,
-  messagingUUID,
-  indicationUUID,
-}: StartOptions) => {
-  try {
-    await sdk.startCentral(serviceUUID, messagingUUID, indicationUUID)
-  } catch (e) {
-    throw new Error('An error occurred during startup: ' + e)
-  }
-}
 
 export const startPeripheral = async ({
   serviceUUID,

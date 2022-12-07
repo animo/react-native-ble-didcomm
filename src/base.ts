@@ -1,9 +1,9 @@
 import type { EmitterSubscription } from 'react-native'
 
-export interface StartOptions {
+export type StartOptions = {
   serviceUUID: string
-  characteristicUUID: string
-  notifyCharacteristicUUID: string
+  messagingUUID: string
+  indicationUUID: string
 }
 
 export abstract class BaseBLE {

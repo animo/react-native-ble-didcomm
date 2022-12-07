@@ -14,8 +14,8 @@ export class Central extends BaseBLE {
     try {
       await sdk.startCentral(
         options.serviceUUID,
-        options.characteristicUUID,
-        options.notifyCharacteristicUUID
+        options.messagingUUID,
+        options.indicationUUID
       )
     } catch (e) {
       throw new Error('An error occurred during startup: ' + e)
@@ -55,12 +55,26 @@ export class Central extends BaseBLE {
     }
   }
 
-  async registerOnScannedListener(cb: (peripheralId: string) => void) {
+  registerOnScannedListener(
+    cb: ({
+      peripheralId: pId,
+      name,
+    }: {
+      peripheralId: string
+      name?: string
+    }) => void
+  ) {
     const bleDidcommEmitter = new NativeEventEmitter(NativeModules.BleDidcomm)
     const onDiscoverPeripheralListener = bleDidcommEmitter.addListener(
       'onDiscoverPeripheral',
-      ({ peripheralId: pId }: { peripheralId: string; name?: string }) => {
-        cb(pId)
+      ({
+        peripheralId: pId,
+        name,
+      }: {
+        peripheralId: string
+        name?: string
+      }) => {
+        cb({ peripheralId: pId, name })
       }
     )
     return onDiscoverPeripheralListener
