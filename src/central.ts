@@ -13,7 +13,7 @@ export class Central implements Ble {
 
   async start(options: StartOptions) {
     try {
-      await sdk.startPeripheral(
+      await sdk.startCentral(
         options.serviceUUID,
         options.messagingUUID,
         options.indicationUUID
