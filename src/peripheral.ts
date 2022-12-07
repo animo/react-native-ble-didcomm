@@ -1,14 +1,26 @@
 import type { Ble, StartOptions } from './ble'
 import { NativeEventEmitter, NativeModules } from 'react-native'
-import { write, advertise, startPeripheral, indicate } from './functions'
+import { sdk } from './register'
 
 export class Peripheral implements Ble {
   async sendMessage(message: string) {
-    await write(message)
+    try {
+      await sdk.write(message)
+    } catch (e) {
+      throw new Error(`An error occurred while trying to write message` + e)
+    }
   }
 
   async start(options: StartOptions) {
-    await startPeripheral(options)
+    try {
+      await sdk.startPeripheral(
+        options.serviceUUID,
+        options.messagingUUID,
+        options.indicationUUID
+      )
+    } catch (e) {
+      throw new Error('An error occurred during startup: ' + e)
+    }
   }
 
   async shutdown() {
@@ -27,10 +39,20 @@ export class Peripheral implements Ble {
   }
 
   async indicate(message: string) {
-    await indicate(message)
+    try {
+      await sdk.indicate(message)
+    } catch (e) {
+      throw new Error(
+        'An error occurred while sending an indication as a peripheral: ' + e
+      )
+    }
   }
 
   async advertise() {
-    await advertise()
+    try {
+      await sdk.advertise({})
+    } catch (e) {
+      throw new Error('An error occurred while trying to advertise: ' + e)
+    }
   }
 }
