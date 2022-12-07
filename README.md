@@ -55,7 +55,7 @@ can listen to incoming messages and send messages to the other participant.
 First, you need to add the dependency to your project:
 
 ```sh
-yarn add react-native-ble-didcomm
+yarn add @animo-id/react-native-ble-didcomm
 ```
 
 ### Android
