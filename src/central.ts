@@ -1,4 +1,4 @@
-import type { StartOptions, Ble} from './ble'
+import type { StartOptions, Ble } from './ble'
 import { NativeEventEmitter, NativeModules } from 'react-native'
 import { write, startCentral, scan, connect } from './functions'
 
