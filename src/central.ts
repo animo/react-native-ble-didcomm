@@ -34,26 +34,12 @@ export class Central implements Ble {
     await connect(peripheralId)
   }
 
-  registerOnScannedListener(
-    cb: ({
-      peripheralId: pId,
-      name,
-    }: {
-      peripheralId: string
-      name?: string
-    }) => void
-  ) {
+  registerOnScannedListener(cb: (peripheralId: string) => void) {
     const bleDidcommEmitter = new NativeEventEmitter(NativeModules.BleDidcomm)
     const onDiscoverPeripheralListener = bleDidcommEmitter.addListener(
       'onDiscoverPeripheral',
-      ({
-        peripheralId: pId,
-        name,
-      }: {
-        peripheralId: string
-        name?: string
-      }) => {
-        cb({ peripheralId: pId, name })
+      (peripheralId: string) => {
+        cb(peripheralId)
       }
     )
     return onDiscoverPeripheralListener

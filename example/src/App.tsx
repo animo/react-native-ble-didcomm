@@ -48,8 +48,8 @@ export default function App() {
 
   React.useEffect(() => {
     const onDiscoverPeripheralListener = central.registerOnScannedListener(
-      ({ peripheralId: pId, name }) => {
-        console.log(`Discovered: ${pId} ${name ? 'with name:' + name : ''}`)
+      (pId: string) => {
+        console.log(`Discovered: ${pId}`)
         setPeripheralId(pId)
       }
     )
