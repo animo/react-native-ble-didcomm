@@ -13,6 +13,18 @@ export const startPeripheral = async ({
   }
 }
 
+export const startCentral = async ({
+  serviceUUID,
+  messagingUUID,
+  indicationUUID,
+}: StartOptions) => {
+  try {
+    await sdk.startCentral(serviceUUID, messagingUUID, indicationUUID)
+  } catch (e) {
+    throw new Error('An error occurred during startup: ' + e)
+  }
+}
+
 // TODO
 // export const shutdownCentral = async () => {
 //   try {

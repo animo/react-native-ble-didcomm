@@ -1,25 +1,14 @@
 import { NativeEventEmitter, NativeModules } from 'react-native'
 import { BaseBLE, StartOptions } from './base'
-import { sdk } from './register'
+import { write, startCentral, scan, connect } from './functions'
 
 export class Central extends BaseBLE {
   async sendMessage(message: string) {
-    try {
-      await sdk.write(message)
-    } catch (e) {
-      throw new Error(`An error occurred while trying to write message` + e)
-    }
+    await write(message)
   }
+
   async start(options: StartOptions) {
-    try {
-      await sdk.startCentral(
-        options.serviceUUID,
-        options.messagingUUID,
-        options.indicationUUID
-      )
-    } catch (e) {
-      throw new Error('An error occurred during startup: ' + e)
-    }
+    await startCentral(options)
   }
 
   async shutdown() {
@@ -38,21 +27,11 @@ export class Central extends BaseBLE {
   }
 
   async scan() {
-    try {
-      await sdk.scan({})
-    } catch (e) {
-      throw new Error('An error occurred while scanning for devices: ' + e)
-    }
+    await scan()
   }
 
   async connect(peripheralId: string) {
-    try {
-      await sdk.connect(peripheralId)
-    } catch (e) {
-      throw new Error(
-        `An error occurred while trying to connect to ${peripheralId}: ` + e
-      )
-    }
+    await connect(peripheralId)
   }
 
   registerOnScannedListener(
