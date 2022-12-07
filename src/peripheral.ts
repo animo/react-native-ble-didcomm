@@ -1,11 +1,12 @@
 import type { Ble, StartOptions } from './ble'
 import { NativeEventEmitter, NativeModules } from 'react-native'
-import { write, advertise, startPeripheral } from './functions'
+import { write, advertise, startPeripheral, indicate } from './functions'
 
 export class Peripheral implements Ble {
   async sendMessage(message: string) {
     await write(message)
   }
+
   async start(options: StartOptions) {
     await startPeripheral(options)
   }
@@ -23,6 +24,10 @@ export class Peripheral implements Ble {
     )
 
     return onReceivedNotificationListener
+  }
+
+  async indicate(message: string) {
+    await indicate(message)
   }
 
   async advertise() {
