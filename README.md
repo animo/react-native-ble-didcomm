@@ -132,7 +132,7 @@ React.useEffect(() => {
 ### Start advertising (peripheral):
 
 ```typescript
-import { startPeripheral, advertise } from 'react-native-ble-didcomm'
+import { startPeripheral, advertise } from '@animo-id/react-native-ble-didcomm'
 
 await startPeripheral()
 await advertise()
@@ -141,7 +141,7 @@ await advertise()
 ### Start scanning (central):
 
 ```typescript
-import { startCentral, scan } from 'react-native-ble-didcomm'
+import { startCentral, scan } from '@animo-id/react-native-ble-didcomm'
 
 await startCentral()
 await scan()
@@ -150,7 +150,7 @@ await scan()
 ### Connect (central):
 
 ```typescript
-import { connect } from 'react-native-ble-didcomm'
+import { connect } from '@animo-id/react-native-ble-didcomm'
 
 // peripheralId can be retrieved from the `onDiscoverPeripheralListener`
 // as shown above with the listeners
@@ -161,7 +161,7 @@ await connect(peripheralId)
 ### Send message (central):
 
 ```typescript
-import { write } from 'react-native-ble-didcomm'
+import { write } from '@animo-id/react-native-ble-didcomm'
 
 await write('Hello World!')
 ```
@@ -169,7 +169,7 @@ await write('Hello World!')
 ### Send indication / message (peripheral):
 
 ```typescript
-import { notify } from 'react-native-ble-didcomm'
+import { notify } from '@animo-id/react-native-ble-didcomm'
 
 await notify('Hello World!')
 ```
