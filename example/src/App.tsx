@@ -20,7 +20,7 @@ import {
   DEFAULT_DIDCOMM_SERVICE_UUID,
   DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
   DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
-} from '@animo-id/react-native-ble-didcomm'
+} from '../../src'
 import { presentationMsg } from './presentationMsg'
 
 const bleDidcommEmitter = new NativeEventEmitter(NativeModules.BleDidcomm)
