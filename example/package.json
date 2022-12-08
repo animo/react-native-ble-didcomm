@@ -11,7 +11,7 @@
     "babel-plugin-module-resolver": "4.1.0",
     "react": "18.1.0",
     "react-native": "0.70.3",
-    "@animo-id/react-native-ble-didcomm": "0.1.1"
+    "@animo-id/react-native-ble-didcomm": "^0.1.1"
   },
   "devDependencies": {
     "@babel/core": "7.12.9",
