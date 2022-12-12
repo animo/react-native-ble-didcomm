@@ -44,15 +44,14 @@ export default function App() {
   const peripheral = new Peripheral()
 
   React.useEffect(() => {
-    const onDiscoverPeripheralListener = central.registerOnScannedListener(
+    const onDiscoverPeripheralListener = central.registerOnDiscoveredListener(
       ({ peripheralId: pId }: { peripheralId: string }) => {
         console.log(`Discovered: ${pId}`)
         setPeripheralId(pId)
       }
     )
 
-    const onConnectedPeripheralListener = bleDidcommEmitter.addListener(
-      'onConnectedPeripheral',
+    const onConnectedPeripheralListener = central.registerOnConnectedListener(
       ({ peripheralId: pId }: { peripheralId: string }) => {
         console.log(`Connected to: ${pId}`)
         setConnected(true)
@@ -63,8 +62,7 @@ export default function App() {
       console.log
     )
 
-    const onReceivedWriteWithoutResponseListener = bleDidcommEmitter.addListener(
-      'onReceivedWriteWithoutResponse',
+    const onReceivedWriteWithoutResponseListener = peripheral.registerMessageListener(
       console.log
     )
 

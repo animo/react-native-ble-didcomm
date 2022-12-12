@@ -31,7 +31,7 @@ export class Peripheral implements Ble {
   registerMessageListener(cb: (msg: string) => void) {
     const bleDidcommEmitter = new NativeEventEmitter(NativeModules.BleDidcomm)
     const onReceivedNotificationListener = bleDidcommEmitter.addListener(
-      'onReceivedNotification',
+      'onReceivedWriteWithoutResponse',
       cb
     )
 

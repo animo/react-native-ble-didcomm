@@ -56,9 +56,9 @@ export class Central implements Ble {
     }
   }
 
-  registerOnScannedListener(
+  registerOnDiscoveredListener(
     cb: ({
-      peripheralId: pId,
+      peripheralId,
       name,
     }: {
       peripheralId: string
@@ -79,5 +79,30 @@ export class Central implements Ble {
       }
     )
     return onDiscoverPeripheralListener
+  }
+
+  registerOnConnectedListener(
+    cb: ({
+      peripheralId,
+      name,
+    }: {
+      peripheralId: string
+      name?: string
+    }) => void
+  ) {
+    const bleDidcommEmitter = new NativeEventEmitter(NativeModules.BleDidcomm)
+    const onConnectedPeripheralListener = bleDidcommEmitter.addListener(
+      'onConnectedPeripheral',
+      ({
+        peripheralId: pId,
+        name,
+      }: {
+        peripheralId: string
+        name?: string
+      }) => {
+        cb({ peripheralId: pId, name })
+      }
+    )
+    return onConnectedPeripheralListener
   }
 }
