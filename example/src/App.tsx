@@ -7,8 +7,6 @@ import {
   Button,
   PermissionsAndroid,
   Platform,
-  NativeEventEmitter,
-  NativeModules,
 } from 'react-native'
 import {
   Central,
@@ -18,8 +16,6 @@ import {
   DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
 } from '../../src'
 import { presentationMsg } from './presentationMsg'
-
-const bleDidcommEmitter = new NativeEventEmitter(NativeModules.BleDidcomm)
 
 const Spacer = () => <View style={{ height: 20, width: 20 }} />
 
