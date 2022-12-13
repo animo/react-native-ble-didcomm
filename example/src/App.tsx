@@ -41,15 +41,15 @@ export default function App() {
 
   React.useEffect(() => {
     const onDiscoverPeripheralListener = central.registerOnDiscoveredListener(
-      ({ peripheralId: pId }: { peripheralId: string }) => {
-        console.log(`Discovered: ${pId}`)
-        setPeripheralId(pId)
+      ({ peripheralId }) => {
+        console.log(`Discovered: ${peripheralId}`)
+        setPeripheralId(peripheralId)
       }
     )
 
     const onConnectedPeripheralListener = central.registerOnConnectedListener(
-      ({ peripheralId: pId }: { peripheralId: string }) => {
-        console.log(`Connected to: ${pId}`)
+      ({ peripheralId }) => {
+        console.log(`Connected to: ${peripheralId}`)
         setConnected(true)
       }
     )

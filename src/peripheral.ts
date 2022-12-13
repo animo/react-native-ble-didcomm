@@ -3,6 +3,8 @@ import { NativeEventEmitter, NativeModules } from 'react-native'
 import { sdk } from './register'
 
 export class Peripheral implements Ble {
+  bleDidcommEmitter = new NativeEventEmitter(NativeModules.BleDidcomm)
+
   async sendMessage(message: string) {
     try {
       await sdk.indicate(message)
@@ -29,8 +31,7 @@ export class Peripheral implements Ble {
   }
 
   registerMessageListener(cb: (msg: string) => void) {
-    const bleDidcommEmitter = new NativeEventEmitter(NativeModules.BleDidcomm)
-    const onReceivedNotificationListener = bleDidcommEmitter.addListener(
+    const onReceivedNotificationListener = this.bleDidcommEmitter.addListener(
       'onReceivedWriteWithoutResponse',
       cb
     )
