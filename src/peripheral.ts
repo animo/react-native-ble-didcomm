@@ -3,9 +3,11 @@ import { NativeEventEmitter, NativeModules } from 'react-native'
 import { sdk } from './register'
 
 export class Peripheral implements Ble {
+  bleDidcommEmitter = new NativeEventEmitter(NativeModules.BleDidcomm)
+
   async sendMessage(message: string) {
     try {
-      await sdk.write(message)
+      await sdk.indicate(message)
     } catch (e) {
       throw new Error(`An error occurred while trying to write message` + e)
     }
@@ -29,23 +31,12 @@ export class Peripheral implements Ble {
   }
 
   registerMessageListener(cb: (msg: string) => void) {
-    const bleDidcommEmitter = new NativeEventEmitter(NativeModules.BleDidcomm)
-    const onReceivedNotificationListener = bleDidcommEmitter.addListener(
-      'onReceivedNotification',
+    const onReceivedNotificationListener = this.bleDidcommEmitter.addListener(
+      'onReceivedWriteWithoutResponse',
       cb
     )
 
     return onReceivedNotificationListener
-  }
-
-  async indicate(message: string) {
-    try {
-      await sdk.indicate(message)
-    } catch (e) {
-      throw new Error(
-        'An error occurred while sending an indication as a peripheral: ' + e
-      )
-    }
   }
 
   async advertise() {

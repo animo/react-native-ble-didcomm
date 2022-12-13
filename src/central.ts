@@ -3,6 +3,8 @@ import { NativeEventEmitter, NativeModules } from 'react-native'
 import { sdk } from './register'
 
 export class Central implements Ble {
+  bleDidcommEmitter = new NativeEventEmitter(NativeModules.BleDidcomm)
+
   async sendMessage(message: string) {
     try {
       await sdk.write(message)
@@ -29,8 +31,7 @@ export class Central implements Ble {
   }
 
   registerMessageListener(cb: (msg: string) => void) {
-    const bleDidcommEmitter = new NativeEventEmitter(NativeModules.BleDidcomm)
-    const onReceivedNotificationListener = bleDidcommEmitter.addListener(
+    const onReceivedNotificationListener = this.bleDidcommEmitter.addListener(
       'onReceivedNotification',
       cb
     )
@@ -56,17 +57,16 @@ export class Central implements Ble {
     }
   }
 
-  registerOnScannedListener(
+  registerOnDiscoveredListener(
     cb: ({
-      peripheralId: pId,
+      peripheralId,
       name,
     }: {
       peripheralId: string
       name?: string
     }) => void
   ) {
-    const bleDidcommEmitter = new NativeEventEmitter(NativeModules.BleDidcomm)
-    const onDiscoverPeripheralListener = bleDidcommEmitter.addListener(
+    const onDiscoverPeripheralListener = this.bleDidcommEmitter.addListener(
       'onDiscoverPeripheral',
       ({
         peripheralId: pId,
@@ -79,5 +79,29 @@ export class Central implements Ble {
       }
     )
     return onDiscoverPeripheralListener
+  }
+
+  registerOnConnectedListener(
+    cb: ({
+      peripheralId,
+      name,
+    }: {
+      peripheralId: string
+      name?: string
+    }) => void
+  ) {
+    const onConnectedPeripheralListener = this.bleDidcommEmitter.addListener(
+      'onConnectedPeripheral',
+      ({
+        peripheralId: pId,
+        name,
+      }: {
+        peripheralId: string
+        name?: string
+      }) => {
+        cb({ peripheralId: pId, name })
+      }
+    )
+    return onConnectedPeripheralListener
   }
 }

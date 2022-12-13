@@ -7,8 +7,6 @@ import {
   Button,
   PermissionsAndroid,
   Platform,
-  NativeEventEmitter,
-  NativeModules,
 } from 'react-native'
 import {
   Central,
@@ -18,8 +16,6 @@ import {
   DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
 } from '@animo-id/react-native-ble-didcomm'
 import { presentationMsg } from './presentationMsg'
-
-const bleDidcommEmitter = new NativeEventEmitter(NativeModules.BleDidcomm)
 
 const Spacer = () => <View style={{ height: 20, width: 20 }} />
 
@@ -44,17 +40,16 @@ export default function App() {
   const peripheral = new Peripheral()
 
   React.useEffect(() => {
-    const onDiscoverPeripheralListener = central.registerOnScannedListener(
-      ({ peripheralId: pId }: { peripheralId: string }) => {
-        console.log(`Discovered: ${pId}`)
-        setPeripheralId(pId)
+    const onDiscoverPeripheralListener = central.registerOnDiscoveredListener(
+      ({ peripheralId }) => {
+        console.log(`Discovered: ${peripheralId}`)
+        setPeripheralId(peripheralId)
       }
     )
 
-    const onConnectedPeripheralListener = bleDidcommEmitter.addListener(
-      'onConnectedPeripheral',
-      ({ peripheralId: pId }: { peripheralId: string }) => {
-        console.log(`Connected to: ${pId}`)
+    const onConnectedPeripheralListener = central.registerOnConnectedListener(
+      ({ peripheralId }) => {
+        console.log(`Connected to: ${peripheralId}`)
         setConnected(true)
       }
     )
@@ -63,8 +58,7 @@ export default function App() {
       console.log
     )
 
-    const onReceivedWriteWithoutResponseListener = bleDidcommEmitter.addListener(
-      'onReceivedWriteWithoutResponse',
+    const onReceivedWriteWithoutResponseListener = peripheral.registerMessageListener(
       console.log
     )
 
@@ -138,7 +132,7 @@ export default function App() {
       {isPeripheral && (
         <>
           <Button title="advertise" onPress={() => peripheral.advertise()} />
-          <Button title="notify" onPress={() => peripheral.indicate(msg)} />
+          <Button title="notify" onPress={() => peripheral.sendMessage(msg)} />
         </>
       )}
     </View>
