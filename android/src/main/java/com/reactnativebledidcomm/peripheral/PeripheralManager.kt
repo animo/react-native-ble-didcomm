@@ -13,31 +13,15 @@ import java.util.*
 
 class PeripheralManager(
     context: ReactContext,
-    serviceUUID: UUID,
-    writeCharacteristicUUID: UUID,
-    indicationCharacteristicUUID: UUID,
     gattServerCallback: BluetoothGattServerCallback
 ) {
     private val bluetoothManager: BluetoothManager =
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     private val bluetoothAdapter: BluetoothAdapter = bluetoothManager.adapter
 
-    private val writeCharacteristic: BluetoothGattCharacteristic = BluetoothGattCharacteristic(
-        writeCharacteristicUUID,
-        BluetoothGattCharacteristic.PROPERTY_WRITE,
-        BluetoothGattCharacteristic.PERMISSION_WRITE
-    )
-    private val indicationCharacteristic: BluetoothGattCharacteristic = BluetoothGattCharacteristic(
-        indicationCharacteristicUUID,
-        BluetoothGattCharacteristic.PROPERTY_INDICATE and BluetoothGattCharacteristic.PROPERTY_READ,
-        BluetoothGattCharacteristic.PERMISSION_READ
-    )
-
-    private val service: BluetoothGattService =
-        BluetoothGattService(serviceUUID, BluetoothGattService.SERVICE_TYPE_PRIMARY).apply {
-            this.addCharacteristic(writeCharacteristic)
-            this.addCharacteristic(indicationCharacteristic)
-        }
+    private var writeCharacteristic: BluetoothGattCharacteristic? = null
+    private var indicationCharacteristic: BluetoothGattCharacteristic? = null
+    private var service: BluetoothGattService? = null
 
     var connectedClient: BluetoothDevice? = null
     var connectedMtu: Int = 20
@@ -45,17 +29,42 @@ class PeripheralManager(
 
     @SuppressLint("MissingPermission")
     var gattServer: BluetoothGattServer =
-        bluetoothManager.openGattServer(context, gattServerCallback).apply {
-            this.addService(service)
-        }
+        bluetoothManager.openGattServer(context, gattServerCallback)
 
     private var advertiseCallback: AdvertiseCallback? = null
     var gattClientCallback: BluetoothGattCallback? = null
 
     private var isSending: Boolean = false
 
+    @SuppressLint("MissingPermission")
+    fun setService(
+        serviceUUID: UUID,
+        writeCharacteristicUUID: UUID,
+        indicationCharacteristicUUID: UUID
+    ) {
+        this.writeCharacteristic = BluetoothGattCharacteristic(
+            writeCharacteristicUUID,
+            BluetoothGattCharacteristic.PROPERTY_WRITE,
+            BluetoothGattCharacteristic.PERMISSION_WRITE
+        )
+        this.indicationCharacteristic = BluetoothGattCharacteristic(
+            indicationCharacteristicUUID,
+            BluetoothGattCharacteristic.PROPERTY_INDICATE and BluetoothGattCharacteristic.PROPERTY_READ,
+            BluetoothGattCharacteristic.PERMISSION_READ
+        )
+        this.service =
+            BluetoothGattService(serviceUUID, BluetoothGattService.SERVICE_TYPE_PRIMARY).apply {
+                this.addCharacteristic(writeCharacteristic)
+                this.addCharacteristic(indicationCharacteristic)
+            }
+
+        gattServer.addService(this.service)
+    }
+
     @RequiresPermission(value = "android.permission.BLUETOOTH_ADVERTISE")
     fun advertise(advertiseCallback: AdvertiseCallback) {
+        val service =
+            this.service ?: throw PeripheralManagerException.NoService()
         this.advertiseCallback = advertiseCallback
 
         val advertiser = bluetoothAdapter.bluetoothLeAdvertiser
@@ -83,6 +92,9 @@ class PeripheralManager(
     @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
     fun indicate(message: ByteArray) {
         if (isSending) throw PeripheralManagerException.AlreadySending()
+        if (connectedClient == null) throw PeripheralManagerException.NoConnectedDevice()
+        val indicationCharacteristic =
+            this.indicationCharacteristic ?: throw PeripheralManagerException.NoService()
 
         Thread {
             isSending = true
