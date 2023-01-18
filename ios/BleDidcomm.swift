@@ -9,33 +9,60 @@ class BleDidcomm: React.RCTEventEmitter {
   var centralManager: CentralManager?
 
   @objc func startPeripheral(
-    _ serviceUUID: String,
-    writeCharacteristicUUID: String,
-    indicationCharacteristicUUID: String,
+    _: [String: String],
     resolve: RCTPromiseResolveBlock,
     reject _: RCTPromiseRejectBlock
   ) {
-    peripheralManager = PeripheralManager(
-      sendEvent: self.sendEvent,
-      serviceUUID: serviceUUID,
-      writeCharacteristicUUID: writeCharacteristicUUID,
-      indicationCharacteristicUUID: indicationCharacteristicUUID
-    )
+    peripheralManager = PeripheralManager(sendEvent: self.sendEvent)
     resolve(nil)
   }
 
-  @objc func startCentral(
+  @objc func setPeripheralService(
     _ serviceUUID: String,
     writeCharacteristicUUID: String,
     indicationCharacteristicUUID: String,
     resolve: RCTPromiseResolveBlock,
     reject: RCTPromiseRejectBlock
   ) {
+    guard let peripheralManager = self.peripheralManager else {
+      reject("error", "Uninitialized, call `startPeripheral()` first", nil)
+      return
+    }
+    do {
+      try peripheralManager.setService(
+        serviceUUID: serviceUUID, writeCharacteristicUUID: writeCharacteristicUUID,
+        indicationCharacteristicUUID: indicationCharacteristicUUID)
+      resolve(nil)
+    } catch PeripheralManager.PeripheralManagerError.NoDefinedService {
+      reject("error", "Something went wrong while trying to add the services", nil)
+    } catch {
+      reject("error", "unexpected error", nil)
+    }
+  }
+
+  @objc func setCentralService(
+    _ serviceUUID: String,
+    writeCharacteristicUUID: String,
+    indicationCharacteristicUUID: String,
+    resolve: RCTPromiseResolveBlock,
+    reject: RCTPromiseRejectBlock
+  ) {
+    guard let centralManager = self.centralManager else {
+      reject("error", "Uninitialized, call `startCentral()` first", nil)
+      return
+    }
+    centralManager.setService(
+      serviceUUID: serviceUUID, writeCharacteristicUUID: writeCharacteristicUUID,
+      indicationCharacteristicUUID: indicationCharacteristicUUID)
+  }
+
+  @objc func startCentral(
+    _: [String: String],
+    resolve: RCTPromiseResolveBlock,
+    reject: RCTPromiseRejectBlock
+  ) {
     centralManager = CentralManager(
-      sendEvent: self.sendEvent,
-      serviceUUID: serviceUUID,
-      writeCharacteristicUUID: writeCharacteristicUUID,
-      indicationCharacteristicUUID: indicationCharacteristicUUID
+      sendEvent: self.sendEvent
     )
     resolve(nil)
   }
@@ -50,9 +77,14 @@ class BleDidcomm: React.RCTEventEmitter {
       return
     }
 
-    peripheralManager.advertise()
-
-    resolve(nil)
+    do {
+      try peripheralManager.advertise()
+      resolve(nil)
+    } catch PeripheralManager.PeripheralManagerError.NoDefinedService {
+      reject("error", "Set the service before calling the advertise function", nil)
+    } catch {
+      reject("error", "unexpected error", nil)
+    }
   }
 
   @objc func indicate(
@@ -89,10 +121,14 @@ class BleDidcomm: React.RCTEventEmitter {
       reject("error", "Uninitialized, call `startCentral()` first", nil)
       return
     }
-
-    centralManager.scan()
-
-    resolve(nil)
+    do {
+      try centralManager.scan()
+      resolve(nil)
+    } catch CentralManager.CentralManagerError.NoDefinedService {
+      reject("error", "Set the service before calling the scan function", nil)
+    } catch {
+        reject("error", "unexpected error", nil)
+    }
   }
 
   @objc func connect(

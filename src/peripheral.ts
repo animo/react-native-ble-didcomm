@@ -1,4 +1,4 @@
-import type { Ble, StartOptions } from './ble'
+import type { Ble, ServiceOptions } from './ble'
 import { NativeEventEmitter, NativeModules } from 'react-native'
 import { sdk } from './register'
 
@@ -13,9 +13,17 @@ export class Peripheral implements Ble {
     }
   }
 
-  async start(options: StartOptions) {
+  async start() {
     try {
-      await sdk.startPeripheral(
+      await sdk.startPeripheral({})
+    } catch (e) {
+      throw new Error('An error occurred during startup: ' + e)
+    }
+  }
+
+  async setService(options: ServiceOptions): Promise<void> {
+    try {
+      await sdk.setPeripheralService(
         options.serviceUUID,
         options.messagingUUID,
         options.indicationUUID

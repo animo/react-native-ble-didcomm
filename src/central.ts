@@ -1,4 +1,4 @@
-import type { StartOptions, Ble } from './ble'
+import type { ServiceOptions, Ble } from './ble'
 import { NativeEventEmitter, NativeModules } from 'react-native'
 import { sdk } from './register'
 
@@ -13,9 +13,17 @@ export class Central implements Ble {
     }
   }
 
-  async start(options: StartOptions) {
+  async start() {
     try {
-      await sdk.startCentral(
+      await sdk.startCentral({})
+    } catch (e) {
+      throw new Error('An error occurred during startup: ' + e)
+    }
+  }
+
+  async setService(options: ServiceOptions): Promise<void> {
+    try {
+      await sdk.setCentralService(
         options.serviceUUID,
         options.messagingUUID,
         options.indicationUUID

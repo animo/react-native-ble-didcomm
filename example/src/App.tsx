@@ -85,30 +85,36 @@ export default function App() {
           <Spacer />
         </>
       )}
-      <Button
-        title="start: central"
-        onPress={async () => {
-          await central.start({
-            serviceUUID: DEFAULT_DIDCOMM_SERVICE_UUID,
-            messagingUUID: DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
-            indicationUUID: DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
-          })
-          setIsCentral(true)
-        }}
-      />
-      <Button
-        title="start: peripheral"
-        onPress={async () => {
-          await peripheral.start({
-            serviceUUID: DEFAULT_DIDCOMM_SERVICE_UUID,
-            messagingUUID: DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
-            indicationUUID: DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
-          })
-          setIsPeripheral(true)
-        }}
-      />
+      {!isCentral && !isPeripheral && (
+        <>
+          <Button
+            title="start: central"
+            onPress={async () => {
+              await central.start()
+              setIsCentral(true)
+            }}
+          />
+          <Button
+            title="start: peripheral"
+            onPress={async () => {
+              await peripheral.start()
+              setIsPeripheral(true)
+            }}
+          />
+        </>
+      )}
       {isCentral && (
         <>
+          <Button
+            title="set services"
+            onPress={async () => {
+              await central.setService({
+                serviceUUID: DEFAULT_DIDCOMM_SERVICE_UUID,
+                messagingUUID: DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
+                indicationUUID: DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
+              })
+            }}
+          />
           <Button
             title="scan"
             onPress={async () => {
@@ -131,6 +137,16 @@ export default function App() {
       )}
       {isPeripheral && (
         <>
+          <Button
+            title="set services"
+            onPress={async () => {
+              await peripheral.setService({
+                serviceUUID: DEFAULT_DIDCOMM_SERVICE_UUID,
+                messagingUUID: DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
+                indicationUUID: DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
+              })
+            }}
+          />
           <Button title="advertise" onPress={() => peripheral.advertise()} />
           <Button title="notify" onPress={() => peripheral.sendMessage(msg)} />
         </>
