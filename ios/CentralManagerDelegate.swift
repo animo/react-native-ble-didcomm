@@ -18,7 +18,7 @@ extension CentralManager: CBCentralManagerDelegate {
   func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
     sendEvent("onConnectedPeripheral", ["peripheralId": peripheral.identifier.uuidString])
     peripheral.delegate = self
-    peripheral.discoverServices([serviceUUID])
+    peripheral.discoverServices([serviceUUID.unsafelyUnwrapped])
     connectedPeripheral = peripheral
     stopScan()
   }

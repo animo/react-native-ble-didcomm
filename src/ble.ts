@@ -1,6 +1,6 @@
 import type { EmitterSubscription } from 'react-native'
 
-export type StartOptions = {
+export type ServiceOptions = {
   serviceUUID: string
   messagingUUID: string
   indicationUUID: string
@@ -8,8 +8,8 @@ export type StartOptions = {
 
 export interface Ble {
   sendMessage(message: string): Promise<void>
-  start(options: StartOptions): Promise<void>
-  //   TODO: implement native shutdown
+  start(): Promise<void>
+  setService(options: ServiceOptions): Promise<void>
   shutdown(): Promise<void>
   registerMessageListener(cb: (msg: string) => void): EmitterSubscription
 }

@@ -5,12 +5,13 @@ import os
 class PeripheralManager: NSObject {
   public enum PeripheralManagerError: Error {
     case NotConnectedToCentral
+    case NoDefinedService
   }
 
   var isPoweredOn: Bool = false
-  var service: CBMutableService
-  var writeCharacteristic: CBMutableCharacteristic
-  var indicationCharacteristic: CBMutableCharacteristic
+  var service: CBMutableService?
+  var writeCharacteristic: CBMutableCharacteristic?
+  var indicationCharacteristic: CBMutableCharacteristic?
 
   var peripheralManager: CBPeripheralManager!
 
@@ -21,13 +22,21 @@ class PeripheralManager: NSObject {
 
   var receivedMessage: Data?
 
-  init(
-    sendEvent: @escaping (_ withName: String?, _ body: Any?) -> Void,
-    serviceUUID: String,
-    writeCharacteristicUUID: String,
-    indicationCharacteristicUUID: String
-  ) {
+  init(sendEvent: @escaping (_ withName: String?, _ body: Any?) -> Void) {
     self.sendEvent = sendEvent
+    super.init()
+    self.peripheralManager = CBPeripheralManager(
+      delegate: self,
+      queue: nil,
+      options: [CBPeripheralManagerOptionShowPowerAlertKey: true]
+    )
+
+    while !isPoweredOn { Thread.sleep(forTimeInterval: 0.05) }
+  }
+
+  func setService(
+    serviceUUID: String, writeCharacteristicUUID: String, indicationCharacteristicUUID: String
+  ) throws {
     self.service = CBMutableService(type: CBUUID(string: serviceUUID), primary: true)
     self.writeCharacteristic = CBMutableCharacteristic(
       type: CBUUID(string: writeCharacteristicUUID), properties: [.write], value: nil,
@@ -35,26 +44,29 @@ class PeripheralManager: NSObject {
     self.indicationCharacteristic = CBMutableCharacteristic(
       type: CBUUID(string: indicationCharacteristicUUID), properties: [.indicate], value: nil,
       permissions: [.writeable])
+    guard let wc = self.writeCharacteristic, let ic = self.indicationCharacteristic,
+      let s = self.service
+    else {
+      throw PeripheralManagerError.NotConnectedToCentral
+    }
 
-    super.init()
-    self.peripheralManager = CBPeripheralManager(
-      delegate: self,
-      queue: nil,
-      options: [CBPeripheralManagerOptionShowPowerAlertKey: true]
-    )
-    self.service.characteristics = [writeCharacteristic, indicationCharacteristic]
-    while !isPoweredOn { Thread.sleep(forTimeInterval: 0.05) }
-    self.peripheralManager.removeAllServices()
-    self.peripheralManager.add(self.service)
+    s.characteristics = [wc, ic]
+    self.peripheralManager.add(s)
   }
 
-  func advertise() {
+  func advertise() throws {
+    guard let service = self.service else {
+      throw PeripheralManagerError.NoDefinedService
+    }
     self.peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [service.uuid]])
   }
 
   func indicate(message: Data) throws {
     guard let connectedCentral = connectedCentral else {
       throw PeripheralManagerError.NotConnectedToCentral
+    }
+    guard let indicationCharacteristic = self.indicationCharacteristic else {
+      throw PeripheralManagerError.NoDefinedService
     }
 
     let mtu = connectedCentral.maximumUpdateValueLength
