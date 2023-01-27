@@ -4,7 +4,7 @@ extension BleDidcomm {
   override open func supportedEvents() -> [String] {
     [
       "onDiscoverPeripheral", "onConnectedPeripheral", "onReceivedWriteWithoutResponse",
-      "onReceivedNotification",
+      "onReceivedNotification", "onDisconnectedPeripheral", "onDisconnectedCentral", "onConnectedCentral"
     ]
   }
 }
