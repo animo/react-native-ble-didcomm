@@ -5,7 +5,7 @@ import { sdk } from './register'
 export class Central implements Ble {
   bleDidcommEmitter = new NativeEventEmitter(NativeModules.BleDidcomm)
 
-  async sendMessage(message: string) {
+  public async sendMessage(message: string) {
     try {
       await sdk.write(message)
     } catch (e) {
@@ -13,7 +13,7 @@ export class Central implements Ble {
     }
   }
 
-  async start() {
+  public async start() {
     try {
       await sdk.startCentral({})
     } catch (e) {
@@ -21,7 +21,7 @@ export class Central implements Ble {
     }
   }
 
-  async setService(options: ServiceOptions): Promise<void> {
+  public async setService(options: ServiceOptions): Promise<void> {
     try {
       await sdk.setCentralService(
         options.serviceUUID,
@@ -33,7 +33,7 @@ export class Central implements Ble {
     }
   }
 
-  async shutdown() {
+  public async shutdown() {
     // TODO: Implement native
     throw new Error('Not implemented')
   }
@@ -47,7 +47,7 @@ export class Central implements Ble {
     return onReceivedNotificationListener
   }
 
-  async scan() {
+  public async scan() {
     try {
       await sdk.scan({})
     } catch (e) {
@@ -55,7 +55,7 @@ export class Central implements Ble {
     }
   }
 
-  async connect(peripheralId: string) {
+  public async connect(peripheralId: string) {
     try {
       await sdk.connect(peripheralId)
     } catch (e) {
@@ -65,51 +65,33 @@ export class Central implements Ble {
     }
   }
 
-  registerOnDiscoveredListener(
-    cb: ({
-      peripheralId,
-      name,
-    }: {
-      peripheralId: string
-      name?: string
-    }) => void
+  public registerOnDiscoveredListener(
+    cb: ({ identifier, name }: { identifier: string; name?: string }) => void
   ) {
     const onDiscoverPeripheralListener = this.bleDidcommEmitter.addListener(
       'onDiscoverPeripheral',
-      ({
-        peripheralId: pId,
-        name,
-      }: {
-        peripheralId: string
-        name?: string
-      }) => {
-        cb({ peripheralId: pId, name })
-      }
+      cb
     )
     return onDiscoverPeripheralListener
   }
 
-  registerOnConnectedListener(
-    cb: ({
-      peripheralId,
-      name,
-    }: {
-      peripheralId: string
-      name?: string
-    }) => void
+  public registerOnConnectedListener(
+    cb: ({ identifier, name }: { identifier: string; name?: string }) => void
   ) {
     const onConnectedPeripheralListener = this.bleDidcommEmitter.addListener(
       'onConnectedPeripheral',
-      ({
-        peripheralId: pId,
-        name,
-      }: {
-        peripheralId: string
-        name?: string
-      }) => {
-        cb({ peripheralId: pId, name })
-      }
+      cb
     )
     return onConnectedPeripheralListener
+  }
+
+  public registerOnDisconnectedListener(
+    cb: ({ identifier }: { identifier: string }) => void
+  ) {
+    const onDisconnectedPeripheralListener = this.bleDidcommEmitter.addListener(
+      'onDisconnectedPeripheral',
+      cb
+    )
+    return onDisconnectedPeripheralListener
   }
 }

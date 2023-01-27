@@ -1,4 +1,3 @@
-/* eslint-disable react-native/no-inline-styles */
 import * as React from 'react'
 import {
   StyleSheet,
@@ -41,17 +40,29 @@ export default function App() {
 
   React.useEffect(() => {
     const onDiscoverPeripheralListener = central.registerOnDiscoveredListener(
-      ({ peripheralId }) => {
-        console.log(`Discovered: ${peripheralId}`)
+      ({ identifier }: { identifier: string }) => {
+        console.log(`Discovered: ${identifier}`)
         setPeripheralId(peripheralId)
       }
     )
 
     const onConnectedPeripheralListener = central.registerOnConnectedListener(
-      ({ peripheralId }) => {
-        console.log(`Connected to: ${peripheralId}`)
+      ({ identifier }: { identifier: string }) => {
+        console.log(`Connected to: ${identifier}`)
         setConnected(true)
       }
+    )
+
+    const onConnectedCentralListener = peripheral.registerOnConnectedListener(
+      console.log
+    )
+
+    const onDisconnectedCentralListener = peripheral.registerOnDisconnectedListener(
+      console.log
+    )
+
+    const onDisconnectedPeripheralListener = central.registerOnDisconnectedListener(
+      console.log
     )
 
     const onReceivedNotificationListener = central.registerMessageListener(
@@ -65,8 +76,11 @@ export default function App() {
     return () => {
       onDiscoverPeripheralListener.remove()
       onConnectedPeripheralListener.remove()
+      onConnectedCentralListener.remove()
       onReceivedNotificationListener.remove()
       onReceivedWriteWithoutResponseListener.remove()
+      onDisconnectedCentralListener.remove()
+      onDisconnectedPeripheralListener.remove()
     }
   }, [])
 

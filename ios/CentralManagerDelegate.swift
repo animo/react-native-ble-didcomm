@@ -12,11 +12,11 @@ extension CentralManager: CBCentralManagerDelegate {
     peripherals.append(peripheral)
     sendEvent(
       "onDiscoverPeripheral",
-      ["peripheralId": peripheral.identifier.uuidString, "name": peripheral.name])
+      ["identifier": peripheral.identifier.uuidString, "name": peripheral.name])
   }
 
   func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
-    sendEvent("onConnectedPeripheral", ["peripheralId": peripheral.identifier.uuidString])
+    sendEvent("onConnectedPeripheral", ["identifier": peripheral.identifier.uuidString])
     peripheral.delegate = self
     peripheral.discoverServices([serviceUUID.unsafelyUnwrapped])
     connectedPeripheral = peripheral
@@ -24,6 +24,7 @@ extension CentralManager: CBCentralManagerDelegate {
   }
 
   func centralManager(_ central: CBCentralManager, didDisconnect peripheral: CBPeripheral) {
+    sendEvent("onDisconnectedPeripheral", ["identifier": peripheral.identifier.uuidString])
     connectedPeripheral = nil
   }
 }

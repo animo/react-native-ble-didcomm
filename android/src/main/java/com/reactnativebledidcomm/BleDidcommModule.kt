@@ -235,14 +235,15 @@ class BleDidcommModule(private val context: ReactApplicationContext) :
         @SuppressLint("MissingPermission")
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
             super.onConnectionStateChange(gatt, status, newState)
+            val params = Arguments.createMap().apply {
+                putString("identifier", gatt.device.address)
+            }
             if (newState == BluetoothProfile.STATE_CONNECTED) {
-                val params = Arguments.createMap().apply {
-                    putString("peripheralId", gatt.device.address)
-                }
                 sendEvent(BleDidcommEvent.OnConnectedPeripheral, params)
                 gatt.discoverServices()
                 centralManager?.stopScan()
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                sendEvent(BleDidcommEvent.OnDisconnectedPeripheral, params)
                 centralManager?.connectedPeripheral = null
             }
         }
@@ -254,7 +255,7 @@ class BleDidcommModule(private val context: ReactApplicationContext) :
             val device = result?.device ?: return
             centralManager?.discoveredPeripherals?.add(device)
             val params = Arguments.createMap().apply {
-                putString("peripheralId", device.address)
+                putString("identifier", device.address)
             }
             sendEvent(BleDidcommEvent.OnDiscoverPeripheral, params)
         }
@@ -326,11 +327,16 @@ class BleDidcommModule(private val context: ReactApplicationContext) :
         @SuppressLint("MissingPermission")
         override fun onConnectionStateChange(device: BluetoothDevice, status: Int, newState: Int) {
             super.onConnectionStateChange(device, status, newState)
+            val params = Arguments.createMap().apply {
+                putString("identifier", device.address)
+            }
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 peripheralManager?.connectedClient = device
                 peripheralManager?.gattClientCallback = GattClientMtuOnlyCallback()
                 device.connectGatt(context, false, peripheralManager?.gattClientCallback)
+                sendEvent(BleDidcommEvent.OnConnectedCentral, params)
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                sendEvent(BleDidcommEvent.OnDisconnectedCentral, params)
                 peripheralManager?.connectedClient = null
             }
         }
