@@ -100,60 +100,60 @@ await PermissionsAndroid.requestMultiple([
 
 ```typescript
 React.useEffect(() => {
-    const onDiscoverPeripheralListener = central.registerOnDiscoveredListener(
-      ({ identifier }: { identifier: string }) => {
-        console.log(`Discovered: ${identifier}`)
-        setPeripheralId(identifier)
-      }
-    )
-
-    const onConnectedPeripheralListener = central.registerOnConnectedListener(
-      ({ identifier }: { identifier: string }) => {
-        console.log(`Connected to: ${identifier}`)
-        setConnected(true)
-      }
-    )
-
-    const onConnectedCentralListener = peripheral.registerOnConnectedListener(
-      console.log
-    )
-
-    const onDisconnectedCentralListener = peripheral.registerOnDisconnectedListener(
-      console.log
-    )
-
-    const onDisconnectedPeripheralListener = central.registerOnDisconnectedListener(
-      console.log
-    )
-
-    const onReceivedNotificationListener = central.registerMessageListener(
-      console.log
-    )
-
-    const onReceivedWriteWithoutResponseListener = peripheral.registerMessageListener(
-      console.log
-    )
-
-    return () => {
-      onDiscoverPeripheralListener.remove()
-      onConnectedPeripheralListener.remove()
-      onConnectedCentralListener.remove()
-      onReceivedNotificationListener.remove()
-      onReceivedWriteWithoutResponseListener.remove()
-      onDisconnectedCentralListener.remove()
-      onDisconnectedPeripheralListener.remove()
+  const onDiscoverPeripheralListener = central.registerOnDiscoveredListener(
+    ({ identifier }: { identifier: string }) => {
+      console.log(`Discovered: ${identifier}`)
+      setPeripheralId(identifier)
     }
-  }, [])
+  )
+
+  const onConnectedPeripheralListener = central.registerOnConnectedListener(
+    ({ identifier }: { identifier: string }) => {
+      console.log(`Connected to: ${identifier}`)
+      setConnected(true)
+    }
+  )
+
+  const onConnectedCentralListener = peripheral.registerOnConnectedListener(
+    console.log
+  )
+
+  const onDisconnectedCentralListener = peripheral.registerOnDisconnectedListener(
+    console.log
+  )
+
+  const onDisconnectedPeripheralListener = central.registerOnDisconnectedListener(
+    console.log
+  )
+
+  const onReceivedNotificationListener = central.registerMessageListener(
+    console.log
+  )
+
+  const onReceivedWriteWithoutResponseListener = peripheral.registerMessageListener(
+    console.log
+  )
+
+  return () => {
+    onDiscoverPeripheralListener.remove()
+    onConnectedPeripheralListener.remove()
+    onConnectedCentralListener.remove()
+    onReceivedNotificationListener.remove()
+    onReceivedWriteWithoutResponseListener.remove()
+    onDisconnectedCentralListener.remove()
+    onDisconnectedPeripheralListener.remove()
+  }
+}, [])
 ```
 
 ### Start advertising (peripheral):
 
 ```typescript
-import { 
+import {
   Peripheral,
   DEFAULT_DIDCOMM_SERVICE_UUID,
   DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
-  DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID
+  DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
 } from '@animo-id/react-native-ble-didcomm'
 
 const peripheral = new Peripheral()
@@ -170,11 +170,11 @@ await peripheral.advertise()
 ### Start scanning (central):
 
 ```typescript
-import { 
+import {
   Central,
   DEFAULT_DIDCOMM_SERVICE_UUID,
   DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
-  DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID
+  DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
 } from '@animo-id/react-native-ble-didcomm'
 
 const central = new Central()
@@ -206,7 +206,6 @@ await central.sendMessage('Hello World!')
 ### Send indication / message (peripheral):
 
 ```typescript
-
 await peripheral.sendMessage('Hello World!')
 ```
 

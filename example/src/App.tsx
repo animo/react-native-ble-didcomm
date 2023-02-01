@@ -12,7 +12,7 @@ import {
   Peripheral,
   DEFAULT_DIDCOMM_SERVICE_UUID,
   DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
-  DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID
+  DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
 } from '@animo-id/react-native-ble-didcomm'
 import { presentationMsg } from './presentationMsg'
 
@@ -36,7 +36,9 @@ export default function App() {
   const [peripheralId, setPeripheralId] = React.useState<string>()
   const [connected, setConnected] = React.useState<boolean>(false)
   const [central, setCentral] = React.useState<Central>(new Central())
-  const [peripheral, setPeripheral] = React.useState<Peripheral>(new Peripheral())
+  const [peripheral, setPeripheral] = React.useState<Peripheral>(
+    new Peripheral()
+  )
 
   React.useEffect(() => {
     const onDiscoverPeripheralListener = central.registerOnDiscoveredListener(
