@@ -35,7 +35,9 @@ extension CentralManager: CBPeripheralDelegate {
     guard let peripheralServices = peripheral.services else { return }
     for service in peripheralServices {
       peripheral.discoverCharacteristics(
-        [writeCharacteristicUUID, indicationCharacteristicUUID], for: service)
+        [
+          writeCharacteristicUUID.unsafelyUnwrapped, indicationCharacteristicUUID.unsafelyUnwrapped,
+        ], for: service)
     }
   }
 

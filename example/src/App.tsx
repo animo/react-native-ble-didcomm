@@ -1,4 +1,3 @@
-/* eslint-disable react-native/no-inline-styles */
 import * as React from 'react'
 import {
   StyleSheet,
@@ -32,26 +31,40 @@ const requestPermissions = async () => {
 }
 
 export default function App() {
-  const [isCentral, setIsCentral] = React.useState(false)
-  const [isPeripheral, setIsPeripheral] = React.useState(false)
+  const [isCentral, setIsCentral] = React.useState<boolean>(false)
+  const [isPeripheral, setIsPeripheral] = React.useState<boolean>(false)
   const [peripheralId, setPeripheralId] = React.useState<string>()
-  const [connected, setConnected] = React.useState(false)
-  const central = new Central()
-  const peripheral = new Peripheral()
+  const [connected, setConnected] = React.useState<boolean>(false)
+  const [central, setCentral] = React.useState<Central>(new Central())
+  const [peripheral, setPeripheral] = React.useState<Peripheral>(
+    new Peripheral()
+  )
 
   React.useEffect(() => {
     const onDiscoverPeripheralListener = central.registerOnDiscoveredListener(
-      ({ peripheralId }) => {
-        console.log(`Discovered: ${peripheralId}`)
-        setPeripheralId(peripheralId)
+      ({ identifier }: { identifier: string }) => {
+        console.log(`Discovered: ${identifier}`)
+        setPeripheralId(identifier)
       }
     )
 
     const onConnectedPeripheralListener = central.registerOnConnectedListener(
-      ({ peripheralId }) => {
-        console.log(`Connected to: ${peripheralId}`)
+      ({ identifier }: { identifier: string }) => {
+        console.log(`Connected to: ${identifier}`)
         setConnected(true)
       }
+    )
+
+    const onConnectedCentralListener = peripheral.registerOnConnectedListener(
+      console.log
+    )
+
+    const onDisconnectedCentralListener = peripheral.registerOnDisconnectedListener(
+      console.log
+    )
+
+    const onDisconnectedPeripheralListener = central.registerOnDisconnectedListener(
+      console.log
     )
 
     const onReceivedNotificationListener = central.registerMessageListener(
@@ -65,8 +78,11 @@ export default function App() {
     return () => {
       onDiscoverPeripheralListener.remove()
       onConnectedPeripheralListener.remove()
+      onConnectedCentralListener.remove()
       onReceivedNotificationListener.remove()
       onReceivedWriteWithoutResponseListener.remove()
+      onDisconnectedCentralListener.remove()
+      onDisconnectedPeripheralListener.remove()
     }
   }, [])
 
@@ -85,30 +101,36 @@ export default function App() {
           <Spacer />
         </>
       )}
-      <Button
-        title="start: central"
-        onPress={async () => {
-          await central.start({
-            serviceUUID: DEFAULT_DIDCOMM_SERVICE_UUID,
-            messagingUUID: DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
-            indicationUUID: DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
-          })
-          setIsCentral(true)
-        }}
-      />
-      <Button
-        title="start: peripheral"
-        onPress={async () => {
-          await peripheral.start({
-            serviceUUID: DEFAULT_DIDCOMM_SERVICE_UUID,
-            messagingUUID: DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
-            indicationUUID: DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
-          })
-          setIsPeripheral(true)
-        }}
-      />
+      {!isCentral && !isPeripheral && (
+        <>
+          <Button
+            title="start: central"
+            onPress={async () => {
+              await central.start()
+              setIsCentral(true)
+            }}
+          />
+          <Button
+            title="start: peripheral"
+            onPress={async () => {
+              await peripheral.start()
+              setIsPeripheral(true)
+            }}
+          />
+        </>
+      )}
       {isCentral && (
         <>
+          <Button
+            title="set services"
+            onPress={async () => {
+              await central.setService({
+                serviceUUID: DEFAULT_DIDCOMM_SERVICE_UUID,
+                messagingUUID: DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
+                indicationUUID: DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
+              })
+            }}
+          />
           <Button
             title="scan"
             onPress={async () => {
@@ -131,6 +153,16 @@ export default function App() {
       )}
       {isPeripheral && (
         <>
+          <Button
+            title="set services"
+            onPress={async () => {
+              await peripheral.setService({
+                serviceUUID: DEFAULT_DIDCOMM_SERVICE_UUID,
+                messagingUUID: DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
+                indicationUUID: DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
+              })
+            }}
+          />
           <Button title="advertise" onPress={() => peripheral.advertise()} />
           <Button title="notify" onPress={() => peripheral.sendMessage(msg)} />
         </>

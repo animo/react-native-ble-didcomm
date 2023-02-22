@@ -7,11 +7,12 @@ class CentralManager: NSObject {
     case PeripheralNotFound(peripheralId: String)
     case NotConnectedToPeripheral
     case NoWriteableCharacteristicFound
+    case NoDefinedService
   }
 
-  var serviceUUID: CBUUID
-  var writeCharacteristicUUID: CBUUID
-  var indicationCharacteristicUUID: CBUUID
+  var serviceUUID: CBUUID?
+  var writeCharacteristicUUID: CBUUID?
+  var indicationCharacteristicUUID: CBUUID?
 
   var centralManager: CBCentralManager!
 
@@ -24,16 +25,8 @@ class CentralManager: NSObject {
 
   var receivedMessage: Data?
 
-  init(
-    sendEvent: @escaping (_ withName: String?, _ body: Any?) -> Void,
-    serviceUUID: String,
-    writeCharacteristicUUID: String,
-    indicationCharacteristicUUID: String
-  ) {
+  init(sendEvent: @escaping (_ withName: String?, _ body: Any?) -> Void) {
     self.sendEvent = sendEvent
-    self.serviceUUID = CBUUID(string: serviceUUID)
-    self.writeCharacteristicUUID = CBUUID(string: writeCharacteristicUUID)
-    self.indicationCharacteristicUUID = CBUUID(string: indicationCharacteristicUUID)
 
     super.init()
     self.centralManager = CBCentralManager(
@@ -43,11 +36,24 @@ class CentralManager: NSObject {
     )
   }
 
+  func setService(
+    serviceUUID: String,
+    writeCharacteristicUUID: String,
+    indicationCharacteristicUUID: String
+  ) {
+    self.serviceUUID = CBUUID(string: serviceUUID)
+    self.writeCharacteristicUUID = CBUUID(string: writeCharacteristicUUID)
+    self.indicationCharacteristicUUID = CBUUID(string: indicationCharacteristicUUID)
+  }
+
   private func findPeripheralsByid(peripheralId: String) -> CBPeripheral? {
     return peripherals.first(where: { $0.identifier.uuidString == peripheralId })
   }
 
-  func scan() {
+  func scan() throws {
+    guard let serviceUUID = self.serviceUUID else {
+      throw CentralManagerError.NoDefinedService
+    }
     centralManager.scanForPeripherals(
       withServices: [serviceUUID], options: [CBCentralManagerScanOptionAllowDuplicatesKey: false])
   }

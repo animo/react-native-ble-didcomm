@@ -1,11 +1,11 @@
-import type { Ble, StartOptions } from './ble'
+import type { Ble, ServiceOptions } from './ble'
 import { NativeEventEmitter, NativeModules } from 'react-native'
 import { sdk } from './register'
 
 export class Peripheral implements Ble {
   bleDidcommEmitter = new NativeEventEmitter(NativeModules.BleDidcomm)
 
-  async sendMessage(message: string) {
+  public async sendMessage(message: string) {
     try {
       await sdk.indicate(message)
     } catch (e) {
@@ -13,9 +13,17 @@ export class Peripheral implements Ble {
     }
   }
 
-  async start(options: StartOptions) {
+  public async start() {
     try {
-      await sdk.startPeripheral(
+      await sdk.startPeripheral({})
+    } catch (e) {
+      throw new Error('An error occurred during startup: ' + e)
+    }
+  }
+
+  public async setService(options: ServiceOptions): Promise<void> {
+    try {
+      await sdk.setPeripheralService(
         options.serviceUUID,
         options.messagingUUID,
         options.indicationUUID
@@ -25,12 +33,20 @@ export class Peripheral implements Ble {
     }
   }
 
-  async shutdown() {
+  public async shutdown() {
     // TODO: Implement native
     throw new Error('Not implemented')
   }
 
-  registerMessageListener(cb: (msg: string) => void) {
+  public async advertise() {
+    try {
+      await sdk.advertise({})
+    } catch (e) {
+      throw new Error('An error occurred while trying to advertise: ' + e)
+    }
+  }
+
+  public registerMessageListener(cb: (msg: string) => void) {
     const onReceivedNotificationListener = this.bleDidcommEmitter.addListener(
       'onReceivedWriteWithoutResponse',
       cb
@@ -39,11 +55,23 @@ export class Peripheral implements Ble {
     return onReceivedNotificationListener
   }
 
-  async advertise() {
-    try {
-      await sdk.advertise({})
-    } catch (e) {
-      throw new Error('An error occurred while trying to advertise: ' + e)
-    }
+  public registerOnConnectedListener(
+    cb: ({ identifier, name }: { identifier: string; name?: string }) => void
+  ) {
+    const onConnectedPeripheralListener = this.bleDidcommEmitter.addListener(
+      'onConnectedCentral',
+      cb
+    )
+    return onConnectedPeripheralListener
+  }
+
+  public registerOnDisconnectedListener(
+    cb: ({ identifier }: { identifier: string }) => void
+  ) {
+    const onDisconnectedPeripheralListener = this.bleDidcommEmitter.addListener(
+      'onDisconnectedCentral',
+      cb
+    )
+    return onDisconnectedPeripheralListener
   }
 }

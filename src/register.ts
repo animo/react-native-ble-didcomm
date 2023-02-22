@@ -18,12 +18,14 @@ const BleDidcomm = NativeModules.BleDidcomm
     )
 
 type Sdk = {
-  startPeripheral(
+  startPeripheral({}: Record<string, never>): Promise<void>
+  startCentral({}: Record<string, never>): Promise<void>
+  setCentralService(
     serviceUUID: string,
     characteristicUUID: string,
     notifyCharacteristicUUID: string
   ): Promise<void>
-  startCentral(
+  setPeripheralService(
     serviceUUID: string,
     characteristicUUID: string,
     notifyCharacteristicUUID: string

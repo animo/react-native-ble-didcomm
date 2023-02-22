@@ -6,18 +6,29 @@
 @interface RCT_EXTERN_MODULE(BleDidcomm, RCTEventEmitter)
 
 RCT_EXTERN_METHOD(startCentral
+                  :(NSDictionary *)options
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject)
+
+RCT_EXTERN_METHOD(startPeripheral
+                  :(NSDictionary *)options
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject)
+
+RCT_EXTERN_METHOD(setPeripheralService
                   :(NSString *)serviceUUID
                   writeCharacteristicUUID:(NSString *)writeCharacteristicUUID
                   indicationCharacteristicUUID:(NSString *)indicationCharacteristicUUID
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
 
-RCT_EXTERN_METHOD(startPeripheral
+RCT_EXTERN_METHOD(setCentralService
                   :(NSString *)serviceUUID
                   writeCharacteristicUUID:(NSString *)writeCharacteristicUUID
                   indicationCharacteristicUUID:(NSString *)indicationCharacteristicUUID
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
+
 
 RCT_EXTERN_METHOD(advertise
                   :(NSDictionary *)options
