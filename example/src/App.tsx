@@ -31,18 +31,20 @@ const requestPermissions = async () => {
 }
 
 export default function App() {
-  const [isCentral, setIsCentral] = React.useState(false)
-  const [isPeripheral, setIsPeripheral] = React.useState(false)
+  const [isCentral, setIsCentral] = React.useState<boolean>(false)
+  const [isPeripheral, setIsPeripheral] = React.useState<boolean>(false)
   const [peripheralId, setPeripheralId] = React.useState<string>()
-  const [connected, setConnected] = React.useState(false)
-  const central = new Central()
-  const peripheral = new Peripheral()
+  const [connected, setConnected] = React.useState<boolean>(false)
+  const [central, setCentral] = React.useState<Central>(new Central())
+  const [peripheral, setPeripheral] = React.useState<Peripheral>(
+    new Peripheral()
+  )
 
   React.useEffect(() => {
     const onDiscoverPeripheralListener = central.registerOnDiscoveredListener(
       ({ identifier }: { identifier: string }) => {
         console.log(`Discovered: ${identifier}`)
-        setPeripheralId(peripheralId)
+        setPeripheralId(identifier)
       }
     )
 
