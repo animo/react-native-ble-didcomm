@@ -91,7 +91,7 @@ class CentralManager(private val context: ReactContext) {
 
         Thread {
             isSending = true
-            val chunkSize = min(connectedMtu, message.count())
+            val chunkSize = min(connectedMtu - 12, message.count())
             for (chunkIndexStart in 0..message.count() step chunkSize) {
                 val chunkIndexEnd = min(chunkIndexStart + chunkSize, message.count()) - 1
                 characteristic.value = message.sliceArray(IntRange(chunkIndexStart, chunkIndexEnd))

@@ -98,7 +98,7 @@ class PeripheralManager(
 
         Thread {
             isSending = true
-            val chunkSize = Integer.min(connectedMtu, message.count())
+            val chunkSize = Integer.min(connectedMtu - 12, message.count())
             for (chunkIndexStart in 0..message.count() step chunkSize) {
                 val chunkIndexEnd = Integer.min(chunkIndexStart + chunkSize, message.count()) - 1
                 while (!isConnectedClientReady) {

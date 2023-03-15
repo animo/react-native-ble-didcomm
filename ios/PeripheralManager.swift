@@ -70,7 +70,7 @@ class PeripheralManager: NSObject {
     }
 
     let mtu = connectedCentral.maximumUpdateValueLength
-    let chunkSize = min(mtu, message.count)
+    let chunkSize = min(mtu - 12, message.count)
 
     for chunkIndexStart in stride(from: 0, to: message.count, by: chunkSize) {
       let chunkIndexEnd = min(chunkIndexStart + chunkSize, message.count) - 1
