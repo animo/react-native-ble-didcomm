@@ -8,6 +8,7 @@ import android.content.Context
 import android.os.ParcelUuid
 import androidx.annotation.RequiresPermission
 import com.facebook.react.bridge.ReactContext
+import com.reactnativebledidcomm.Constants
 import java.lang.Integer.min
 import java.util.*
 
