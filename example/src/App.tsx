@@ -14,7 +14,7 @@ import {
   DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
   DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
 } from '@animo-id/react-native-ble-didcomm'
-import { presentationMsg } from './presentationMsg'
+import { presentationMsg } from './bigPresentationMsg'
 
 const Spacer = () => <View style={{ height: 20, width: 20 }} />
 

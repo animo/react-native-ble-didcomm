@@ -8,6 +8,7 @@ import android.content.Context
 import android.os.ParcelUuid
 import androidx.annotation.RequiresPermission
 import com.facebook.react.bridge.ReactContext
+import com.reactnativebledidcomm.Constants
 import java.lang.Integer.min
 import java.util.*
 
@@ -91,7 +92,7 @@ class CentralManager(private val context: ReactContext) {
 
         Thread {
             isSending = true
-            val chunkSize = min(connectedMtu, message.count())
+            val chunkSize = min(connectedMtu - Constants.NUMBER_OF_BYTES_FOR_DATA_HEADER, message.count())
             for (chunkIndexStart in 0..message.count() step chunkSize) {
                 val chunkIndexEnd = min(chunkIndexStart + chunkSize, message.count()) - 1
                 characteristic.value = message.sliceArray(IntRange(chunkIndexStart, chunkIndexEnd))

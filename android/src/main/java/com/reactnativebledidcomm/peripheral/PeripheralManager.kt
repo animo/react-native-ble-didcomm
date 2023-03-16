@@ -9,6 +9,7 @@ import android.content.Context
 import android.os.ParcelUuid
 import androidx.annotation.RequiresPermission
 import com.facebook.react.bridge.ReactContext
+import com.reactnativebledidcomm.Constants
 import java.util.*
 
 class PeripheralManager(
@@ -98,7 +99,7 @@ class PeripheralManager(
 
         Thread {
             isSending = true
-            val chunkSize = Integer.min(connectedMtu, message.count())
+            val chunkSize = Integer.min(connectedMtu - Constants.NUMBER_OF_BYTES_FOR_DATA_HEADER, message.count())
             for (chunkIndexStart in 0..message.count() step chunkSize) {
                 val chunkIndexEnd = Integer.min(chunkIndexStart + chunkSize, message.count()) - 1
                 while (!isConnectedClientReady) {

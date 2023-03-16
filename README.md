@@ -42,7 +42,7 @@
 
 ## Introduction
 
-This package can be used as a transport for [DIDComm](https://didcomm.org) messages over Bluetooh Low Energy (BLE).
+This package can be used as a transport for [DIDComm](https://didcomm.org) messages over Bluetooth Low Energy (BLE).
 Before using this package, roles must be established. With BLE you have a "central" and "peripheral".
 The peripheral advertises that it is able to connect with any central that is looking for the same unique identifier
 (DIDComm UUIDs are defined here [didcomm bluetooth - identifiers](https://github.com/decentralized-identity/didcomm-bluetooth/blob/main/spec.md#identifiers)).
