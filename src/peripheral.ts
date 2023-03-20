@@ -46,7 +46,7 @@ export class Peripheral implements Ble {
     }
   }
 
-  public registerMessageListener(cb: (msg: string) => void) {
+  public registerMessageListener(cb: (data: { message: string }) => void) {
     const onReceivedNotificationListener = this.bleDidcommEmitter.addListener(
       'onReceivedWriteWithoutResponse',
       cb

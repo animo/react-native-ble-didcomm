@@ -11,7 +11,7 @@ export interface Ble {
   start(): Promise<void>
   setService(options: ServiceOptions): Promise<void>
   shutdown(): Promise<void>
-  registerMessageListener(cb: (msg: string) => void): EmitterSubscription
+  registerMessageListener(cb: (data: { message: string }) => void): EmitterSubscription
   registerOnConnectedListener(
     cb: (options: { identifier: string }) => void
   ): EmitterSubscription
