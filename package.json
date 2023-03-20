@@ -1,7 +1,7 @@
 {
   "name": "@animo-id/react-native-ble-didcomm",
   "version": "0.0.0",
-  "description": "react native bluetooth low energy sdk for didcomm",
+  "description": "React Native Bluetooth Low Energy (BLE) SDK for DIDComm",
   "main": "build/index",
   "source": "src/index",
   "files": [

@@ -38,7 +38,7 @@ export class Central implements Ble {
     throw new Error('Not implemented')
   }
 
-  registerMessageListener(cb: (msg: string) => void) {
+  registerMessageListener(cb: (data: { message: string }) => void) {
     const onReceivedNotificationListener = this.bleDidcommEmitter.addListener(
       'onReceivedNotification',
       cb
