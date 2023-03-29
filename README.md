@@ -60,7 +60,17 @@ yarn add @animo-id/react-native-ble-didcomm
 
 ### Android
 
-add the following to your `android/app/src/main/AndroidManifest.xml`
+If you are using [Expo](https://expo.dev/), you can add the plugin to your Expo app config (app.json, app.config.json or app.config.js) plugins array:
+
+```json
+{
+  "expo": {
+    "plugins": ["@animo-id/react-native-ble-didcomm"]
+  }
+}
+```
+
+If you are not using Expo, add the following to your `android/app/src/main/AndroidManifest.xml`:
 
 ```diff
 +   <uses-permission android:name="android.permission.INTERNET" />

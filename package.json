@@ -15,6 +15,7 @@
     "ios/**/*.swift",
     "ios/BleDidcomm.xcodeproj/project.pbxproj",
     "react-native-ble-didcomm.podspec",
+    "app.plugin.js",
     "README.md",
     "LICENSE"
   ],
@@ -48,6 +49,7 @@
     "react-native": "*"
   },
   "devDependencies": {
+    "@expo/config-plugins": "^6.0.1",
     "@react-native-community/eslint-config": "3.0.2",
     "@types/react": "~17.0.21",
     "@types/react-native": "0.68.0",
