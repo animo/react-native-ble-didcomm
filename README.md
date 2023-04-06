@@ -96,14 +96,13 @@ If you are using [Expo](https://expo.dev/), you need to add the following to you
 {
   "ios": {
     "infoPlist": {
-        "NSBluetoothAlwaysUsageDescription": "Allow <YOUR_APP_NAME> to use bluetooth for offline proof sharing"
-      }
+      "NSBluetoothAlwaysUsageDescription": "Allow <YOUR_APP_NAME> to use bluetooth for offline proof sharing"
+    }
   }
 }
 ```
 
 If you are not using Expo, add the following to your `ios/<YOUR_APP_NAME>/Info.plist`:
-
 
 ```diff
 +   <key>NSBluetoothAlwaysUsageDescription</key>
