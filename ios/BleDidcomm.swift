@@ -17,6 +17,24 @@ class BleDidcomm: React.RCTEventEmitter {
     resolve(nil)
   }
 
+  @objc func stopPeripheral(
+    _: [String: String],
+    resolve: RCTPromiseResolveBlock,
+    reject _: RCTPromiseRejectBlock
+  ) {
+    guard let peripheralManager = self.peripheralManager else {
+      reject("error", "Uninitialized, call `startPeripheral()` first", nil)
+      return
+    }
+    do {
+      try peripheralManager.stopPeripheral()
+      peripheralManager = nil
+      resolve(nil)
+    } catch {
+      reject("error", "Something went wrong shutting down", nil)
+    }
+  }
+
   @objc func setPeripheralService(
     _ serviceUUID: String,
     writeCharacteristicUUID: String,
@@ -65,6 +83,24 @@ class BleDidcomm: React.RCTEventEmitter {
       sendEvent: self.sendEvent
     )
     resolve(nil)
+  }
+
+  @objc func stopCentral(
+    _: [String: String],
+    resolve: RCTPromiseResolveBlock,
+    reject: RCTPromiseRejectBlock
+  ) {
+    guard let centralManager = self.centralManager else {
+      reject("error", "Uninitialized, call `startCentral()` first", nil)
+      return
+    }
+    do {
+      try central.stopCentral()
+      centralManager = nil
+      resolve(nil)
+    } catch  {
+      reject("error", "Something went wrong while shutting down", nil)
+    }
   }
 
   @objc func advertise(

@@ -6,10 +6,19 @@ export type ServiceOptions = {
   indicationUUID: string
 }
 
+export type BLEState = {
+  isRunning?: boolean
+  isScanning?: boolean
+  isAdvertising?: boolean
+  isConnected?: boolean
+}
+
 export interface Ble {
+  state: BLEState
   sendMessage(message: string): Promise<void>
   start(): Promise<void>
   setService(options: ServiceOptions): Promise<void>
+  getState(): BLEState
   shutdown(): Promise<void>
   registerMessageListener(
     cb: (data: { message: string }) => void

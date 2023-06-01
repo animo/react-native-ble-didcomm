@@ -36,6 +36,21 @@ class CentralManager: NSObject {
     )
   }
 
+  func stopCentral() {
+    do {
+      self.stopScan()
+    } catch {
+      // Not scanning - do nothing
+    }
+    self.peripherals = []
+    self.writeCharacteristic = nil
+    self.connectedPeripheral = nil
+    self.receivedMessage = nil
+    self.serviceUUID = nil
+    self.writeCharacteristicUUID = nil
+    self.indicationCharacteristicUUID = nil
+  }
+
   func setService(
     serviceUUID: String,
     writeCharacteristicUUID: String,

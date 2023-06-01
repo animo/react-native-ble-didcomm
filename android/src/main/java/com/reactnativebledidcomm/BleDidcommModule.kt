@@ -53,6 +53,35 @@ class BleDidcommModule(private val context: ReactApplicationContext) :
     }
 
     @ReactMethod
+    fun stopCentral(
+        @Suppress("UNUSED_PARAMETER") options: ReadableMap,
+        promise: Promise
+    ) {
+        try {
+            this.centralManager?.shutdownCentral()
+            this.centralManager = null
+            promise.resolve(null)
+        } catch (e: Exception) {
+            promise.reject("error", e)
+        }
+    }
+
+    @ReactMethod
+    @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
+    fun stopPeripheral(
+        @Suppress("UNUSED_PARAMETER") options: ReadableMap,
+        promise: Promise
+    ) {
+        try {
+            this.peripheralManager?.shutdownPeripheral()
+            this.peripheralManager = null
+            promise.resolve(null)
+        } catch (e: Exception) {
+            promise.reject("error", e)
+        }
+    }
+
+    @ReactMethod
     fun setCentralService(
         serviceUUID: String,
         writeCharacteristicUUID: String,

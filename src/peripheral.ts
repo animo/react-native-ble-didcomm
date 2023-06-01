@@ -1,9 +1,23 @@
-import type { Ble, ServiceOptions } from './ble'
+import type { Ble, BLEState, ServiceOptions } from './ble'
 import { NativeEventEmitter, NativeModules } from 'react-native'
 import { sdk } from './register'
 
+const initialState: BLEState = {
+  isRunning: false,
+  isAdvertising: false,
+}
+
 export class Peripheral implements Ble {
   bleDidcommEmitter = new NativeEventEmitter(NativeModules.BleDidcomm)
+  state: BLEState = initialState
+
+  public getState(): BLEState {
+    try {
+      return this.state
+    } catch (e) {
+      throw new Error('An error occurred setting internal module state: ' + e)
+    }
+  }
 
   public async sendMessage(message: string) {
     try {
@@ -16,6 +30,7 @@ export class Peripheral implements Ble {
   public async start() {
     try {
       await sdk.startPeripheral({})
+      this.state.isRunning = true
     } catch (e) {
       throw new Error('An error occurred during startup: ' + e)
     }
@@ -34,13 +49,21 @@ export class Peripheral implements Ble {
   }
 
   public async shutdown() {
-    // TODO: Implement native
-    throw new Error('Not implemented')
+    if (this.state.isAdvertising) {
+      try {
+        sdk.stopAdvertise()
+        await sdk.shutdownPeripheral({})
+      } catch (e) {
+        throw new Error('Failed to shutdown peripheral: ' + e)
+      }
+    }
+    this.state = initialState
   }
 
   public async advertise() {
     try {
       await sdk.advertise({})
+      this.state.isAdvertising = true
     } catch (e) {
       throw new Error('An error occurred while trying to advertise: ' + e)
     }

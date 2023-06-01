@@ -34,6 +34,18 @@ class PeripheralManager: NSObject {
     while !isPoweredOn { Thread.sleep(forTimeInterval: 0.05) }
   }
 
+  func stopPeripheral() {
+    do {
+      self.stopAdvertise()
+    } catch {
+      // Not advertising - do nothing
+    }
+    self.service = nil
+    self.writeCharacteristic = nil
+    self.indicationCharacteristic = nil
+    self.peripheralManager.removeAllServices()
+  }
+
   func setService(
     serviceUUID: String, writeCharacteristicUUID: String, indicationCharacteristicUUID: String
   ) throws {
@@ -60,6 +72,13 @@ class PeripheralManager: NSObject {
     }
     self.peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [service.uuid]])
   }
+
+  func stopAdvertise() throws {
+    guard let service = self.service else {
+      throw PeripheralManagerError.NoDefinedService
+    }
+    self.peripheralManager.stopAdvertising()
+  } 
 
   func indicate(message: Data) throws {
     guard let connectedCentral = connectedCentral else {

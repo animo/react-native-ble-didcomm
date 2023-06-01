@@ -1,4 +1,5 @@
 import { NativeModules, Platform } from 'react-native'
+import type { BLEState } from './ble'
 
 const LINKING_ERROR =
   'The package "react-native-ble-didcomm" doesn\'t seem to be linked. Make sure: \n\n' +
@@ -25,6 +26,7 @@ type Sdk = {
     characteristicUUID: string,
     notifyCharacteristicUUID: string
   ): Promise<void>
+  getState(): BLEState
   setPeripheralService(
     serviceUUID: string,
     characteristicUUID: string,
@@ -33,7 +35,9 @@ type Sdk = {
   shutdownCentral({}: Record<never, never>): Promise<void>
   shutdownPeripheral({}: Record<never, never>): Promise<void>
   scan({}: Record<never, never>): Promise<void>
+  stopScan(): void
   advertise({}: Record<never, never>): Promise<void>
+  stopAdvertise(): Promise<void>
   connect(peripheralId: string): Promise<void>
   write(message: string): Promise<void>
   indicate(message: string): Promise<void>
