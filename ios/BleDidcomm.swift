@@ -23,16 +23,10 @@ class BleDidcomm: React.RCTEventEmitter {
     reject _: RCTPromiseRejectBlock
   ) {
     guard let peripheralManager = self.peripheralManager else {
-      reject("error", "Uninitialized, call `startPeripheral()` first", nil)
       return
     }
-    do {
-      try peripheralManager.stopPeripheral()
-      peripheralManager = nil
-      resolve(nil)
-    } catch {
-      reject("error", "Something went wrong shutting down", nil)
-    }
+    peripheralManager.stopPeripheral()
+    resolve(nil)
   }
 
   @objc func setPeripheralService(
@@ -91,16 +85,10 @@ class BleDidcomm: React.RCTEventEmitter {
     reject: RCTPromiseRejectBlock
   ) {
     guard let centralManager = self.centralManager else {
-      reject("error", "Uninitialized, call `startCentral()` first", nil)
       return
     }
-    do {
-      try central.stopCentral()
-      centralManager = nil
-      resolve(nil)
-    } catch  {
-      reject("error", "Something went wrong while shutting down", nil)
-    }
+    centralManager.stopCentral()
+    resolve(nil)
   }
 
   @objc func advertise(
