@@ -38,7 +38,7 @@ class CentralManager: NSObject {
 
   func stopCentral() {
     if (self.centralManager.isScanning) {
-      try! self.stopScan()
+      self.stopScan()
     }
     self.peripherals = []
     self.writeCharacteristic = nil

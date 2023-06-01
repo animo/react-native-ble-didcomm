@@ -36,7 +36,11 @@ class PeripheralManager: NSObject {
 
   func stopPeripheral() {
     if (self.peripheralManager.isAdvertising) {
-      try! self.stopAdvertise()
+      do {
+        try self.stopAdvertise()
+      } catch {
+        // we don't care and proceed
+      }
     }
     self.service = nil
     self.writeCharacteristic = nil
