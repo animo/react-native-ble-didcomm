@@ -50,13 +50,10 @@ export class Central implements Ble {
 
   public async shutdown() {
     // TODO: Implement native
-    if (this.state.isScanning) {
-      try {
-        sdk.stopScan()
-        await sdk.shutdownCentral({})
-      } catch (e) {
-        throw new Error('Failed to shutdown central: ' + e)
-      }
+    try {
+      await sdk.shutdownCentral({})
+    } catch (e) {
+      throw new Error('Failed to shutdown central: ' + e)
     }
     this.state = initialState
   }

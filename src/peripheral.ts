@@ -49,13 +49,10 @@ export class Peripheral implements Ble {
   }
 
   public async shutdown() {
-    if (this.state.isAdvertising) {
-      try {
-        sdk.stopAdvertise()
-        await sdk.shutdownPeripheral({})
-      } catch (e) {
-        throw new Error('Failed to shutdown peripheral: ' + e)
-      }
+    try {
+      await sdk.shutdownPeripheral({})
+    } catch (e) {
+      throw new Error('Failed to shutdown peripheral: ' + e)
     }
     this.state = initialState
   }
