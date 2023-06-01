@@ -48,7 +48,7 @@ class CentralManager(private val context: ReactContext) {
     fun shutdownCentral() {
         try {
             this.stopScan()
-        } catch (e) {
+        } catch (e: CentralManagerException.NotScanning) {
             // Not Scanning
         } finally {
             this.serviceUUID = null
