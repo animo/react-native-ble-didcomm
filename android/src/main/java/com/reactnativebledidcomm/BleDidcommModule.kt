@@ -67,7 +67,6 @@ class BleDidcommModule(private val context: ReactApplicationContext) :
     }
 
     @ReactMethod
-    @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
     fun stopPeripheral(
         @Suppress("UNUSED_PARAMETER") options: ReadableMap,
         promise: Promise
