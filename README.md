@@ -90,6 +90,27 @@ If you are not using Expo, add the following to your `android/app/src/main/Andro
 
 Run `pod install` in the `ios/` directory
 
+If you are using [Expo](https://expo.dev/), you need to add the following to your Expo app config (app.json, app.config.json or app.config.js):
+
+```json
+{
+  "ios": {
+    "infoPlist": {
+      "NSBluetoothAlwaysUsageDescription": "Allow <YOUR_APP_NAME> to use bluetooth for offline proof sharing"
+    }
+  }
+}
+```
+
+If you are not using Expo, add the following to your `ios/<YOUR_APP_NAME>/Info.plist`:
+
+```diff
++   <key>NSBluetoothAlwaysUsageDescription</key>
++   <string>Allow $(PRODUCT_NAME) to use bluetooth for offline proof sharing</string>
+```
+
+These messages can be customized to your app needs.
+
 ## Usage
 
 An example can be found here: [example](./example/src/App.tsx)
