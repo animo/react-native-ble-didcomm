@@ -37,7 +37,7 @@ type Sdk = {
   scan({}: Record<never, never>): Promise<void>
   stopScan(): void
   advertise({}: Record<never, never>): Promise<void>
-  stopAdvertise(): Promise<void>
+  stopAdvertising(): Promise<void>
   connect(peripheralId: string): Promise<void>
   write(message: string): Promise<void>
   indicate(message: string): Promise<void>

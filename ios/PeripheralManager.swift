@@ -37,7 +37,7 @@ class PeripheralManager: NSObject {
   func shutdownPeripheral() {
     if (self.peripheralManager.isAdvertising) {
       do {
-        try self.stopAdvertise()
+        try self.stopAdvertising()
       } catch {
         // we don't care and proceed
       }
@@ -75,7 +75,7 @@ class PeripheralManager: NSObject {
     self.peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [service.uuid]])
   }
 
-  func stopAdvertise() throws {
+  func stopAdvertising() throws {
     guard let service = self.service else {
       throw PeripheralManagerError.NoDefinedService
     }
