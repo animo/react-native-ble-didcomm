@@ -36,7 +36,14 @@ class CentralManager: NSObject {
     )
   }
 
-  func stopCentral() {
+  func shutdownCentral() {
+    if let cp = self.connectedPeripheral {
+      do {
+        try self.centralManager.cancelPeripheralConnection(cp)
+      } catch {
+        // We don't care and proceed
+      }
+    }
     if (self.centralManager.isScanning) {
       self.stopScan()
     }

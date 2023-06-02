@@ -53,7 +53,7 @@ class BleDidcommModule(private val context: ReactApplicationContext) :
     }
 
     @ReactMethod
-    fun stopCentral(
+    fun shutdownCentral(
         @Suppress("UNUSED_PARAMETER") options: ReadableMap,
         promise: Promise
     ) {
@@ -67,7 +67,7 @@ class BleDidcommModule(private val context: ReactApplicationContext) :
     }
 
     @ReactMethod
-    fun stopPeripheral(
+    fun shutdownPeripheral(
         @Suppress("UNUSED_PARAMETER") options: ReadableMap,
         promise: Promise
     ) {

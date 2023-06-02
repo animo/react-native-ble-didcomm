@@ -63,6 +63,8 @@ class PeripheralManager(
     }
 
     fun shutdownPeripheral() {
+        this.gattServer.connectedDevices.clear()
+        this.gattServer.close()
         this.stopAdvertising()
         this.writeCharacteristic = null
         this.connectedClient = null

@@ -17,7 +17,7 @@ class BleDidcomm: React.RCTEventEmitter {
     resolve(nil)
   }
 
-  @objc func stopPeripheral(
+  @objc func shutdownPeripheral(
     _: [String: String],
     resolve: RCTPromiseResolveBlock,
     reject _: RCTPromiseRejectBlock
@@ -25,7 +25,7 @@ class BleDidcomm: React.RCTEventEmitter {
     guard let peripheralManager = self.peripheralManager else {
       return
     }
-    peripheralManager.stopPeripheral()
+    peripheralManager.shutdownPeripheral()
     resolve(nil)
   }
 
@@ -79,7 +79,7 @@ class BleDidcomm: React.RCTEventEmitter {
     resolve(nil)
   }
 
-  @objc func stopCentral(
+  @objc func shutdownCentral(
     _: [String: String],
     resolve: RCTPromiseResolveBlock,
     reject: RCTPromiseRejectBlock
@@ -87,7 +87,7 @@ class BleDidcomm: React.RCTEventEmitter {
     guard let centralManager = self.centralManager else {
       return
     }
-    centralManager.stopCentral()
+    centralManager.shutdownCentral()
     resolve(nil)
   }
 

@@ -34,7 +34,7 @@ class PeripheralManager: NSObject {
     while !isPoweredOn { Thread.sleep(forTimeInterval: 0.05) }
   }
 
-  func stopPeripheral() {
+  func shutdownPeripheral() {
     if (self.peripheralManager.isAdvertising) {
       do {
         try self.stopAdvertise()
