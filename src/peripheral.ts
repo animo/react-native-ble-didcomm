@@ -1,17 +1,17 @@
-import type { Ble, BLEState, ServiceOptions } from './ble'
+import type { Ble, BleState, ServiceOptions } from './ble'
 import { NativeEventEmitter, NativeModules } from 'react-native'
 import { sdk } from './register'
 
-const initialState: BLEState = {
+const initialState: BleState = {
   isRunning: false,
   isAdvertising: false,
 }
 
 export class Peripheral implements Ble {
   bleDidcommEmitter = new NativeEventEmitter(NativeModules.BleDidcomm)
-  state: BLEState = initialState
+  state: BleState = initialState
 
-  public getState(): BLEState {
+  public getState(): BleState {
     try {
       return this.state
     } catch (e) {

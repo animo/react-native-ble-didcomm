@@ -1,17 +1,17 @@
-import type { ServiceOptions, Ble, BLEState } from './ble'
+import type { ServiceOptions, Ble, BleState } from './ble'
 import { NativeEventEmitter, NativeModules } from 'react-native'
 import { sdk } from './register'
 
-const initialState: BLEState = {
+const initialState: BleState = {
   isRunning: false,
   isScanning: false,
 }
 
 export class Central implements Ble {
   bleDidcommEmitter = new NativeEventEmitter(NativeModules.BleDidcomm)
-  state: BLEState = initialState
+  state: BleState = initialState
 
-  public getState(): BLEState {
+  public getState(): BleState {
     try {
       return this.state
     } catch (e) {
