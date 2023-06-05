@@ -48,8 +48,12 @@ class CentralManager(private val context: ReactContext) {
     fun shutdownCentral() {
         try {
             this.stopScan()
+            this.connectedPeripheral?.disconnect()
+            this.connectedPeripheral?.close()
         } catch (e: CentralManagerException.NotScanning) {
             // Not Scanning
+        } catch (e: Exception) {
+            // Error we don't care about
         } finally {
             this.serviceUUID = null
             this.writeCharacteristicUUID = null
