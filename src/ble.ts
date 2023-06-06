@@ -7,10 +7,17 @@ export type ServiceOptions = {
 }
 
 export type BleState = {
-  isRunning?: boolean
-  isScanning?: boolean
-  isAdvertising?: boolean
-  isConnected?: boolean
+  isRunning: boolean
+  isScanning: boolean
+  isAdvertising: boolean
+  isConnected: boolean
+}
+
+export const initialState: BleState = {
+  isRunning: false,
+  isScanning: false,
+  isAdvertising: false,
+  isConnected: false,
 }
 
 export interface Ble {

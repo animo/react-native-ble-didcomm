@@ -1,11 +1,6 @@
-import type { Ble, BleState, ServiceOptions } from './ble'
+import { Ble, BleState, initialState, ServiceOptions } from './ble'
 import { NativeEventEmitter, NativeModules } from 'react-native'
 import { sdk } from './register'
-
-const initialState: BleState = {
-  isRunning: false,
-  isAdvertising: false,
-}
 
 export class Peripheral implements Ble {
   bleDidcommEmitter = new NativeEventEmitter(NativeModules.BleDidcomm)
