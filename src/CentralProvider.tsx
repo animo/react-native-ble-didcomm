@@ -1,7 +1,8 @@
-import { useContext, useEffect, useState } from 'react'
-import type { PropsWithChildren } from 'react'
-import * as React from 'react'
 import type { Central } from './central'
+import type { PropsWithChildren } from 'react'
+
+import { useContext, useEffect, useState } from 'react'
+import * as React from 'react'
 
 interface CentralContextInterface {
   loading: boolean

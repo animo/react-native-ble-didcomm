@@ -1,6 +1,7 @@
-import { useContext, useEffect, useState } from 'react'
 import type { PropsWithChildren } from 'react'
 import type { Peripheral } from './peripheral'
+
+import { useContext, useEffect, useState } from 'react'
 import * as React from 'react'
 
 interface PeripheralContextInterface {
