@@ -36,6 +36,26 @@ class CentralManager: NSObject {
     )
   }
 
+  func shutdownCentral() {
+    if let cp = self.connectedPeripheral {
+      do {
+        try self.centralManager.cancelPeripheralConnection(cp)
+      } catch {
+        // We don't care and proceed
+      }
+    }
+    if (self.centralManager.isScanning) {
+      self.stopScan()
+    }
+    self.peripherals = []
+    self.writeCharacteristic = nil
+    self.connectedPeripheral = nil
+    self.receivedMessage = nil
+    self.serviceUUID = nil
+    self.writeCharacteristicUUID = nil
+    self.indicationCharacteristicUUID = nil
+  }
+
   func setService(
     serviceUUID: String,
     writeCharacteristicUUID: String,

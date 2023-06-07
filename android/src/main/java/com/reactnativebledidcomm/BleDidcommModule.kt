@@ -53,6 +53,32 @@ class BleDidcommModule(private val context: ReactApplicationContext) :
     }
 
     @ReactMethod
+    fun shutdownCentral(
+        promise: Promise
+    ) {
+        try {
+            this.centralManager?.shutdownCentral()
+            this.centralManager = null
+            promise.resolve(null)
+        } catch (e: Exception) {
+            promise.reject("error", e)
+        }
+    }
+
+    @ReactMethod
+    fun shutdownPeripheral(
+        promise: Promise
+    ) {
+        try {
+            this.peripheralManager?.shutdownPeripheral()
+            this.peripheralManager = null
+            promise.resolve(null)
+        } catch (e: Exception) {
+            promise.reject("error", e)
+        }
+    }
+
+    @ReactMethod
     fun setCentralService(
         serviceUUID: String,
         writeCharacteristicUUID: String,

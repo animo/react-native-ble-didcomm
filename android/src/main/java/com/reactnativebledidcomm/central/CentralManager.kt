@@ -45,6 +45,24 @@ class CentralManager(private val context: ReactContext) {
         this.indicationCharacteristicUUID = indicationCharacteristicUUID
     }
 
+    fun shutdownCentral() {
+        try {
+            this.stopScan()
+            this.connectedPeripheral?.disconnect()
+            this.connectedPeripheral?.close()
+        } catch (e: CentralManagerException.NotScanning) {
+            // Not Scanning
+        } catch (e: Exception) {
+            // Error we don't care about
+        } finally {
+            this.serviceUUID = null
+            this.writeCharacteristicUUID = null
+            this.indicationCharacteristicUUID = null
+            this.connectedPeripheral = null
+            this.discoveredPeripherals.clear()
+        }
+    }
+
     @RequiresPermission(value = "android.permission.BLUETOOTH_SCAN")
     fun scan(scanCallback: ScanCallback) {
         if (this.scanCallback !== null) {

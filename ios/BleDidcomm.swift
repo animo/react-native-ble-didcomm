@@ -17,6 +17,17 @@ class BleDidcomm: React.RCTEventEmitter {
     resolve(nil)
   }
 
+  @objc func shutdownPeripheral(
+    resolve: RCTPromiseResolveBlock,
+    reject _: RCTPromiseRejectBlock
+  ) {
+    guard let peripheralManager = self.peripheralManager else {
+      return
+    }
+    peripheralManager.shutdownPeripheral()
+    resolve(nil)
+  }
+
   @objc func setPeripheralService(
     _ serviceUUID: String,
     writeCharacteristicUUID: String,
@@ -64,6 +75,17 @@ class BleDidcomm: React.RCTEventEmitter {
     centralManager = CentralManager(
       sendEvent: self.sendEvent
     )
+    resolve(nil)
+  }
+
+  @objc func shutdownCentral(
+    resolve: RCTPromiseResolveBlock,
+    reject: RCTPromiseRejectBlock
+  ) {
+    guard let centralManager = self.centralManager else {
+      return
+    }
+    centralManager.shutdownCentral()
     resolve(nil)
   }
 

@@ -62,6 +62,20 @@ class PeripheralManager(
         gattServer.addService(this.service)
     }
 
+    fun shutdownPeripheral() {
+        this.gattServer.connectedDevices.clear()
+        this.gattServer.close()
+        try {
+            this.stopAdvertising()
+        } catch (e: Exception) {
+            // Do nothing
+        }
+        this.writeCharacteristic = null
+        this.connectedClient = null
+        this.indicationCharacteristic = null
+        this.service = null
+    }
+
     @RequiresPermission(value = "android.permission.BLUETOOTH_ADVERTISE")
     fun advertise(advertiseCallback: AdvertiseCallback) {
         val service =
