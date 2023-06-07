@@ -1,7 +1,7 @@
 import type { PropsWithChildren } from 'react'
 import type { Peripheral } from './peripheral'
 
-import { useContext, useEffect, useState } from 'react'
+import { useContext } from 'react'
 import * as React from 'react'
 
 interface PeripheralContextInterface {
@@ -20,7 +20,7 @@ export const PeripheralContext = React.createContext<
 export const usePeripheral = () => {
   const peripheralContext = useContext(PeripheralContext)
   if (!peripheralContext) {
-    throw new Error('useAgent must be used within a AgentContextProvider')
+    throw new Error('usePeripheral must be used within a ContextProvider')
   }
   return peripheralContext
 }
@@ -29,22 +29,10 @@ const PeripheralProvider: React.FC<PropsWithChildren<PeripheralProps>> = ({
   peripheral,
   children,
 }) => {
-  const [peripheralState, setPeripheralState] = useState<
-    PeripheralContextInterface
-  >({
+  const peripheralState: PeripheralContextInterface = {
     loading: true,
     peripheral: peripheral,
-  })
-
-  const setInitialState = async () => {
-    if (peripheral) {
-      setPeripheralState({ peripheral: peripheral, loading: false })
-    }
   }
-
-  useEffect(() => {
-    setInitialState()
-  }, [peripheralState])
 
   return (
     <PeripheralContext.Provider value={peripheralState}>

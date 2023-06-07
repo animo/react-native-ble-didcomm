@@ -1,7 +1,7 @@
 import type { Central } from './central'
 import type { PropsWithChildren } from 'react'
 
-import { useContext, useEffect, useState } from 'react'
+import { useContext } from 'react'
 import * as React from 'react'
 
 interface CentralContextInterface {
@@ -20,7 +20,7 @@ export const CentralContext = React.createContext<
 export const useCentral = () => {
   const peripheralContext = useContext(CentralContext)
   if (!peripheralContext) {
-    throw new Error('useAgent must be used within a AgentContextProvider')
+    throw new Error('useCentral must be used within a ContextProvider')
   }
   return peripheralContext
 }
@@ -29,20 +29,10 @@ const PeripheralProvider: React.FC<PropsWithChildren<CentralProps>> = ({
   central,
   children,
 }) => {
-  const [centralState, setCentralState] = useState<CentralContextInterface>({
+  const centralState: CentralContextInterface = {
     loading: true,
     central: central,
-  })
-
-  const setInitialState = async () => {
-    if (central) {
-      setCentralState({ central: central, loading: false })
-    }
   }
-
-  useEffect(() => {
-    setInitialState()
-  }, [centralState])
 
   return (
     <CentralContext.Provider value={centralState}>
