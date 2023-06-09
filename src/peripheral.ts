@@ -77,6 +77,7 @@ export class Peripheral implements Ble {
       'onConnectedCentral',
       cb
     )
+    this.state.isConnected = true
     return onConnectedPeripheralListener
   }
 
@@ -87,6 +88,7 @@ export class Peripheral implements Ble {
       'onDisconnectedCentral',
       cb
     )
+    this.state.isConnected = false
     return onDisconnectedPeripheralListener
   }
 }
