@@ -86,6 +86,8 @@ If you are not using Expo, add the following to your `android/app/src/main/Andro
 +   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 ```
 
+Ensure that the device has both 'Bluetooth' and 'Location' turned on.
+
 ### iOS
 
 Run `pod install` in the `ios/` directory
