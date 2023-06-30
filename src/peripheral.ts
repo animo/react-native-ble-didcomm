@@ -45,7 +45,7 @@ export class Peripheral implements Ble {
 
   public async shutdown() {
     try {
-      await sdk.shutdownPeripheral()
+      await sdk.shutdownPeripheral({})
     } catch (e) {
       throw new Error('Failed to shutdown peripheral: ' + e)
     }

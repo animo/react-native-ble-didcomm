@@ -11,6 +11,7 @@ RCT_EXTERN_METHOD(startCentral
                   reject:(RCTPromiseRejectBlock)reject)
 
 RCT_EXTERN_METHOD(shutdownCentral
+                  :(NSDictionary *)options
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
 
@@ -20,6 +21,7 @@ RCT_EXTERN_METHOD(startPeripheral
                   reject:(RCTPromiseRejectBlock)reject)
 
 RCT_EXTERN_METHOD(shutdownPeripheral
+                  :(NSDictionary *)options
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
 

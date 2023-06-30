@@ -45,7 +45,7 @@ export class Central implements Ble {
 
   public async shutdown() {
     try {
-      await sdk.shutdownCentral()
+      await sdk.shutdownCentral({})
     } catch (e) {
       throw new Error('Failed to shutdown central: ' + e)
     }

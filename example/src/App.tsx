@@ -31,14 +31,13 @@ const requestPermissions = async () => {
 }
 
 export default function App() {
+  const central = new Central()
+  const peripheral = new Peripheral()
+
   const [isCentral, setIsCentral] = React.useState<boolean>(false)
   const [isPeripheral, setIsPeripheral] = React.useState<boolean>(false)
   const [peripheralId, setPeripheralId] = React.useState<string>()
-  const [connected, setConnected] = React.useState<boolean>(false)
-  const [central, setCentral] = React.useState<Central>(new Central())
-  const [peripheral, setPeripheral] = React.useState<Peripheral>(
-    new Peripheral()
-  )
+  const [isConnected, setIsConnected] = React.useState<boolean>(false)
 
   React.useEffect(() => {
     const onDiscoverPeripheralListener = central.registerOnDiscoveredListener(
@@ -51,7 +50,7 @@ export default function App() {
     const onConnectedPeripheralListener = central.registerOnConnectedListener(
       ({ identifier }: { identifier: string }) => {
         console.log(`Connected to: ${identifier}`)
-        setConnected(true)
+        setIsConnected(true)
       }
     )
 
@@ -137,13 +136,21 @@ export default function App() {
               await central.scan()
             }}
           />
+          <Button
+            title="shutdown"
+            onPress={async () => {
+              await central.shutdown()
+              setIsConnected(false)
+              setIsCentral(false)
+            }}
+          />
           {peripheralId && (
             <Button
               title="connect"
               onPress={async () => await central.connect(peripheralId)}
             />
           )}
-          {connected && (
+          {isConnected && (
             <Button
               title="write"
               onPress={async () => await central.sendMessage(msg)}
@@ -165,6 +172,14 @@ export default function App() {
           />
           <Button title="advertise" onPress={() => peripheral.advertise()} />
           <Button title="notify" onPress={() => peripheral.sendMessage(msg)} />
+          <Button
+            title="shutdown"
+            onPress={async () => {
+              await peripheral.shutdown()
+              setIsConnected(false)
+              setIsPeripheral(false)
+            }}
+          />
         </>
       )}
     </View>

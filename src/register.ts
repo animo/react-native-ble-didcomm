@@ -32,8 +32,8 @@ type Sdk = {
     characteristicUUID: string,
     notifyCharacteristicUUID: string
   ): Promise<void>
-  shutdownCentral(): Promise<void>
-  shutdownPeripheral(): Promise<void>
+  shutdownCentral({}: Record<string, never>): Promise<void>
+  shutdownPeripheral({}: Record<string, never>): Promise<void>
   scan({}: Record<never, never>): Promise<void>
   stopScan(): void
   advertise({}: Record<never, never>): Promise<void>
