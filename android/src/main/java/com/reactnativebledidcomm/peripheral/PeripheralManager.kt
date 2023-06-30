@@ -67,7 +67,6 @@ class PeripheralManager(
         for (device in connectedDevices) {
             this.gattServer.cancelConnection(device)
         }
-        this.gattServer.close()
         
         try {
             this.stopAdvertising()
@@ -105,6 +104,7 @@ class PeripheralManager(
     fun stopAdvertising() {
         val advertiser = bluetoothAdapter.bluetoothLeAdvertiser
         advertiser.stopAdvertising(advertiseCallback)
+        this.gattServer.close()
         advertiseCallback = null
     }
 
