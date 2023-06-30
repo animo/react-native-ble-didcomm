@@ -121,6 +121,14 @@ export default function App() {
       {isCentral && (
         <>
           <Button
+            title="shutdown"
+            onPress={async () => {
+              await central.shutdown()
+              setIsConnected(false)
+              setIsCentral(false)
+            }}
+          />
+          <Button
             title="set services"
             onPress={async () => {
               await central.setService({
@@ -136,14 +144,7 @@ export default function App() {
               await central.scan()
             }}
           />
-          <Button
-            title="shutdown"
-            onPress={async () => {
-              await central.shutdown()
-              setIsConnected(false)
-              setIsCentral(false)
-            }}
-          />
+
           {peripheralId && (
             <Button
               title="connect"
@@ -161,6 +162,14 @@ export default function App() {
       {isPeripheral && (
         <>
           <Button
+            title="shutdown"
+            onPress={async () => {
+              await peripheral.shutdown()
+              setIsConnected(false)
+              setIsPeripheral(false)
+            }}
+          />
+          <Button
             title="set services"
             onPress={async () => {
               await peripheral.setService({
@@ -172,14 +181,6 @@ export default function App() {
           />
           <Button title="advertise" onPress={() => peripheral.advertise()} />
           <Button title="notify" onPress={() => peripheral.sendMessage(msg)} />
-          <Button
-            title="shutdown"
-            onPress={async () => {
-              await peripheral.shutdown()
-              setIsConnected(false)
-              setIsPeripheral(false)
-            }}
-          />
         </>
       )}
     </View>
