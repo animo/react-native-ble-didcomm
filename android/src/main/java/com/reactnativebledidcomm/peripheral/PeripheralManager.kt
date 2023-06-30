@@ -63,8 +63,11 @@ class PeripheralManager(
     }
 
     fun shutdownPeripheral() {
-        this.gattServer.connectedDevices.clear()
-        this.gattServer.close()
+        val connectedDevices = this.bluetoothManager.getConnectedDevices(BluetoothProfile.GATT)
+        for (device in connectedDevices) {
+            this.gattServer.cancelConnection(device)
+        }
+        
         try {
             this.stopAdvertising()
         } catch (e: Exception) {
@@ -101,6 +104,7 @@ class PeripheralManager(
     fun stopAdvertising() {
         val advertiser = bluetoothAdapter.bluetoothLeAdvertiser
         advertiser.stopAdvertising(advertiseCallback)
+        this.gattServer.close()
         advertiseCallback = null
     }
 

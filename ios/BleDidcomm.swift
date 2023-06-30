@@ -18,6 +18,7 @@ class BleDidcomm: React.RCTEventEmitter {
   }
 
   @objc func shutdownPeripheral(
+    _: [String: String],
     resolve: RCTPromiseResolveBlock,
     reject _: RCTPromiseRejectBlock
   ) {
@@ -79,6 +80,7 @@ class BleDidcomm: React.RCTEventEmitter {
   }
 
   @objc func shutdownCentral(
+    _: [String: String],
     resolve: RCTPromiseResolveBlock,
     reject: RCTPromiseRejectBlock
   ) {
