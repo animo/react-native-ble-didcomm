@@ -18,6 +18,8 @@ const BleDidcomm = NativeModules.BleDidcomm
       }
     )
 
+// Functions without any params needs an empty object to work, might be fixable by tweaking the Objective-C interface
+// For now we just add an empty object to functions without any params.
 type Sdk = {
   startPeripheral({}: Record<string, never>): Promise<void>
   startCentral({}: Record<string, never>): Promise<void>

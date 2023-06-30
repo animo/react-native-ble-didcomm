@@ -123,6 +123,7 @@ export default function App() {
               await central.shutdown()
               setIsConnected(false)
               setIsCentral(false)
+              setPeripheralId(undefined)
             }}
           />
           <Button
