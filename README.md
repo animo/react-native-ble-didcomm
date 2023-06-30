@@ -151,21 +151,18 @@ React.useEffect(() => {
     console.log
   )
 
-  const onDisconnectedCentralListener = peripheral.registerOnDisconnectedListener(
-    console.log
-  )
+  const onDisconnectedCentralListener =
+    peripheral.registerOnDisconnectedListener(console.log)
 
-  const onDisconnectedPeripheralListener = central.registerOnDisconnectedListener(
-    console.log
-  )
+  const onDisconnectedPeripheralListener =
+    central.registerOnDisconnectedListener(console.log)
 
   const onReceivedNotificationListener = central.registerMessageListener(
     console.log
   )
 
-  const onReceivedWriteWithoutResponseListener = peripheral.registerMessageListener(
-    console.log
-  )
+  const onReceivedWriteWithoutResponseListener =
+    peripheral.registerMessageListener(console.log)
 
   return () => {
     onDiscoverPeripheralListener.remove()
