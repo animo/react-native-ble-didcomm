@@ -58,7 +58,9 @@ class PeripheralManager: NSObject {
     self.indicationCharacteristic = CBMutableCharacteristic(
       type: CBUUID(string: indicationCharacteristicUUID), properties: [.indicate], value: nil,
       permissions: [.writeable])
-    guard let wc = self.writeCharacteristic, let ic = self.indicationCharacteristic,
+    guard
+      let wc = self.writeCharacteristic,
+      let ic = self.indicationCharacteristic,
       let s = self.service
     else {
       throw PeripheralManagerError.NotConnectedToCentral
@@ -76,11 +78,11 @@ class PeripheralManager: NSObject {
   }
 
   func stopAdvertising() throws {
-    guard let service = self.service else {
+    guard self.service != nil else {
       throw PeripheralManagerError.NoDefinedService
     }
     self.peripheralManager.stopAdvertising()
-  } 
+  }
 
   func indicate(message: Data) throws {
     guard let connectedCentral = connectedCentral else {
