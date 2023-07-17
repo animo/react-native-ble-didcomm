@@ -28,7 +28,7 @@ class PeripheralManager: NSObject {
     self.peripheralManager = CBPeripheralManager(
       delegate: self,
       queue: nil,
-      options: [CBPeripheralManagerOptionShowPowerAlertKey: true]
+      options: [CBPeripheralManagerOptionShowPowerAlertKey: false]
     )
 
     while !isPoweredOn { Thread.sleep(forTimeInterval: 0.05) }
