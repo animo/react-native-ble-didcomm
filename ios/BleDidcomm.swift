@@ -66,6 +66,8 @@ class BleDidcomm: React.RCTEventEmitter {
     centralManager.setService(
       serviceUUID: serviceUUID, writeCharacteristicUUID: writeCharacteristicUUID,
       indicationCharacteristicUUID: indicationCharacteristicUUID)
+
+    resolve(nil)
   }
 
   @objc func startCentral(
