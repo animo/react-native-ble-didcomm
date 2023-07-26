@@ -3,7 +3,24 @@ import Foundation
 import os
 
 extension CentralManager: CBCentralManagerDelegate {
-  func centralManagerDidUpdateState(_ cm: CBCentralManager) {}
+  func centralManagerDidUpdateState(_ central: CBCentralManager) {
+    switch central.state {
+      case .poweredOn:
+        self.isCentralReady = true
+      case .unknown:
+        self.isCentralReady = false
+      case .resetting:
+        self.isCentralReady = false
+      case .unsupported:
+        self.isCentralReady = false
+      case .unauthorized:
+        self.isCentralReady = false
+      case .poweredOff:
+        self.isCentralReady = false
+      @unknown default:
+        self.isCentralReady = false
+    }
+  }
 
   func centralManager(
     _: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData _: [String: Any],
