@@ -15,7 +15,6 @@ import com.reactnativebledidcomm.peripheral.PeripheralManager
 import com.reactnativebledidcomm.peripheral.PeripheralManagerException
 import java.util.*
 
-
 class BleDidcommModule(private val context: ReactApplicationContext) :
     ReactContextBaseJavaModule(context) {
     private var centralManager: CentralManager? = null

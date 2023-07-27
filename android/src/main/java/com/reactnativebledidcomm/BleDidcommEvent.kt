@@ -7,5 +7,5 @@ enum class BleDidcommEvent(val token: String) {
     OnReceivedWriteWithoutResponse("onReceivedWriteWithoutResponse"),
     OnReceivedNotification("onReceivedNotification"),
     OnDisconnectedPeripheral("onDisconnectedPeripheral"),
-    OnDisconnectedCentral("onDisconnectedCentral")
+    OnDisconnectedCentral("onDisconnectedCentral"),
 }

@@ -38,7 +38,7 @@ class CentralManager(private val context: ReactContext) {
     fun setService(
         serviceUUID: UUID,
         writeCharacteristicUUID: UUID,
-        indicationCharacteristicUUID: UUID
+        indicationCharacteristicUUID: UUID,
     ) {
         this.serviceUUID = serviceUUID
         this.writeCharacteristicUUID = writeCharacteristicUUID
