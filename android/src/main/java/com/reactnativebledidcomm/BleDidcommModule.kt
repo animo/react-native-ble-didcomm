@@ -45,7 +45,7 @@ class BleDidcommModule(private val context: ReactApplicationContext) :
         promise: Promise
     ) {
         try {
-            this.peripheralManager = PeripheralManager(context, GattServerCallback())
+            this.peripheralManager = PeripheralManager(context, gattServerCallback)
             promise.resolve(null)
         } catch (e: Exception) {
             promise.reject("error", e)
@@ -128,7 +128,7 @@ class BleDidcommModule(private val context: ReactApplicationContext) :
         try {
             val centralManager =
                 this.centralManager ?: throw CentralManagerException.NotStarted()
-            centralManager.scan(BluetoothScanCallback())
+            centralManager.scan(bluetoothScanCallback)
             promise.resolve(null)
         } catch (e: Exception) {
             promise.reject("error", e)
@@ -141,7 +141,7 @@ class BleDidcommModule(private val context: ReactApplicationContext) :
         try {
             val peripheralManager =
                 this.peripheralManager ?: throw PeripheralManagerException.NotStarted()
-            peripheralManager.advertise(DeviceAdvertiseCallback())
+            peripheralManager.advertise(deviceAdvertiseCallback)
             promise.resolve(null)
         } catch (e: Exception) {
             promise.reject("error", e)
@@ -154,7 +154,7 @@ class BleDidcommModule(private val context: ReactApplicationContext) :
         try {
             val centralManager =
                 this.centralManager ?: throw CentralManagerException.NotStarted()
-            centralManager.connect(peripheralId, GattClientCallback())
+            centralManager.connect(peripheralId, gattClientCallback)
             promise.resolve(null)
         } catch (e: Exception) {
             promise.reject("error", e)
@@ -203,7 +203,7 @@ class BleDidcommModule(private val context: ReactApplicationContext) :
             .emit(event.token, params)
     }
 
-    private inner class GattClientCallback : BluetoothGattCallback() {
+    private val gattClientCallback = object : BluetoothGattCallback() {
         var message: ByteArray = byteArrayOf()
 
         override fun onCharacteristicChanged(
@@ -277,7 +277,7 @@ class BleDidcommModule(private val context: ReactApplicationContext) :
         }
     }
 
-    private inner class BluetoothScanCallback : ScanCallback() {
+    private val bluetoothScanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
             val device = result?.device ?: return
@@ -289,8 +289,13 @@ class BleDidcommModule(private val context: ReactApplicationContext) :
         }
     }
 
-    private inner class GattServerCallback : BluetoothGattServerCallback() {
+    private val gattServerCallback = object : BluetoothGattServerCallback() {
         var message: ByteArray = byteArrayOf()
+
+        override fun onMtuChanged(device: BluetoothDevice?, mtu: Int) {
+            super.onMtuChanged(device, mtu)
+            peripheralManager?.connectedMtu = mtu
+        }
 
         @SuppressLint("MissingPermission")
         override fun onCharacteristicWriteRequest(
@@ -360,8 +365,6 @@ class BleDidcommModule(private val context: ReactApplicationContext) :
             }
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 peripheralManager?.connectedClient = device
-                peripheralManager?.gattClientCallback = GattClientMtuOnlyCallback()
-                device.connectGatt(context, false, peripheralManager?.gattClientCallback)
                 sendEvent(BleDidcommEvent.OnConnectedCentral, params)
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 sendEvent(BleDidcommEvent.OnDisconnectedCentral, params)
@@ -370,24 +373,5 @@ class BleDidcommModule(private val context: ReactApplicationContext) :
         }
     }
 
-    private inner class GattClientMtuOnlyCallback : BluetoothGattCallback() {
-        @SuppressLint("MissingPermission")
-        override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
-            super.onConnectionStateChange(gatt, status, newState)
-            if (newState == BluetoothProfile.STATE_CONNECTED) {
-                gatt.requestMtu(512)
-            }
-        }
-
-        override fun onMtuChanged(gatt: BluetoothGatt?, mtu: Int, status: Int) {
-            super.onMtuChanged(gatt, mtu, status)
-            if (status != BluetoothGatt.GATT_SUCCESS) {
-                Log.e(Constants.TAG, "error occurred while requesting the MTU. Status: $status")
-                return
-            }
-            peripheralManager?.connectedMtu = mtu
-        }
-    }
-
-    private inner class DeviceAdvertiseCallback : AdvertiseCallback()
+    private val deviceAdvertiseCallback = object : AdvertiseCallback()
 }

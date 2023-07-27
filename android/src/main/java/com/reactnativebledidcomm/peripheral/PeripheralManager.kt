@@ -50,9 +50,11 @@ class PeripheralManager(
         )
         this.indicationCharacteristic = BluetoothGattCharacteristic(
             indicationCharacteristicUUID,
-            BluetoothGattCharacteristic.PROPERTY_INDICATE and BluetoothGattCharacteristic.PROPERTY_READ,
-            BluetoothGattCharacteristic.PERMISSION_READ
+            BluetoothGattCharacteristic.PROPERTY_INDICATE,
+            BluetoothGattCharacteristic.PERMISSION_WRITE
         )
+        val descriptor = BluetoothGattDescriptor(UUID.fromString(Constants.CCC_DESCRIPTOR_UUID), BluetoothGattDescriptor.PERMISSION_WRITE)
+        this.indicationCharacteristic?.addDescriptor(descriptor)
         this.service =
             BluetoothGattService(serviceUUID, BluetoothGattService.SERVICE_TYPE_PRIMARY).apply {
                 this.addCharacteristic(writeCharacteristic)
