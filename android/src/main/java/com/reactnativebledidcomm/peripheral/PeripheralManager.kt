@@ -119,15 +119,16 @@ class PeripheralManager(
 
         Thread {
             isSending = true
-            val chunkSize = Integer.min(connectedMtu - Constants.NUMBER_OF_BYTES_FOR_DATA_HEADER, message.count())
+            var chunkSize = Integer.min(connectedMtu - Constants.NUMBER_OF_BYTES_FOR_DATA_HEADER, message.count())
             for (chunkIndexStart in 0..message.count() step chunkSize) {
+                chunkSize = Integer.min(connectedMtu - Constants.NUMBER_OF_BYTES_FOR_DATA_HEADER, message.count())
                 val chunkIndexEnd = Integer.min(chunkIndexStart + chunkSize, message.count()) - 1
                 while (!isConnectedClientReady) {
                     Thread.sleep(20)
                 }
                 indicationCharacteristic.value =
                     message.sliceArray(IntRange(chunkIndexStart, chunkIndexEnd))
-                gattServer.notifyCharacteristicChanged(
+                isConnectedClientReady = gattServer.notifyCharacteristicChanged(
                     connectedClient,
                     indicationCharacteristic,
                     true,

@@ -235,21 +235,14 @@ class BleDidcommModule(private val context: ReactApplicationContext) :
 
         // Triggered when the MTU has been changed.
         @SuppressLint("MissingPermission")
-        override fun onMtuChanged(gatt: BluetoothGatt?, mtu: Int, status: Int) {
+        override fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int) {
             super.onMtuChanged(gatt, mtu, status)
             if (status != BluetoothGatt.GATT_SUCCESS) {
                 Log.e(Constants.TAG, "error occurred while requesting MTU. Status $status")
                 return
             }
-
             centralManager?.connectedMtu = mtu
-
-            val indicationCharacteristic = centralManager?.indicationCharacteristic ?: return
-
-            gatt?.setCharacteristicNotification(indicationCharacteristic, true)
-            val descriptor = indicationCharacteristic.getDescriptor(UUID.fromString(Constants.CCC_DESCRIPTOR_UUID))
-            descriptor?.value = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
-            gatt?.writeDescriptor(descriptor)
+            gatt.discoverServices()
         }
 
         // Triggered when client discovered services
@@ -264,7 +257,11 @@ class BleDidcommModule(private val context: ReactApplicationContext) :
             centralManager?.indicationCharacteristic =
                 service.getCharacteristic(centralManager?.indicationCharacteristicUUID)
 
-            gatt.requestMtu(512)
+            val indicationCharacteristic = centralManager?.indicationCharacteristic ?: return
+            gatt.setCharacteristicNotification(indicationCharacteristic, true)
+            val descriptor = indicationCharacteristic.getDescriptor(UUID.fromString(Constants.CCC_DESCRIPTOR_UUID))
+            descriptor?.value = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
+            gatt.writeDescriptor(descriptor)
         }
 
         // Triggered when the connection state is updated
@@ -275,7 +272,7 @@ class BleDidcommModule(private val context: ReactApplicationContext) :
                 putString("identifier", gatt.device.address)
             }
             if (newState == BluetoothProfile.STATE_CONNECTED) {
-                gatt.discoverServices()
+                gatt.requestMtu(512)
                 centralManager?.stopScan()
                 sendEvent(BleDidcommEvent.OnConnectedPeripheral, params)
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
@@ -303,11 +300,7 @@ class BleDidcommModule(private val context: ReactApplicationContext) :
         // Triggered when the mtu is updated for the peripheral
         override fun onMtuChanged(device: BluetoothDevice, mtu: Int) {
             super.onMtuChanged(device, mtu)
-            val params = Arguments.createMap().apply {
-                putString("identifier", device.address)
-            }
             peripheralManager?.connectedMtu = mtu
-            sendEvent(BleDidcommEvent.OnConnectedCentral, params)
         }
 
         // Triggered the peripheral received a write request.
@@ -353,6 +346,31 @@ class BleDidcommModule(private val context: ReactApplicationContext) :
             }
         }
 
+        override fun onDescriptorWriteRequest(
+            device: BluetoothDevice,
+            requestId: Int,
+            descriptor: BluetoothGattDescriptor,
+            preparedWrite: Boolean,
+            responseNeeded: Boolean,
+            offset: Int,
+            value: ByteArray,
+        ) {
+            super.onDescriptorWriteRequest(
+                device,
+                requestId,
+                descriptor,
+                preparedWrite,
+                responseNeeded,
+                offset,
+                value,
+            )
+            Log.e(Constants.TAG, "requested to write on descriptor")
+            val params = Arguments.createMap().apply {
+                putString("identifier", device.address)
+            }
+            sendEvent(BleDidcommEvent.OnConnectedCentral, params)
+        }
+
         // Triggered when the peripheral is ready to send again
         override fun onNotificationSent(device: BluetoothDevice?, status: Int) {
             super.onNotificationSent(device, status)
@@ -362,17 +380,17 @@ class BleDidcommModule(private val context: ReactApplicationContext) :
         }
 
         // TODO: can we do this without this function?
-        // @SuppressLint("MissingPermission")
-        // override fun onExecuteWrite(device: BluetoothDevice?, requestId: Int, execute: Boolean) {
-        //     super.onExecuteWrite(device, requestId, execute)
-        //     peripheralManager?.gattServer?.sendResponse(
-        //         device,
-        //         requestId,
-        //         BluetoothGatt.GATT_SUCCESS,
-        //         0,
-        //         null
-        //     )
-        // }
+        @SuppressLint("MissingPermission")
+        override fun onExecuteWrite(device: BluetoothDevice?, requestId: Int, execute: Boolean) {
+            super.onExecuteWrite(device, requestId, execute)
+            peripheralManager?.gattServer?.sendResponse(
+                device,
+                requestId,
+                BluetoothGatt.GATT_SUCCESS,
+                0,
+                null,
+            )
+        }
 
         // Triggered when the connection state is updated for the peripheral
         @SuppressLint("MissingPermission")
