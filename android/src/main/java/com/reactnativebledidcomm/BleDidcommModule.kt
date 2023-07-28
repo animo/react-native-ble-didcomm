@@ -389,5 +389,5 @@ class BleDidcommModule(private val context: ReactApplicationContext) :
         }
     }
 
-    private val deviceAdvertiseCallback = object : AdvertiseCallback()
+    private val deviceAdvertiseCallback = object : AdvertiseCallback() {}
 }
