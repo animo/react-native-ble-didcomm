@@ -364,7 +364,6 @@ class BleDidcommModule(private val context: ReactApplicationContext) :
                 offset,
                 value,
             )
-            Log.e(Constants.TAG, "requested to write on descriptor")
             val params = Arguments.createMap().apply {
                 putString("identifier", device.address)
             }
