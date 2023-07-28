@@ -36,7 +36,7 @@ extension CentralManager: CBPeripheralDelegate {
     for service in peripheralServices {
       peripheral.discoverCharacteristics(
         [
-          writeCharacteristicUUID.unsafelyUnwrapped, indicationCharacteristicUUID.unsafelyUnwrapped,
+          writeCharacteristicUUID.unsafelyUnwrapped, indicationCharacteristicUUID.unsafelyUnwrapped
         ], for: service)
     }
   }
