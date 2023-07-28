@@ -119,9 +119,8 @@ class PeripheralManager(
 
         Thread {
             isSending = true
-            var chunkSize = Integer.min(connectedMtu - Constants.NUMBER_OF_BYTES_FOR_DATA_HEADER, message.count())
+            val chunkSize = Integer.min(connectedMtu - Constants.NUMBER_OF_BYTES_FOR_DATA_HEADER, message.count())
             for (chunkIndexStart in 0..message.count() step chunkSize) {
-                chunkSize = Integer.min(connectedMtu - Constants.NUMBER_OF_BYTES_FOR_DATA_HEADER, message.count())
                 val chunkIndexEnd = Integer.min(chunkIndexStart + chunkSize, message.count()) - 1
                 while (!isConnectedClientReady) {
                     Thread.sleep(20)
