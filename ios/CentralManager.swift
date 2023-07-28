@@ -10,7 +10,7 @@ class CentralManager: NSObject {
     case NoDefinedService
   }
 
-  var isCentralReady = false
+  var isPoweredOn = false
   var serviceUUID: CBUUID?
   var writeCharacteristicUUID: CBUUID?
   var indicationCharacteristicUUID: CBUUID?
@@ -34,13 +34,15 @@ class CentralManager: NSObject {
       delegate: self,
       queue: .main
     )
+
+    while !isPoweredOn { Thread.sleep(forTimeInterval: 0.05) }
   }
 
   func shutdownCentral() {
     if let cp = self.connectedPeripheral {
       self.centralManager.cancelPeripheralConnection(cp)
     }
-    if (self.centralManager.isScanning) {
+    if self.centralManager.isScanning {
       self.stopScan()
     }
     self.peripherals = []
@@ -66,21 +68,15 @@ class CentralManager: NSObject {
     return peripherals.first(where: { $0.identifier.uuidString == peripheralId })
   }
 
-  private func blockUntilReady() {
-    while isCentralReady == false { RunLoop.current.run(mode: RunLoop.Mode.default, before: NSDate.distantFuture) }
-  }
-
   func scan() throws {
     guard let serviceUUID = self.serviceUUID else {
       throw CentralManagerError.NoDefinedService
     }
 
-    blockUntilReady()
-      
     self.centralManager.scanForPeripherals(
-        withServices: [serviceUUID], 
+        withServices: [serviceUUID],
         options: [CBCentralManagerScanOptionAllowDuplicatesKey: false])
-    
+
   }
 
   func stopScan() {
