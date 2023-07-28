@@ -14,7 +14,7 @@ import java.util.*
 
 class PeripheralManager(
     context: ReactContext,
-    gattServerCallback: BluetoothGattServerCallback
+    gattServerCallback: BluetoothGattServerCallback,
 ) {
     private val bluetoothManager: BluetoothManager =
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
@@ -41,18 +41,20 @@ class PeripheralManager(
     fun setService(
         serviceUUID: UUID,
         writeCharacteristicUUID: UUID,
-        indicationCharacteristicUUID: UUID
+        indicationCharacteristicUUID: UUID,
     ) {
         this.writeCharacteristic = BluetoothGattCharacteristic(
             writeCharacteristicUUID,
             BluetoothGattCharacteristic.PROPERTY_WRITE,
-            BluetoothGattCharacteristic.PERMISSION_WRITE
+            BluetoothGattCharacteristic.PERMISSION_WRITE,
         )
         this.indicationCharacteristic = BluetoothGattCharacteristic(
             indicationCharacteristicUUID,
-            BluetoothGattCharacteristic.PROPERTY_INDICATE and BluetoothGattCharacteristic.PROPERTY_READ,
-            BluetoothGattCharacteristic.PERMISSION_READ
+            BluetoothGattCharacteristic.PROPERTY_INDICATE,
+            BluetoothGattCharacteristic.PERMISSION_WRITE,
         )
+        val descriptor = BluetoothGattDescriptor(UUID.fromString(Constants.CCC_DESCRIPTOR_UUID), BluetoothGattDescriptor.PERMISSION_WRITE)
+        this.indicationCharacteristic?.addDescriptor(descriptor)
         this.service =
             BluetoothGattService(serviceUUID, BluetoothGattService.SERVICE_TYPE_PRIMARY).apply {
                 this.addCharacteristic(writeCharacteristic)
@@ -67,7 +69,7 @@ class PeripheralManager(
         for (device in connectedDevices) {
             this.gattServer.cancelConnection(device)
         }
-        
+
         try {
             this.stopAdvertising()
         } catch (e: Exception) {
@@ -125,12 +127,11 @@ class PeripheralManager(
                 }
                 indicationCharacteristic.value =
                     message.sliceArray(IntRange(chunkIndexStart, chunkIndexEnd))
-                gattServer.notifyCharacteristicChanged(
+                isConnectedClientReady = gattServer.notifyCharacteristicChanged(
                     connectedClient,
                     indicationCharacteristic,
-                    true
+                    true,
                 )
-
             }
             while (!isConnectedClientReady) {
                 Thread.sleep(20)

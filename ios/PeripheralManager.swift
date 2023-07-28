@@ -27,15 +27,14 @@ class PeripheralManager: NSObject {
     super.init()
     self.peripheralManager = CBPeripheralManager(
       delegate: self,
-      queue: nil,
-      options: [CBPeripheralManagerOptionShowPowerAlertKey: false]
+      queue: .main
     )
 
     while !isPoweredOn { Thread.sleep(forTimeInterval: 0.05) }
   }
 
   func shutdownPeripheral() {
-    if (self.peripheralManager.isAdvertising) {
+    if self.peripheralManager.isAdvertising {
       do {
         try self.stopAdvertising()
       } catch {
@@ -51,22 +50,19 @@ class PeripheralManager: NSObject {
   func setService(
     serviceUUID: String, writeCharacteristicUUID: String, indicationCharacteristicUUID: String
   ) throws {
-    self.service = CBMutableService(type: CBUUID(string: serviceUUID), primary: true)
-    self.writeCharacteristic = CBMutableCharacteristic(
+    let s = CBMutableService(type: CBUUID(string: serviceUUID), primary: true)
+    let wc = CBMutableCharacteristic(
       type: CBUUID(string: writeCharacteristicUUID), properties: [.write], value: nil,
       permissions: [.writeable])
-    self.indicationCharacteristic = CBMutableCharacteristic(
+    let ic = CBMutableCharacteristic(
       type: CBUUID(string: indicationCharacteristicUUID), properties: [.indicate], value: nil,
-      permissions: [.writeable])
-    guard
-      let wc = self.writeCharacteristic,
-      let ic = self.indicationCharacteristic,
-      let s = self.service
-    else {
-      throw PeripheralManagerError.NotConnectedToCentral
-    }
+      permissions: [.readable])
 
     s.characteristics = [wc, ic]
+
+    service = s
+    indicationCharacteristic = ic
+    writeCharacteristic = wc
     self.peripheralManager.add(s)
   }
 
