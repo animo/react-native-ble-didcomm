@@ -21,11 +21,9 @@ export const initialState: BleState = {
 }
 
 export interface Ble {
-  state: BleState
   sendMessage(message: string): Promise<void>
   start(): Promise<void>
   setService(options: ServiceOptions): Promise<void>
-  getState(): BleState
   shutdown(): Promise<void>
   registerMessageListener(
     cb: (data: { message: string }) => void

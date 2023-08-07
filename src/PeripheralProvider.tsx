@@ -5,7 +5,6 @@ import { useContext } from 'react'
 import * as React from 'react'
 
 interface PeripheralContextInterface {
-  loading: boolean
   peripheral?: Peripheral | undefined
 }
 
@@ -30,7 +29,6 @@ const PeripheralProvider: React.FC<PropsWithChildren<PeripheralProps>> = ({
   children,
 }) => {
   const peripheralState: PeripheralContextInterface = {
-    loading: true,
     peripheral: peripheral,
   }
 
