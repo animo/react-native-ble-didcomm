@@ -1,18 +1,9 @@
-import { ServiceOptions, Ble, BleState, initialState } from './ble'
 import { NativeEventEmitter, NativeModules } from 'react-native'
+import type { Ble, ServiceOptions } from './ble'
 import { sdk } from './register'
 
 export class Central implements Ble {
   bleDidcommEmitter = new NativeEventEmitter(NativeModules.BleDidcomm)
-  state: BleState = initialState
-
-  public getState(): BleState {
-    try {
-      return this.state
-    } catch (e) {
-      throw new Error('An error occurred setting internal module state: ' + e)
-    }
-  }
 
   public async sendMessage(message: string) {
     try {
@@ -25,7 +16,6 @@ export class Central implements Ble {
   public async start() {
     try {
       await sdk.startCentral({})
-      this.state.isRunning = true
     } catch (e) {
       throw new Error('An error occurred during startup: ' + e)
     }
@@ -49,7 +39,6 @@ export class Central implements Ble {
     } catch (e) {
       throw new Error('Failed to shutdown central: ' + e)
     }
-    this.state = initialState
   }
 
   registerMessageListener(cb: (data: { message: string }) => void) {
@@ -64,7 +53,6 @@ export class Central implements Ble {
   public async scan() {
     try {
       await sdk.scan({})
-      this.state.isScanning = true
     } catch (e) {
       throw new Error('An error occurred while scanning for devices: ' + e)
     }
@@ -73,7 +61,6 @@ export class Central implements Ble {
   public async connect(peripheralId: string) {
     try {
       await sdk.connect(peripheralId)
-      this.state.isConnected = true
     } catch (e) {
       throw new Error(
         `An error occurred while trying to connect to ${peripheralId}: ` + e

@@ -9,4 +9,6 @@ class CentralManagerException {
     class AlreadyScanning : Exception("Device is already scanning")
     class AlreadySending : Exception("Device is already sending a message")
     class PeripheralNotFound : Exception("Could not find peripheral By Id")
+
+    class CharacteristicIsNotWritable : Exception("Characteristic is not writable")
 }

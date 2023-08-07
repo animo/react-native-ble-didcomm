@@ -5,7 +5,6 @@ import { useContext } from 'react'
 import * as React from 'react'
 
 interface CentralContextInterface {
-  loading: boolean
   central?: Central | undefined
 }
 
@@ -30,8 +29,7 @@ const PeripheralProvider: React.FC<PropsWithChildren<CentralProps>> = ({
   children,
 }) => {
   const centralState: CentralContextInterface = {
-    loading: true,
-    central: central,
+    central,
   }
 
   return (
