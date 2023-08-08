@@ -68,7 +68,10 @@ export const Central = () => {
 
   const scan = central.scan
 
-  const connect = () => central.connect(peripheralId)
+  const connect = () =>
+    peripheralId
+      ? central.connect(peripheralId)
+      : console.error('Peripheral id is not defined')
 
   const write = () => central.sendMessage(msg)
 
