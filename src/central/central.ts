@@ -1,6 +1,6 @@
 import { NativeEventEmitter, NativeModules } from 'react-native'
-import type { Ble, ServiceOptions } from './ble'
-import { sdk } from './register'
+import type { Ble, ServiceOptions } from '../ble'
+import { sdk } from '../register'
 
 export class Central implements Ble {
   bleDidcommEmitter = new NativeEventEmitter(NativeModules.BleDidcomm)
