@@ -60,50 +60,46 @@ class CentralManager(private val context: ReactContext) {
     var characteristicWriteUUID: UUID? = null
     var characteristicIndicationUUID: UUID? = null
 
+    private val scanSettings = ScanSettings
+        .Builder()
+        .setScanMode(ScanSettings.SCAN_MODE_BALANCED)
+        .setReportDelay(0)
+        .build()
+
     fun setService(
         serviceUUID: UUID,
         writeCharacteristicUUID: UUID,
         indicationCharacteristicUUID: UUID,
     ) {
         this.serviceUUID = serviceUUID
-        this.characteristicWriteUUID = writeCharacteristicUUID
-        this.characteristicIndicationUUID = indicationCharacteristicUUID
+        characteristicWriteUUID = writeCharacteristicUUID
+        characteristicIndicationUUID = indicationCharacteristicUUID
     }
 
     @SuppressLint("MissingPermission")
     fun shutdownCentral() {
         try {
-            this.stopScan()
-            this.connectedGatt?.disconnect()
-            this.connectedGatt?.close()
-        } catch (e: CentralManagerException.NotScanning) {
-            // Not Scanning
-        } catch (e: Exception) {
-            // Error we don't care about
+            stopScan()
+            connectedGatt?.disconnect()
+            connectedGatt?.close()
+        } catch (_: Exception) {
         } finally {
-            this.serviceUUID = null
-            this.characteristicWriteUUID = null
-            this.characteristicIndicationUUID = null
-            this.connectedGatt = null
-            this.discoveredPeripherals.clear()
+            serviceUUID = null
+            characteristicWriteUUID = null
+            characteristicIndicationUUID = null
+            connectedGatt = null
+            discoveredPeripherals.clear()
         }
     }
 
     @RequiresPermission(value = "android.permission.BLUETOOTH_SCAN")
     fun scan() {
-        val serviceUUID = this.serviceUUID
-            ?: throw CentralManagerException.NoService()
-
-        val settings = ScanSettings
-            .Builder()
-            .setScanMode(ScanSettings.SCAN_MODE_BALANCED)
-            .setReportDelay(0)
-            .build()
+        val serviceUUID = serviceUUID ?: throw CentralManagerException.NoService()
 
         val filter = ScanFilter.Builder().setServiceUuid(ParcelUuid(serviceUUID)).build()
         val filters = listOf(filter)
 
-        bleScanner.startScan(filters, settings, scanCallback)
+        bleScanner.startScan(filters, scanSettings, scanCallback)
     }
 
     @RequiresPermission(value = "android.permission.BLUETOOTH_SCAN")
@@ -173,43 +169,6 @@ class CentralManager(private val context: ReactContext) {
             connectedPeripheral.writeCharacteristic(characteristic)
             isSending = false
         }.start()
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun subscribeToIndication(
-        characteristic: BluetoothGattCharacteristic,
-        gatt: BluetoothGatt
-    ) {
-        val cccdUuid = UUID.fromString(Constants.CCC_DESCRIPTOR_UUID)
-        characteristic.getDescriptor(cccdUuid)?.let { cccDescriptor ->
-            if (!gatt.setCharacteristicNotification(characteristic, true)) {
-                Log.e(
-                    Constants.TAG,
-                    "[CENTRAL]: Could not set notifications for characteristic ${characteristic.uuid}"
-                )
-                return
-            }
-            cccDescriptor.value = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
-            gatt.writeDescriptor(cccDescriptor)
-        }
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun unsubscribeFromCharacteristic(characteristic: BluetoothGattCharacteristic) {
-        val gatt = connectedGatt ?: return
-
-        val cccdUuid = UUID.fromString(Constants.CCC_DESCRIPTOR_UUID)
-        characteristic.getDescriptor(cccdUuid)?.let { cccDescriptor ->
-            if (!gatt.setCharacteristicNotification(characteristic, false)) {
-                Log.e(
-                    Constants.TAG,
-                    "[CENTRAL]: Could not unsubscribe from  characteristic ${characteristic.uuid}"
-                )
-                return
-            }
-            cccDescriptor.value = BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
-            gatt.writeDescriptor(cccDescriptor)
-        }
     }
 
     private val gattClientCallback = object : BluetoothGattCallback() {

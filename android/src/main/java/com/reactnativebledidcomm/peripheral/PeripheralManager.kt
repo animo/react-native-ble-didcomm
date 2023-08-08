@@ -69,12 +69,12 @@ class PeripheralManager(private val context: ReactContext) {
         writeCharacteristicUUID: UUID,
         indicationCharacteristicUUID: UUID,
     ) {
-        this.writeCharacteristic = BluetoothGattCharacteristic(
+        writeCharacteristic = BluetoothGattCharacteristic(
             writeCharacteristicUUID,
             BluetoothGattCharacteristic.PROPERTY_WRITE,
             BluetoothGattCharacteristic.PERMISSION_WRITE,
         )
-        this.indicationCharacteristic = BluetoothGattCharacteristic(
+        indicationCharacteristic = BluetoothGattCharacteristic(
             indicationCharacteristicUUID,
             BluetoothGattCharacteristic.PROPERTY_INDICATE,
             BluetoothGattCharacteristic.PERMISSION_WRITE,
@@ -83,44 +83,45 @@ class PeripheralManager(private val context: ReactContext) {
             UUID.fromString(Constants.CCC_DESCRIPTOR_UUID),
             BluetoothGattDescriptor.PERMISSION_WRITE or BluetoothGattCharacteristic.PERMISSION_READ
         )
-        this.indicationCharacteristic?.addDescriptor(descriptor)
-        this.service =
+        indicationCharacteristic?.addDescriptor(descriptor)
+        service =
             BluetoothGattService(serviceUUID, BluetoothGattService.SERVICE_TYPE_PRIMARY).apply {
-                this.addCharacteristic(writeCharacteristic)
-                this.addCharacteristic(indicationCharacteristic)
+                addCharacteristic(writeCharacteristic)
+                addCharacteristic(indicationCharacteristic)
             }
 
-        gattServer.addService(this.service)
+        gattServer.addService(service)
     }
 
     @SuppressLint("MissingPermission")
     fun shutdownPeripheral() {
-        gattServer.cancelConnection(connectedClient)
+        if (connectedClient != null) {
+            gattServer.cancelConnection(connectedClient)
+        }
 
-        this.stopAdvertising()
-        this.writeCharacteristic = null
-        this.connectedClient = null
-        this.indicationCharacteristic = null
-        this.service = null
+        stopAdvertising()
+        writeCharacteristic = null
+        connectedClient = null
+        indicationCharacteristic = null
+        service = null
     }
 
     @RequiresPermission(value = "android.permission.BLUETOOTH_ADVERTISE")
     fun advertise() {
-        val service =
-            this.service ?: throw PeripheralManagerException.NoService()
+        val service = service ?: throw PeripheralManagerException.NoService()
 
         val advertiseData = AdvertiseData.Builder()
             .addServiceUuid(ParcelUuid(service.uuid))
             .setIncludeDeviceName(false)
             .build()
 
-        bleAdvertiser.startAdvertising(advertiseSettings, advertiseData, this.advertiseCallback)
+        bleAdvertiser.startAdvertising(advertiseSettings, advertiseData, advertiseCallback)
     }
 
     @SuppressLint("MissingPermission")
     fun stopAdvertising() {
         bleAdvertiser.stopAdvertising(advertiseCallback)
-        this.gattServer.close()
+        gattServer.close()
     }
 
     @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
@@ -129,7 +130,7 @@ class PeripheralManager(private val context: ReactContext) {
         if (isSending) throw PeripheralManagerException.AlreadySending()
         if (connectedClient == null) throw PeripheralManagerException.NoConnectedDevice()
         val indicationCharacteristic =
-            this.indicationCharacteristic ?: throw PeripheralManagerException.NoService()
+            indicationCharacteristic ?: throw PeripheralManagerException.NoService()
 
         Thread {
             isSending = true
@@ -297,7 +298,6 @@ class PeripheralManager(private val context: ReactContext) {
             sendEvent(BleDidcommEvent.OnConnectedCentral, params)
         }
 
-        // TODO: can we do this without this function?
         @SuppressLint("MissingPermission")
         override fun onExecuteWrite(device: BluetoothDevice?, requestId: Int, execute: Boolean) {
             Log.d(Constants.TAG, "[PERIPHERAL]: Executed write")
