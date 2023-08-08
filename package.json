@@ -42,7 +42,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "dependencies": {
-    "convert-string": "0.1.0"
+    "buffer": "6.0.3"
   },
   "peerDependencies": {
     "react": "*",
