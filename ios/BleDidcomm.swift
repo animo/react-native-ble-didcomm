@@ -40,16 +40,12 @@ class BleDidcomm: React.RCTEventEmitter {
       reject("error", "Uninitialized, call `startPeripheral()` first", nil)
       return
     }
-    do {
-      try peripheralManager.setService(
-        serviceUUID: serviceUUID, writeCharacteristicUUID: writeCharacteristicUUID,
+    peripheralManager.setService(
+        serviceUUID: serviceUUID,
+        writeCharacteristicUUID: writeCharacteristicUUID,
         indicationCharacteristicUUID: indicationCharacteristicUUID)
-      resolve(nil)
-    } catch PeripheralManager.PeripheralManagerError.NoDefinedService {
-      reject("error", "Something went wrong while trying to add the services", nil)
-    } catch {
-      reject("error", "unexpected error", nil)
-    }
+    resolve(nil)
+
   }
 
   @objc func setCentralService(
@@ -106,7 +102,7 @@ class BleDidcomm: React.RCTEventEmitter {
     do {
       try peripheralManager.advertise()
       resolve(nil)
-    } catch PeripheralManager.PeripheralManagerError.NoDefinedService {
+    } catch PeripheralManager.PeripheralManagerError.noDefinedService {
       reject("error", "Set the service before calling the advertise function", nil)
     } catch {
       reject("error", "unexpected error", nil)
@@ -131,7 +127,7 @@ class BleDidcomm: React.RCTEventEmitter {
     do {
       try peripheralManager.indicate(message: data)
       resolve(nil)
-    } catch PeripheralManager.PeripheralManagerError.NotConnectedToCentral {
+    } catch PeripheralManager.PeripheralManagerError.notConnectedToCentral {
       reject("error", "Not connected to any central", nil)
     } catch {
       reject("error", "unexpected error", nil)
@@ -150,7 +146,7 @@ class BleDidcomm: React.RCTEventEmitter {
     do {
       try centralManager.scan()
       resolve(nil)
-    } catch CentralManager.CentralManagerError.NoDefinedService {
+    } catch CentralManager.CentralManagerError.noDefinedService {
       reject("error", "Set the service before calling the scan function", nil)
     } catch {
         reject("error", "unexpected error", nil)
@@ -170,7 +166,7 @@ class BleDidcomm: React.RCTEventEmitter {
     do {
       try centralManager.connect(peripheralId: peripheralId)
       resolve(nil)
-    } catch CentralManager.CentralManagerError.PeripheralNotFound(let peripheralId) {
+    } catch CentralManager.CentralManagerError.peripheralNotFound(let peripheralId) {
       reject("error", "Peripheral not found with id: \(peripheralId)", nil)
     } catch {
       reject("error", "unexpected error", nil)
@@ -195,9 +191,9 @@ class BleDidcomm: React.RCTEventEmitter {
     do {
       try centralManager.write(message: data)
       resolve(nil)
-    } catch CentralManager.CentralManagerError.NotConnectedToPeripheral {
+    } catch CentralManager.CentralManagerError.notConnectedToPeripheral {
       reject("error", "Not connected to any peripheral", nil)
-    } catch CentralManager.CentralManagerError.NoWriteableCharacteristicFound {
+    } catch CentralManager.CentralManagerError.noWriteableCharacteristicFound {
       reject("error", "No writeable characteristic found", nil)
     } catch {
       reject("error", "unexpected error", nil)

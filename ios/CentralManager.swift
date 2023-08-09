@@ -4,16 +4,17 @@ import os
 
 class CentralManager: NSObject {
   public enum CentralManagerError: Error {
-    case PeripheralNotFound(peripheralId: String)
-    case NotConnectedToPeripheral
-    case NoWriteableCharacteristicFound
-    case NoDefinedService
+    case peripheralNotFound(peripheralId: String)
+    case notConnectedToPeripheral
+    case noWriteableCharacteristicFound
+    case noDefinedService
   }
 
   var isPoweredOn = false
   var serviceUUID: CBUUID?
   var writeCharacteristicUUID: CBUUID?
   var indicationCharacteristicUUID: CBUUID?
+  var service: CBService?
 
   var centralManager: CBCentralManager!
 
@@ -39,12 +40,22 @@ class CentralManager: NSObject {
   }
 
   func shutdownCentral() {
-    if let cp = self.connectedPeripheral {
-      self.centralManager.cancelPeripheralConnection(cp)
+    let indicationCharacteristicUUID = self.service?.characteristics?.first(where: {
+      $0.uuid == self.indicationCharacteristicUUID
+    })
+
+    if let indicationCharacteristicUUID = indicationCharacteristicUUID {
+      connectedPeripheral?.setNotifyValue(false, for: indicationCharacteristicUUID)
     }
+
+    if let connectedPeripheral = self.connectedPeripheral {
+      self.centralManager.cancelPeripheralConnection(connectedPeripheral)
+    }
+
     if self.centralManager.isScanning {
       self.stopScan()
     }
+
     self.peripherals = []
     self.writeCharacteristic = nil
     self.connectedPeripheral = nil
@@ -70,7 +81,7 @@ class CentralManager: NSObject {
 
   func scan() throws {
     guard let serviceUUID = self.serviceUUID else {
-      throw CentralManagerError.NoDefinedService
+      throw CentralManagerError.noDefinedService
     }
 
     self.centralManager.scanForPeripherals(
@@ -85,7 +96,7 @@ class CentralManager: NSObject {
 
   func connect(peripheralId: String) throws {
     guard let peripheral = self.findPeripheralsByid(peripheralId: peripheralId) else {
-      throw CentralManagerError.PeripheralNotFound(peripheralId: peripheralId)
+      throw CentralManagerError.peripheralNotFound(peripheralId: peripheralId)
     }
 
     centralManager.connect(peripheral)
@@ -93,14 +104,14 @@ class CentralManager: NSObject {
 
   func write(message: Data) throws {
     guard let peripheral = connectedPeripheral else {
-      throw CentralManagerError.NotConnectedToPeripheral
+      throw CentralManagerError.notConnectedToPeripheral
     }
     guard let characteristic = writeCharacteristic else {
-      throw CentralManagerError.NoWriteableCharacteristicFound
+      throw CentralManagerError.noWriteableCharacteristicFound
     }
 
     let mtu = peripheral.maximumWriteValueLength(for: CBCharacteristicWriteType.withResponse)
-    let chunkSize = min(mtu - Constants.NUMBER_OF_BYTES_FOR_DATA_HEADER, message.count)
+    let chunkSize = min(mtu - Constants.numberOfBytesForHeader, message.count)
     for chunkIndexStart in stride(from: 0, to: message.count, by: chunkSize) {
       let chunkIndexEnd = min(chunkIndexStart + chunkSize, message.count) - 1
       let chunkedMessage = message[chunkIndexStart...chunkIndexEnd]

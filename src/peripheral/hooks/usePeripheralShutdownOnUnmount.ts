@@ -6,6 +6,7 @@ export const usePeripheralShutdownOnUnmount = () => {
 
   useEffect(() => {
     return () => {
+      console.log('shutting down...')
       void peripheral.shutdown()
     }
   }, [])

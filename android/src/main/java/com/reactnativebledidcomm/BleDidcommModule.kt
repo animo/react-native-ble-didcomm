@@ -1,7 +1,11 @@
 package com.reactnativebledidcomm
 
 import androidx.annotation.RequiresPermission
-import com.facebook.react.bridge.*
+import com.facebook.react.bridge.Promise
+import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.bridge.ReactContextBaseJavaModule
+import com.facebook.react.bridge.ReactMethod
+import com.facebook.react.bridge.ReadableMap
 import com.reactnativebledidcomm.central.CentralManager
 import com.reactnativebledidcomm.central.CentralManagerException
 import com.reactnativebledidcomm.peripheral.PeripheralManager

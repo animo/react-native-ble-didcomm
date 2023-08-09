@@ -25,6 +25,8 @@
     "example": "yarn --cwd example",
     "prettier": "prettier --ignore-path .gitignore '**/*.+(js|json|ts|md|yml|yaml|tsx|jsx)'",
     "format": "yarn prettier --write",
+    "format:android": "ktlint -F ./android",
+    "format:ios": "swiftlint --fix ./ios",
     "build": "yarn clean && yarn compile",
     "clean": "rimraf -rf ./build",
     "compile": "tsc -p tsconfig.build.json",

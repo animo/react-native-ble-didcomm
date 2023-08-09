@@ -24,6 +24,7 @@ import com.facebook.react.bridge.WritableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.reactnativebledidcomm.BleDidcommEvent
 import com.reactnativebledidcomm.Constants
+import java.util.Arrays
 import java.util.UUID
 
 class PeripheralManager(private val context: ReactContext) {
@@ -81,7 +82,7 @@ class PeripheralManager(private val context: ReactContext) {
         )
         val descriptor = BluetoothGattDescriptor(
             UUID.fromString(Constants.CCC_DESCRIPTOR_UUID),
-            BluetoothGattDescriptor.PERMISSION_WRITE or BluetoothGattCharacteristic.PERMISSION_READ
+            BluetoothGattDescriptor.PERMISSION_WRITE or BluetoothGattCharacteristic.PERMISSION_READ,
         )
         indicationCharacteristic?.addDescriptor(descriptor)
         service =
@@ -95,13 +96,16 @@ class PeripheralManager(private val context: ReactContext) {
 
     @SuppressLint("MissingPermission")
     fun shutdownPeripheral() {
+        gattServer.clearServices()
         if (connectedClient != null) {
             gattServer.cancelConnection(connectedClient)
         }
 
-        stopAdvertising()
-        writeCharacteristic = null
+        gattServer.close()
+
         connectedClient = null
+
+        writeCharacteristic = null
         indicationCharacteristic = null
         service = null
     }
@@ -121,7 +125,6 @@ class PeripheralManager(private val context: ReactContext) {
     @SuppressLint("MissingPermission")
     fun stopAdvertising() {
         bleAdvertiser.stopAdvertising(advertiseCallback)
-        gattServer.close()
     }
 
     @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
@@ -136,7 +139,7 @@ class PeripheralManager(private val context: ReactContext) {
             isSending = true
             val chunkSize = Integer.min(
                 connectedMtu - Constants.NUMBER_OF_BYTES_FOR_DATA_HEADER,
-                message.count()
+                message.count(),
             )
             for (chunkIndexStart in 0..message.count() step chunkSize) {
                 val chunkIndexEnd = Integer.min(chunkIndexStart + chunkSize, message.count()) - 1
@@ -144,10 +147,13 @@ class PeripheralManager(private val context: ReactContext) {
                     Thread.sleep(20)
                 }
                 val chunkedMessage = message.sliceArray(IntRange(chunkIndexStart, chunkIndexEnd))
+                if (chunkedMessage.isEmpty()) {
+                    continue
+                }
                 indicationCharacteristic.value = chunkedMessage
                 Log.d(
                     Constants.TAG,
-                    "[PERIPHERAL]: Sending chunked message of ${chunkedMessage.size} bytes."
+                    "[PERIPHERAL]: Sending chunked message of ${chunkedMessage.size} bytes.",
                 )
                 isConnectedClientReady = gattServer.notifyCharacteristicChanged(
                     connectedClient,
@@ -173,7 +179,7 @@ class PeripheralManager(private val context: ReactContext) {
         override fun onConnectionStateChange(device: BluetoothDevice, status: Int, newState: Int) {
             Log.d(
                 Constants.TAG,
-                "[PERIPHERAL]: Connection state has changed to $newState with status $status"
+                "[PERIPHERAL]: Connection state has changed to $newState with status $status",
             )
 
             if (newState == BluetoothProfile.STATE_CONNECTED) {
@@ -188,7 +194,7 @@ class PeripheralManager(private val context: ReactContext) {
         }
 
         // Triggered when the peripheral is ready to send again
-        override fun onNotificationSent(device: BluetoothDevice?, status: Int) {
+        override fun onNotificationSent(device: BluetoothDevice, status: Int) {
             Log.d(Constants.TAG, "[PERIPHERAL]: Sent a notification with status $status")
             super.onNotificationSent(device, status)
             if (status == BluetoothGatt.GATT_SUCCESS) {
@@ -244,7 +250,7 @@ class PeripheralManager(private val context: ReactContext) {
             device: BluetoothDevice,
             requestId: Int,
             offset: Int,
-            descriptor: BluetoothGattDescriptor
+            descriptor: BluetoothGattDescriptor,
         ) {
             if (descriptor.uuid == UUID.fromString(Constants.CCC_DESCRIPTOR_UUID)) {
                 Log.d(Constants.TAG, "[PERIPHERAL]: Setting descriptor to enable indications")
@@ -253,12 +259,12 @@ class PeripheralManager(private val context: ReactContext) {
                     requestId,
                     BluetoothGatt.GATT_SUCCESS,
                     0,
-                    BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
+                    BluetoothGattDescriptor.ENABLE_INDICATION_VALUE,
                 )
             } else {
                 Log.d(
                     Constants.TAG,
-                    "[PERIPHERAL]: Tried to read descriptor which is not the indication descriptor"
+                    "[PERIPHERAL]: Tried to read descriptor which is not the indication descriptor",
                 )
                 gattServer.sendResponse(device, requestId, BluetoothGatt.GATT_FAILURE, 0, null)
             }
@@ -277,7 +283,7 @@ class PeripheralManager(private val context: ReactContext) {
             if (descriptor.uuid == UUID.fromString(Constants.CCC_DESCRIPTOR_UUID)) {
                 Log.d(
                     Constants.TAG,
-                    "[PERIPHERAL]: Received a descriptor write request. Client likely wants to receive notifications."
+                    "[PERIPHERAL]: Received a descriptor write request. Client likely wants to receive notifications or disconnect from us",
                 )
                 if (responseNeeded) {
                     gattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, 0, null)
@@ -285,21 +291,33 @@ class PeripheralManager(private val context: ReactContext) {
             } else {
                 Log.d(
                     Constants.TAG,
-                    "[PERIPHERAL]: Received a descriptor write request for unsupported descriptor."
+                    "[PERIPHERAL]: Received a descriptor write request for unsupported descriptor.",
                 )
                 if (responseNeeded) {
                     gattServer.sendResponse(device, requestId, BluetoothGatt.GATT_FAILURE, 0, null)
                 }
             }
 
-            val params = Arguments.createMap().apply {
-                putString("identifier", device.address)
+            if (descriptor.uuid == UUID.fromString(Constants.CCC_DESCRIPTOR_UUID)) {
+                if (Arrays.equals(value, BluetoothGattDescriptor.ENABLE_INDICATION_VALUE)) {
+                    val params = Arguments.createMap().apply {
+                        putString("identifier", device.address)
+                    }
+                    sendEvent(BleDidcommEvent.OnConnectedCentral, params)
+                    stopAdvertising()
+                } else if (Arrays.equals(value, BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE)) {
+                    connectedClient = null
+                    Log.e(Constants.TAG, "Equal disable")
+                    val params = Arguments.createMap().apply {
+                        putString("identifier", device.address)
+                    }
+                    sendEvent(BleDidcommEvent.OnDisconnectedPeripheral, params)
+                }
             }
-            sendEvent(BleDidcommEvent.OnConnectedCentral, params)
         }
 
         @SuppressLint("MissingPermission")
-        override fun onExecuteWrite(device: BluetoothDevice?, requestId: Int, execute: Boolean) {
+        override fun onExecuteWrite(device: BluetoothDevice, requestId: Int, execute: Boolean) {
             Log.d(Constants.TAG, "[PERIPHERAL]: Executed write")
             super.onExecuteWrite(device, requestId, execute)
             gattServer.sendResponse(
@@ -323,6 +341,6 @@ class PeripheralManager(private val context: ReactContext) {
     private var gattServer: BluetoothGattServer =
         bluetoothManager.openGattServer(
             context,
-            gattServerCallback
+            gattServerCallback,
         )
 }

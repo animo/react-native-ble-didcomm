@@ -2,6 +2,7 @@ import React, { PropsWithChildren, useEffect, useMemo, useState } from 'react'
 import { Button } from 'react-native'
 import {
   Central as BleCentral,
+  CentralProvider,
   DEFAULT_DIDCOMM_SERVICE_UUID,
   DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
   DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
@@ -16,10 +17,14 @@ import { Spacer } from './App'
 
 const msg = 'Hello from Central!'
 
-export const Central: React.FC<PropsWithChildren> = ({ children }) => {
+export const Central: React.FC = () => {
   const central = useMemo(() => new BleCentral(), [])
 
-  return <CentralProvider value={central}>{children}</CentralProvider>
+  return (
+    <CentralProvider central={central}>
+      <CentralChildren />
+    </CentralProvider>
+  )
 }
 
 const CentralChildren = () => {
@@ -46,6 +51,8 @@ const CentralChildren = () => {
 
   useCentralOnDisconnected((identifier: string) => {
     console.log(`[CENTRAL]: Disconnected from ${identifier}`)
+    setPeripheralId(undefined)
+    setIsConnected(false)
   })
 
   const start = central.start

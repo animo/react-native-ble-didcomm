@@ -8,21 +8,28 @@ import {
   PeripheralProvider,
   usePeripheralOnConnected,
   usePeripheralOnDisconnected,
-  usePeripheralOnReceiveMessage,
+  usePeripheralOnReceivedMessage,
   usePeripheralShutdownOnUnmount,
+  usePeripheral,
 } from '@animo-id/react-native-ble-didcomm'
 import { Spacer } from './App'
 
 const msg = 'Hello from peripheral!'
 
-export const Peripheral: React.FC<PropsWithChildren> = ({ children }) => {
-  const peripeheral = useMemo(() => new BlePeripheral(), [])
+export const Peripheral: React.FC = () => {
+  const peripheral = useMemo(() => new BlePeripheral(), [])
 
-  return <PeripheralProvider value={peripheral}>{children}</PeripheralProvider>
+  return (
+    <PeripheralProvider peripheral={peripheral}>
+      <PeripheralChildren />
+    </PeripheralProvider>
+  )
 }
 
 const PeripheralChildren = () => {
   usePeripheralShutdownOnUnmount()
+
+  const { peripheral } = usePeripheral()
 
   const [isConnected, setIsConnected] = useState(false)
 
@@ -32,11 +39,11 @@ const PeripheralChildren = () => {
   })
 
   usePeripheralOnDisconnected((identifier: string) => {
-    console.log(`[PERIPHERAL]: Connected to ${identifier}`)
-    setIsConnected(true)
+    console.log(`[PERIPHERAL]: Disconnected to ${identifier}`)
+    setIsConnected(false)
   })
 
-  usePeripheralOnReceiveMessage((message: string) => {
+  usePeripheralOnReceivedMessage((message: string) => {
     console.log(`[PERIPHERAL]: Received message: ${message}`)
   })
 

@@ -48,6 +48,18 @@ export default function App() {
         </>
       )}
       <Spacer />
+      {(isCentral || isPeripheral) && (
+        <>
+          <Button
+            title="Back"
+            onPress={() => {
+              setIsCentral(false)
+              setIsPeripheral(false)
+            }}
+          />
+          <Spacer />
+        </>
+      )}
       {!isCentral && !isPeripheral && (
         <>
           <Button title="Central" onPress={asCentral} />
