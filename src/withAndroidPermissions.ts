@@ -18,13 +18,11 @@ const withAndroidPermissions: ConfigPlugin = (expoConfig: ExpoConfig) =>
     let androidManifest = modConfig.modResults.manifest
 
     androidManifest['uses-permission'] = [
-      ...permissions.map((permission) => {
-        return {
-          $: {
-            'android:name': permission,
-          },
-        }
-      }),
+      ...permissions.map((permission) => ({
+        $: {
+          'android:name': permission,
+        },
+      })),
     ]
 
     return modConfig

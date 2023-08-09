@@ -6,20 +6,6 @@ export type ServiceOptions = {
   indicationUUID: string
 }
 
-export type BleState = {
-  isRunning: boolean
-  isScanning: boolean
-  isAdvertising: boolean
-  isConnected: boolean
-}
-
-export const initialState: BleState = {
-  isRunning: false,
-  isScanning: false,
-  isAdvertising: false,
-  isConnected: false,
-}
-
 export interface Ble {
   sendMessage(message: string): Promise<void>
   start(): Promise<void>

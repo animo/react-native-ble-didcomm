@@ -60,50 +60,49 @@ class CentralManager(private val context: ReactContext) {
     var characteristicWriteUUID: UUID? = null
     var characteristicIndicationUUID: UUID? = null
 
+    private val scanSettings = ScanSettings
+        .Builder()
+        .setScanMode(ScanSettings.SCAN_MODE_BALANCED)
+        .setReportDelay(0)
+        .build()
+
     fun setService(
         serviceUUID: UUID,
         writeCharacteristicUUID: UUID,
         indicationCharacteristicUUID: UUID,
     ) {
         this.serviceUUID = serviceUUID
-        this.characteristicWriteUUID = writeCharacteristicUUID
-        this.characteristicIndicationUUID = indicationCharacteristicUUID
+        characteristicWriteUUID = writeCharacteristicUUID
+        characteristicIndicationUUID = indicationCharacteristicUUID
     }
 
     @SuppressLint("MissingPermission")
     fun shutdownCentral() {
         try {
-            this.stopScan()
-            this.connectedGatt?.disconnect()
-            this.connectedGatt?.close()
-        } catch (e: CentralManagerException.NotScanning) {
-            // Not Scanning
-        } catch (e: Exception) {
-            // Error we don't care about
+            characteristicIndication?.let {
+                unsubscribeFromCharacteristic(it)
+            }
+            stopScan()
+            connectedGatt?.disconnect()
+            connectedGatt?.close()
+        } catch (_: Exception) {
         } finally {
-            this.serviceUUID = null
-            this.characteristicWriteUUID = null
-            this.characteristicIndicationUUID = null
-            this.connectedGatt = null
-            this.discoveredPeripherals.clear()
+            serviceUUID = null
+            characteristicWriteUUID = null
+            characteristicIndicationUUID = null
+            connectedGatt = null
+            discoveredPeripherals.clear()
         }
     }
 
     @RequiresPermission(value = "android.permission.BLUETOOTH_SCAN")
     fun scan() {
-        val serviceUUID = this.serviceUUID
-            ?: throw CentralManagerException.NoService()
-
-        val settings = ScanSettings
-            .Builder()
-            .setScanMode(ScanSettings.SCAN_MODE_BALANCED)
-            .setReportDelay(0)
-            .build()
+        val serviceUUID = serviceUUID ?: throw CentralManagerException.NoService()
 
         val filter = ScanFilter.Builder().setServiceUuid(ParcelUuid(serviceUUID)).build()
         val filters = listOf(filter)
 
-        bleScanner.startScan(filters, settings, scanCallback)
+        bleScanner.startScan(filters, scanSettings, scanCallback)
     }
 
     @RequiresPermission(value = "android.permission.BLUETOOTH_SCAN")
@@ -123,6 +122,10 @@ class CentralManager(private val context: ReactContext) {
     @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
     fun write(message: ByteArray) {
         Log.d(Constants.TAG, "[CENTRAL]: Sending message of ${message.size} bytes.")
+        val chunkSize =
+            min(connectedMtu - Constants.NUMBER_OF_BYTES_FOR_DATA_HEADER, message.count())
+        Log.d(Constants.TAG, "[CENTRAL]: Using a chunk size of $chunkSize. Sending ${message.size / chunkSize + 1} messages.")
+
         if (isSending) throw CentralManagerException.AlreadySending()
         val characteristic =
             characteristicWrite ?: throw CentralManagerException.NoCharacteristicFound()
@@ -138,29 +141,31 @@ class CentralManager(private val context: ReactContext) {
 
         Thread {
             isSending = true
-            val chunkSize =
-                min(connectedMtu - Constants.NUMBER_OF_BYTES_FOR_DATA_HEADER, message.count())
+
             for (chunkIndexStart in 0..message.count() step chunkSize) {
                 val chunkIndexEnd = min(chunkIndexStart + chunkSize, message.count()) - 1
                 val chunkedMessage = message.sliceArray(IntRange(chunkIndexStart, chunkIndexEnd))
+                if (chunkedMessage.isEmpty()) {
+                    continue
+                }
                 characteristic.value = chunkedMessage
                 while (!isPeripheralReady) {
                     Thread.sleep(20)
                 }
                 Log.d(
                     Constants.TAG,
-                    "[CENTRAL]: Sending chunked message of ${chunkedMessage.size} bytes."
+                    "[CENTRAL]: Sending chunked message of ${chunkedMessage.size} bytes.",
                 )
                 val didSend = connectedPeripheral.writeCharacteristic(characteristic)
                 if (didSend) {
                     Log.d(
                         Constants.TAG,
-                        "[CENTRAL]: Send the message"
+                        "[CENTRAL]: Sent the message",
                     )
                 } else {
                     Log.d(
                         Constants.TAG,
-                        "[CENTRAL]: Did not send the message"
+                        "[CENTRAL]: Did not sent the message",
                     )
                 }
                 isPeripheralReady = false
@@ -176,17 +181,11 @@ class CentralManager(private val context: ReactContext) {
     }
 
     @SuppressLint("MissingPermission")
-    private fun subscribeToIndication(
-        characteristic: BluetoothGattCharacteristic,
-        gatt: BluetoothGatt
-    ) {
+    private fun subscribeToIndications(characteristic: BluetoothGattCharacteristic, gatt: BluetoothGatt) {
         val cccdUuid = UUID.fromString(Constants.CCC_DESCRIPTOR_UUID)
         characteristic.getDescriptor(cccdUuid)?.let { cccDescriptor ->
             if (!gatt.setCharacteristicNotification(characteristic, true)) {
-                Log.e(
-                    Constants.TAG,
-                    "[CENTRAL]: Could not set notifications for characteristic ${characteristic.uuid}"
-                )
+                Log.e(Constants.TAG, "[CENTRAL]: setNotification(true) failed for ${characteristic.uuid}")
                 return
             }
             cccDescriptor.value = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
@@ -201,10 +200,7 @@ class CentralManager(private val context: ReactContext) {
         val cccdUuid = UUID.fromString(Constants.CCC_DESCRIPTOR_UUID)
         characteristic.getDescriptor(cccdUuid)?.let { cccDescriptor ->
             if (!gatt.setCharacteristicNotification(characteristic, false)) {
-                Log.e(
-                    Constants.TAG,
-                    "[CENTRAL]: Could not unsubscribe from  characteristic ${characteristic.uuid}"
-                )
+                Log.e(Constants.TAG, "[CENTRAL]: setNotification(false) failed for ${characteristic.uuid}")
                 return
             }
             cccDescriptor.value = BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
@@ -220,7 +216,7 @@ class CentralManager(private val context: ReactContext) {
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
             Log.d(
                 Constants.TAG,
-                "[CENTRAL]: Connection state has been changed to $newState with status $status"
+                "[CENTRAL]: Connection state has been changed to $newState with status $status",
             )
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
@@ -228,9 +224,8 @@ class CentralManager(private val context: ReactContext) {
                     putString("identifier", gatt.device.address)
                 }
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
-                    gatt.requestMtu(512)
+                    gatt.discoverServices()
                     stopScan()
-                    sendEvent(BleDidcommEvent.OnConnectedPeripheral, params)
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                     sendEvent(BleDidcommEvent.OnDisconnectedPeripheral, params)
                     gatt.close()
@@ -266,20 +261,11 @@ class CentralManager(private val context: ReactContext) {
                     return
                 }
 
-            gatt.setCharacteristicNotification(characteristicIndication, true)
-            val descriptor =
-                characteristicIndication?.getDescriptor(UUID.fromString(Constants.CCC_DESCRIPTOR_UUID))
-                    ?: run {
-                        Log.d(
-                            Constants.TAG,
-                            "[CENTRAL]: Indication Descriptor not found. Make sure CCC is set on the descriptor. Task of the peripheral"
-                        )
-                        gatt.disconnect()
-                        return
-                    }
-
-            descriptor.value = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
-            gatt.writeDescriptor(descriptor)
+            characteristicIndication?.let {
+                subscribeToIndications(it, gatt)
+            } ?: run {
+                Log.e(Constants.TAG, "[CENTRAL]: characteristic not found $characteristicIndicationUUID")
+            }
         }
 
         // Triggered when the client is ready to send the next message
@@ -301,7 +287,7 @@ class CentralManager(private val context: ReactContext) {
         ) {
             Log.d(
                 Constants.TAG,
-                "[CENTRAL]: Received an indication of ${characteristic.value.size} bytes."
+                "[CENTRAL]: Received an indication of ${characteristic.value.size} bytes.",
             )
 
             if (characteristic.uuid == characteristicIndicationUUID) {
@@ -320,13 +306,19 @@ class CentralManager(private val context: ReactContext) {
             }
         }
 
+        @SuppressLint("MissingPermission")
         override fun onDescriptorWrite(
             gatt: BluetoothGatt,
             descriptor: BluetoothGattDescriptor,
-            status: Int
+            status: Int,
         ) {
             super.onDescriptorWrite(gatt, descriptor, status)
             Log.d(Constants.TAG, "[CENTRAL]: Descriptor write. Connection is ready")
+            gatt.requestMtu(512)
+            val params = Arguments.createMap().apply {
+                putString("identifier", gatt.device.address)
+            }
+            sendEvent(BleDidcommEvent.OnConnectedPeripheral, params)
         }
 
         // Triggered when the MTU has been changed.
@@ -339,7 +331,6 @@ class CentralManager(private val context: ReactContext) {
                 return
             }
             connectedMtu = mtu
-            gatt.discoverServices()
         }
     }
 
@@ -348,7 +339,6 @@ class CentralManager(private val context: ReactContext) {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             val name = result.scanRecord?.deviceName ?: result.device.name ?: result.device.address
             Log.d(Constants.TAG, "[CENTRAL]: Found item $name")
-            super.onScanResult(callbackType, result)
 
             discoveredPeripherals.add(result.device)
             val params = Arguments.createMap().apply {
@@ -358,40 +348,3 @@ class CentralManager(private val context: ReactContext) {
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

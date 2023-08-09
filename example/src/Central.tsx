@@ -1,54 +1,59 @@
-import React, { useEffect, useState } from 'react'
+import React, { PropsWithChildren, useEffect, useMemo, useState } from 'react'
 import { Button } from 'react-native'
 import {
   Central as BleCentral,
+  CentralProvider,
   DEFAULT_DIDCOMM_SERVICE_UUID,
   DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
   DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
+  useCentral,
+  useCentralOnDiscovered,
+  useCentralOnConnected,
+  useCentralOnDisconnected,
+  useCentralOnReceivedMessage,
+  useCentralShutdownOnUnmount,
 } from '@animo-id/react-native-ble-didcomm'
 import { Spacer } from './App'
 
 const msg = 'Hello from Central!'
 
-export const Central = () => {
-  const central = new BleCentral()
-  const [isConnected, setIsConnected] = useState(false)
+export const Central: React.FC = () => {
+  const central = useMemo(() => new BleCentral(), [])
+
+  return (
+    <CentralProvider central={central}>
+      <CentralChildren />
+    </CentralProvider>
+  )
+}
+
+const CentralChildren = () => {
+  useCentralShutdownOnUnmount()
+
   const [peripheralId, setPeripheralId] = useState<string>()
+  const [isConnected, setIsConnected] = useState<boolean>(false)
 
-  useEffect(() => {
-    const onDiscoverPeripheralListener = central.registerOnDiscoveredListener(
-      ({ identifier }: { identifier: string }) => {
-        console.log(`[CENTRAL]: Discovered: ${identifier}`)
-        setPeripheralId(identifier)
-      }
-    )
+  const { central } = useCentral()
 
-    const onConnectedPeripheralListener = central.registerOnConnectedListener(
-      ({ identifier }: { identifier: string }) => {
-        console.log(`[CENTRAL]: Connected to: ${identifier}`)
-        setIsConnected(true)
-      }
-    )
+  useCentralOnDiscovered((identifier: string) => {
+    console.log(`[CENTRAL]: Discovered: ${identifier}`)
+    setPeripheralId(identifier)
+  })
 
-    const onDisconnectedPeripheralListener =
-      central.registerOnDisconnectedListener(
-        ({ identifier }: { identifier: string }) =>
-          console.log(`[CENTRAL]: Disconnected from ${identifier}`)
-      )
+  useCentralOnConnected((identifier: string) => {
+    console.log(`[CENTRAL]: Connected to: ${identifier}`)
+    setIsConnected(true)
+  })
 
-    const onReceivedNotificationListener = central.registerMessageListener(
-      ({ message }: { message: string }) =>
-        console.log(`[CENTRAL]: Received indication: ${message}`)
-    )
+  useCentralOnReceivedMessage((message: string) => {
+    console.log(`[CENTRAL]: Received indication: ${message}`)
+  })
 
-    return () => {
-      void shutdown()
-      onDiscoverPeripheralListener.remove()
-      onConnectedPeripheralListener.remove()
-      onReceivedNotificationListener.remove()
-      onDisconnectedPeripheralListener.remove()
-    }
-  }, [])
+  useCentralOnDisconnected((identifier: string) => {
+    console.log(`[CENTRAL]: Disconnected from ${identifier}`)
+    setPeripheralId(undefined)
+    setIsConnected(false)
+  })
 
   const start = central.start
 
@@ -68,7 +73,10 @@ export const Central = () => {
 
   const scan = central.scan
 
-  const connect = () => central.connect(peripheralId)
+  const connect = () =>
+    peripheralId
+      ? central.connect(peripheralId)
+      : console.error('Peripheral id is not defined')
 
   const write = () => central.sendMessage(msg)
 

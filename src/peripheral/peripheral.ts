@@ -1,13 +1,13 @@
 import { NativeEventEmitter, NativeModules } from 'react-native'
-import type { Ble, ServiceOptions } from './ble'
-import { sdk } from './register'
+import type { Ble, ServiceOptions } from '../ble'
+import { sdk } from '../register'
 
-export class Central implements Ble {
+export class Peripheral implements Ble {
   bleDidcommEmitter = new NativeEventEmitter(NativeModules.BleDidcomm)
 
   public async sendMessage(message: string) {
     try {
-      await sdk.write(message)
+      await sdk.indicate(message)
     } catch (e) {
       throw new Error(`An error occurred while trying to write message` + e)
     }
@@ -15,7 +15,7 @@ export class Central implements Ble {
 
   public async start() {
     try {
-      await sdk.startCentral({})
+      await sdk.startPeripheral({})
     } catch (e) {
       throw new Error('An error occurred during startup: ' + e)
     }
@@ -23,7 +23,7 @@ export class Central implements Ble {
 
   public async setService(options: ServiceOptions): Promise<void> {
     try {
-      await sdk.setCentralService(
+      await sdk.setPeripheralService(
         options.serviceUUID,
         options.messagingUUID,
         options.indicationUUID
@@ -35,54 +35,34 @@ export class Central implements Ble {
 
   public async shutdown() {
     try {
-      await sdk.shutdownCentral({})
+      await sdk.shutdownPeripheral({})
     } catch (e) {
-      throw new Error('Failed to shutdown central: ' + e)
+      throw new Error('Failed to shutdown peripheral: ' + e)
     }
   }
 
-  registerMessageListener(cb: (data: { message: string }) => void) {
+  public async advertise() {
+    try {
+      await sdk.advertise({})
+    } catch (e) {
+      throw new Error('An error occurred while trying to advertise: ' + e)
+    }
+  }
+
+  public registerMessageListener(cb: (data: { message: string }) => void) {
     const onReceivedNotificationListener = this.bleDidcommEmitter.addListener(
-      'onReceivedNotification',
+      'onReceivedWriteWithoutResponse',
       cb
     )
 
     return onReceivedNotificationListener
   }
 
-  public async scan() {
-    try {
-      await sdk.scan({})
-    } catch (e) {
-      throw new Error('An error occurred while scanning for devices: ' + e)
-    }
-  }
-
-  public async connect(peripheralId: string) {
-    try {
-      await sdk.connect(peripheralId)
-    } catch (e) {
-      throw new Error(
-        `An error occurred while trying to connect to ${peripheralId}: ` + e
-      )
-    }
-  }
-
-  public registerOnDiscoveredListener(
-    cb: ({ identifier, name }: { identifier: string; name?: string }) => void
-  ) {
-    const onDiscoverPeripheralListener = this.bleDidcommEmitter.addListener(
-      'onDiscoverPeripheral',
-      cb
-    )
-    return onDiscoverPeripheralListener
-  }
-
   public registerOnConnectedListener(
     cb: ({ identifier, name }: { identifier: string; name?: string }) => void
   ) {
     const onConnectedPeripheralListener = this.bleDidcommEmitter.addListener(
-      'onConnectedPeripheral',
+      'onConnectedCentral',
       cb
     )
     return onConnectedPeripheralListener
@@ -92,7 +72,7 @@ export class Central implements Ble {
     cb: ({ identifier }: { identifier: string }) => void
   ) {
     const onDisconnectedPeripheralListener = this.bleDidcommEmitter.addListener(
-      'onDisconnectedPeripheral',
+      'onDisconnectedCentral',
       cb
     )
     return onDisconnectedPeripheralListener

@@ -16,7 +16,9 @@ extension PeripheralManager: CBPeripheralManagerDelegate {
     isCentralReady = true
   }
 
-  func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didUnsubscribeFrom characteristic: CBCharacteristic) {
+  func peripheralManager(
+    _ peripheral: CBPeripheralManager, central: CBCentral, didUnsubscribeFrom characteristic: CBCharacteristic
+  ) {
     connectedCentral = nil
     sendEvent("onDisconnectedCentral", ["identifier": central.identifier.uuidString ])
   }
@@ -25,6 +27,7 @@ extension PeripheralManager: CBPeripheralManagerDelegate {
     _ peripheral: CBPeripheralManager, central: CBCentral,
     didSubscribeTo characteristic: CBCharacteristic
   ) {
+    stopAdvertising()
     guard connectedCentral == nil else {
       os_log("Error already connected to a single central")
       return
@@ -38,10 +41,10 @@ extension PeripheralManager: CBPeripheralManagerDelegate {
   ) {
     for aRequest in requests {
       guard let requestValue = aRequest.value else {
-        peripheral.respond(to: aRequest, withResult: CBATTError.unlikelyError)
+        peripheral.respond(to: aRequest, withResult: .attributeNotFound)
         continue
       }
-      peripheral.respond(to: aRequest, withResult: CBATTError.success)
+      peripheral.respond(to: aRequest, withResult: .success)
 
       if String(data: requestValue, encoding: .utf8) == "EOM" {
         sendEvent(

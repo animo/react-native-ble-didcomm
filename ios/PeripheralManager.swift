@@ -4,8 +4,8 @@ import os
 
 class PeripheralManager: NSObject {
   public enum PeripheralManagerError: Error {
-    case NotConnectedToCentral
-    case NoDefinedService
+    case notConnectedToCentral
+    case noDefinedService
   }
 
   var isPoweredOn: Bool = false
@@ -35,12 +35,9 @@ class PeripheralManager: NSObject {
 
   func shutdownPeripheral() {
     if self.peripheralManager.isAdvertising {
-      do {
-        try self.stopAdvertising()
-      } catch {
-        // we don't care and proceed
-      }
+      self.stopAdvertising()
     }
+
     self.service = nil
     self.writeCharacteristic = nil
     self.indicationCharacteristic = nil
@@ -49,64 +46,68 @@ class PeripheralManager: NSObject {
 
   func setService(
     serviceUUID: String, writeCharacteristicUUID: String, indicationCharacteristicUUID: String
-  ) throws {
-    let s = CBMutableService(type: CBUUID(string: serviceUUID), primary: true)
+  ) {
     let wc = CBMutableCharacteristic(
       type: CBUUID(string: writeCharacteristicUUID), properties: [.write], value: nil,
       permissions: [.writeable])
+
     let ic = CBMutableCharacteristic(
       type: CBUUID(string: indicationCharacteristicUUID), properties: [.indicate], value: nil,
       permissions: [.readable])
 
+    let s = CBMutableService(type: CBUUID(string: serviceUUID), primary: true)
     s.characteristics = [wc, ic]
 
-    service = s
-    indicationCharacteristic = ic
-    writeCharacteristic = wc
+    self.service = s
+    self.indicationCharacteristic = ic
+    self.writeCharacteristic = wc
     self.peripheralManager.add(s)
   }
 
   func advertise() throws {
     guard let service = self.service else {
-      throw PeripheralManagerError.NoDefinedService
+      throw PeripheralManagerError.noDefinedService
     }
     self.peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [service.uuid]])
   }
 
-  func stopAdvertising() throws {
-    guard self.service != nil else {
-      throw PeripheralManagerError.NoDefinedService
-    }
+  func stopAdvertising() {
     self.peripheralManager.stopAdvertising()
   }
 
   func indicate(message: Data) throws {
     guard let connectedCentral = connectedCentral else {
-      throw PeripheralManagerError.NotConnectedToCentral
+      throw PeripheralManagerError.notConnectedToCentral
     }
     guard let indicationCharacteristic = self.indicationCharacteristic else {
-      throw PeripheralManagerError.NoDefinedService
+      throw PeripheralManagerError.noDefinedService
     }
 
     let mtu = connectedCentral.maximumUpdateValueLength
-    let chunkSize = min(mtu - Constants.NUMBER_OF_BYTES_FOR_DATA_HEADER, message.count)
+    let chunkSize = min(mtu - Constants.numberOfBytesForHeader, message.count)
 
     for chunkIndexStart in stride(from: 0, to: message.count, by: chunkSize) {
       let chunkIndexEnd = min(chunkIndexStart + chunkSize, message.count) - 1
       let chunkedMessage = message[chunkIndexStart...chunkIndexEnd]
+
       isCentralReady = self.peripheralManager.updateValue(
         chunkedMessage, for: indicationCharacteristic, onSubscribedCentrals: [connectedCentral])
+
       if !isCentralReady {
         while !isCentralReady { Thread.sleep(forTimeInterval: 0.05) }
+
         self.peripheralManager.updateValue(
           chunkedMessage, for: indicationCharacteristic, onSubscribedCentrals: [connectedCentral])
       }
     }
+
     isCentralReady = self.peripheralManager.updateValue(
       "EOM".data(using: String.Encoding.utf8)!, for: indicationCharacteristic,
       onSubscribedCentrals: [connectedCentral])
+
     if !isCentralReady {
       while !isCentralReady { Thread.sleep(forTimeInterval: 0.05) }
+
       self.peripheralManager.updateValue(
         "EOM".data(using: String.Encoding.utf8)!, for: indicationCharacteristic,
         onSubscribedCentrals: [connectedCentral])

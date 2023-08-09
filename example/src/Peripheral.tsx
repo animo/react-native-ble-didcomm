@@ -1,47 +1,51 @@
-import React, { useEffect, useState } from 'react'
+import React, { PropsWithChildren, useEffect, useMemo, useState } from 'react'
 import { Button } from 'react-native'
 import {
   Peripheral as BlePeripheral,
   DEFAULT_DIDCOMM_SERVICE_UUID,
   DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
   DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
+  PeripheralProvider,
+  usePeripheralOnConnected,
+  usePeripheralOnDisconnected,
+  usePeripheralOnReceivedMessage,
+  usePeripheralShutdownOnUnmount,
+  usePeripheral,
 } from '@animo-id/react-native-ble-didcomm'
 import { Spacer } from './App'
 
 const msg = 'Hello from peripheral!'
 
-export const Peripheral = () => {
-  const peripheral = new BlePeripheral()
+export const Peripheral: React.FC = () => {
+  const peripheral = useMemo(() => new BlePeripheral(), [])
+
+  return (
+    <PeripheralProvider peripheral={peripheral}>
+      <PeripheralChildren />
+    </PeripheralProvider>
+  )
+}
+
+const PeripheralChildren = () => {
+  usePeripheralShutdownOnUnmount()
+
+  const { peripheral } = usePeripheral()
+
   const [isConnected, setIsConnected] = useState(false)
 
-  useEffect(() => {
-    const onConnectedCentralListener = peripheral.registerOnConnectedListener(
-      ({ identifier }: { identifier: string }) => {
-        console.log(`[PERIPHERAL]: Connected to ${identifier}`)
-        setIsConnected(true)
-      }
-    )
+  usePeripheralOnConnected((identifier: string) => {
+    console.log(`[PERIPHERAL]: Connected to ${identifier}`)
+    setIsConnected(true)
+  })
 
-    const onDisconnectedCentralListener =
-      peripheral.registerOnDisconnectedListener(
-        ({ identifier }: { identifier: string }) => {
-          console.log(`[PERIPHERAL]: Disconnected from ${identifier}`)
-          setIsConnected(false)
-        }
-      )
+  usePeripheralOnDisconnected((identifier: string) => {
+    console.log(`[PERIPHERAL]: Disconnected to ${identifier}`)
+    setIsConnected(false)
+  })
 
-    const onReceivedWriteWithoutResponseListener =
-      peripheral.registerMessageListener(({ message }: { message: string }) =>
-        console.log(`[PERIPHERAL]: Received message: ${message}`)
-      )
-
-    return () => {
-      void shutdown()
-      onConnectedCentralListener.remove()
-      onReceivedWriteWithoutResponseListener.remove()
-      onDisconnectedCentralListener.remove()
-    }
-  }, [])
+  usePeripheralOnReceivedMessage((message: string) => {
+    console.log(`[PERIPHERAL]: Received message: ${message}`)
+  })
 
   const start = peripheral.start
 

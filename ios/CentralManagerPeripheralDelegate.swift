@@ -10,6 +10,7 @@ extension CentralManager: CBPeripheralDelegate {
       return
     }
     guard let characteristics = service.characteristics else { return }
+    self.service = service
 
     let indicationCharacteristicUUID = characteristics.first(where: {
       $0.uuid == self.indicationCharacteristicUUID
@@ -21,8 +22,14 @@ extension CentralManager: CBPeripheralDelegate {
     if let indicationCharacteristicUUID = indicationCharacteristicUUID {
       peripheral.setNotifyValue(true, for: indicationCharacteristicUUID)
     }
-    if let writeCharacteristic = writeCharacteristic {
-      self.writeCharacteristic = writeCharacteristic
+    self.writeCharacteristic = writeCharacteristic
+  }
+
+  func peripheral(_ peripheral: CBPeripheral, didModifyServices invalidatedServices: [CBService]) {
+    if invalidatedServices.first(where: { $0.uuid == serviceUUID }) != nil {
+      os_log("Disconnecting from peripheral")
+      sendEvent("onDisconnectedPeripheral", ["identifier": peripheral.identifier.uuidString])
+      centralManager.cancelPeripheralConnection(peripheral)
     }
   }
 
@@ -36,7 +43,8 @@ extension CentralManager: CBPeripheralDelegate {
     for service in peripheralServices {
       peripheral.discoverCharacteristics(
         [
-          writeCharacteristicUUID.unsafelyUnwrapped, indicationCharacteristicUUID.unsafelyUnwrapped
+          writeCharacteristicUUID.unsafelyUnwrapped,
+          indicationCharacteristicUUID.unsafelyUnwrapped
         ], for: service)
     }
   }
