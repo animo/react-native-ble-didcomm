@@ -9,6 +9,7 @@ import {
 } from 'react-native'
 import { Central } from './Central'
 import { Peripheral } from './Peripheral'
+import { isBleEnabled } from '@animo-id/react-native-ble-didcomm'
 
 export const Spacer = () => <View style={{ height: 20, width: 20 }} />
 
@@ -37,6 +38,10 @@ export default function App() {
         {isCentral ? 'central' : isPeripheral ? 'peripheral' : 'none'}
       </Text>
       <Spacer />
+      <Button
+        title="is ble enabled"
+        onPress={async () => console.log(await isBleEnabled())}
+      />
       {Platform.OS === 'android' && (
         <>
           <Button

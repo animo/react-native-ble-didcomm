@@ -1,5 +1,8 @@
 package com.reactnativebledidcomm
 
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothManager
+import android.content.Context
 import androidx.annotation.RequiresPermission
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
@@ -16,9 +19,22 @@ class BleDidcommModule(private val context: ReactApplicationContext) :
     ReactContextBaseJavaModule(context) {
     private var centralManager: CentralManager? = null
     private var peripheralManager: PeripheralManager? = null
+    private val bluetoothAdapter = (context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter
 
     override fun getName(): String {
         return Constants.TAG
+    }
+
+    @ReactMethod
+    fun isBleEnabled(
+        @Suppress("UNUSED_PARAMETER") options: ReadableMap,
+        promise: Promise,
+    ) {
+        try {
+            promise.resolve(bluetoothAdapter.state == BluetoothAdapter.STATE_ON)
+        } catch (e: Exception) {
+            promise.reject("error", e)
+        }
     }
 
     @ReactMethod

@@ -8,6 +8,16 @@ class BleDidcomm: React.RCTEventEmitter {
   var peripheralManager: PeripheralManager?
   var centralManager: CentralManager?
 
+  @objc func isBleEnabled(
+    _: [String: String],
+    resolve: RCTPromiseResolveBlock,
+    reject _: RCTPromiseRejectBlock
+  ) {
+      let cm = CBCentralManager(delegate: nil, queue: .main)
+      Thread.sleep(forTimeInterval: 0.05)
+      resolve(cm.state == .poweredOn)
+  }
+
   @objc func startPeripheral(
     _: [String: String],
     resolve: RCTPromiseResolveBlock,
