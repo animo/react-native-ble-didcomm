@@ -9,7 +9,7 @@ export class Central implements Ble {
     try {
       await sdk.write(message)
     } catch (e) {
-      throw new Error(`An error occurred while trying to write message` + e)
+      throw new Error(`An error occurred while trying to write message: ${e}`)
     }
   }
 
@@ -17,7 +17,7 @@ export class Central implements Ble {
     try {
       await sdk.startCentral({})
     } catch (e) {
-      throw new Error('An error occurred during startup: ' + e)
+      throw new Error(`An error occurred during startup: ${e}`)
     }
   }
 
@@ -29,7 +29,7 @@ export class Central implements Ble {
         options.indicationUUID
       )
     } catch (e) {
-      throw new Error('An error occurred during startup: ' + e)
+      throw new Error(`An error occurred during startup: ${e}`)
     }
   }
 
@@ -54,7 +54,7 @@ export class Central implements Ble {
     try {
       await sdk.scan({})
     } catch (e) {
-      throw new Error('An error occurred while scanning for devices: ' + e)
+      throw new Error(`An error occurred while scanning for devices: ${e}`)
     }
   }
 
@@ -63,7 +63,7 @@ export class Central implements Ble {
       await sdk.connect(peripheralId)
     } catch (e) {
       throw new Error(
-        `An error occurred while trying to connect to ${peripheralId}: ` + e
+        `An error occurred while trying to connect to '${peripheralId}': ${e}`
       )
     }
   }

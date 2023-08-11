@@ -5,6 +5,11 @@
 
 @interface RCT_EXTERN_MODULE(BleDidcomm, RCTEventEmitter)
 
+RCT_EXTERN_METHOD(isBleEnabled
+                  :(NSDictionary *)options
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject)
+
 RCT_EXTERN_METHOD(startCentral
                   :(NSDictionary *)options
                   resolve:(RCTPromiseResolveBlock)resolve
