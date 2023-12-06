@@ -224,7 +224,7 @@ class CentralManager(private val context: ReactContext) {
                     putString("identifier", gatt.device.address)
                 }
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
-                    gatt.discoverServices()
+                    gatt.requestMtu(512)
                     stopScan()
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                     sendEvent(BleDidcommEvent.OnDisconnectedPeripheral, params)
@@ -314,7 +314,6 @@ class CentralManager(private val context: ReactContext) {
         ) {
             super.onDescriptorWrite(gatt, descriptor, status)
             Log.d(Constants.TAG, "[CENTRAL]: Descriptor write. Connection is ready")
-            gatt.requestMtu(512)
             val params = Arguments.createMap().apply {
                 putString("identifier", gatt.device.address)
             }
@@ -326,6 +325,7 @@ class CentralManager(private val context: ReactContext) {
         override fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int) {
             Log.d(Constants.TAG, "[CENTRAL]: MTU has been updated to $mtu with status $status.")
             super.onMtuChanged(gatt, mtu, status)
+            gatt.discoverServices()
             if (status != BluetoothGatt.GATT_SUCCESS) {
                 Log.e(Constants.TAG, "error occurred while requesting MTU. Status $status")
                 return
