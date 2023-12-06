@@ -13,7 +13,7 @@ const BleDidcomm = NativeModules.BleDidcomm
       {
         get() {
           throw new Error(LINKING_ERROR)
-        },
+        }
       }
     )
 

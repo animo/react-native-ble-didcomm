@@ -5,7 +5,7 @@ import {
   Text,
   Button,
   PermissionsAndroid,
-  Platform,
+  Platform
 } from 'react-native'
 import { Central } from './Central'
 import { Peripheral } from './Peripheral'
@@ -19,7 +19,7 @@ const requestPermissions = async () => {
     'android.permission.BLUETOOTH_CONNECT',
     'android.permission.BLUETOOTH_SCAN',
     'android.permission.BLUETOOTH_ADVERTISE',
-    'android.permission.ACCESS_COARSE_LOCATION',
+    'android.permission.ACCESS_COARSE_LOCATION'
   ])
 }
 
@@ -82,11 +82,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   box: {
     width: 60,
     height: 60,
-    marginVertical: 20,
-  },
+    marginVertical: 20
+  }
 })

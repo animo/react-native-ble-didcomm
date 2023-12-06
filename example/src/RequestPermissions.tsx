@@ -8,7 +8,7 @@ export const RequestPermissions = () => {
       'android.permission.BLUETOOTH_CONNECT',
       'android.permission.BLUETOOTH_SCAN',
       'android.permission.BLUETOOTH_ADVERTISE',
-      'android.permission.ACCESS_COARSE_LOCATION',
+      'android.permission.ACCESS_COARSE_LOCATION'
     ])
   }
 

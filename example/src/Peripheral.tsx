@@ -10,7 +10,7 @@ import {
   usePeripheralOnDisconnected,
   usePeripheralOnReceivedMessage,
   usePeripheralShutdownOnUnmount,
-  usePeripheral,
+  usePeripheral
 } from '@animo-id/react-native-ble-didcomm'
 import { Spacer } from './App'
 
@@ -58,7 +58,7 @@ const PeripheralChildren = () => {
     await peripheral.setService({
       serviceUUID: DEFAULT_DIDCOMM_SERVICE_UUID,
       messagingUUID: DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
-      indicationUUID: DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
+      indicationUUID: DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID
     })
   }
 

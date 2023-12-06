@@ -125,7 +125,7 @@ await PermissionsAndroid.requestMultiple([
   'android.permission.BLUETOOTH_CONNECT',
   'android.permission.BLUETOOTH_SCAN',
   'android.permission.BLUETOOTH_ADVERTISE',
-  'android.permission.ACCESS_COARSE_LOCATION',
+  'android.permission.ACCESS_COARSE_LOCATION'
 ])
 ```
 
@@ -183,7 +183,7 @@ import {
   Peripheral,
   DEFAULT_DIDCOMM_SERVICE_UUID,
   DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
-  DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
+  DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID
 } from '@animo-id/react-native-ble-didcomm'
 
 const peripheral = new Peripheral()
@@ -192,7 +192,7 @@ await peripheral.start()
 await peripheral.setService({
   serviceUUID: DEFAULT_DIDCOMM_SERVICE_UUID,
   messagingUUID: DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
-  indicationUUID: DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
+  indicationUUID: DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID
 })
 await peripheral.advertise()
 ```
@@ -204,7 +204,7 @@ import {
   Central,
   DEFAULT_DIDCOMM_SERVICE_UUID,
   DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
-  DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
+  DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID
 } from '@animo-id/react-native-ble-didcomm'
 
 const central = new Central()
@@ -213,7 +213,7 @@ await central.start()
 await central.setService({
   serviceUUID: DEFAULT_DIDCOMM_SERVICE_UUID,
   messagingUUID: DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
-  indicationUUID: DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
+  indicationUUID: DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID
 })
 await central.scan()
 ```
