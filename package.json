@@ -1,84 +1,79 @@
 {
-  "name": "@animo-id/react-native-ble-didcomm",
-  "version": "0.0.0",
-  "description": "React Native Bluetooth Low Energy (BLE) SDK for DIDComm",
-  "main": "build/index",
-  "source": "src/index",
-  "files": [
-    "build",
-    "android/build.gradle",
-    "android/gradle.properties",
-    "android/CMakeLists.txt",
-    "android/src",
-    "ios/**/*.h",
-    "ios/**/*.m",
-    "ios/**/*.swift",
-    "ios/BleDidcomm.xcodeproj/project.pbxproj",
-    "react-native-ble-didcomm.podspec",
-    "app.plugin.js",
-    "README.md",
-    "LICENSE"
-  ],
-  "scripts": {
-    "check-types": "tsc --noEmit -p tsconfig.build.json",
-    "check-format": "yarn prettier --check",
-    "example": "yarn --cwd example",
-    "prettier": "prettier --ignore-path .gitignore '**/*.+(js|json|ts|md|yml|yaml|tsx|jsx)'",
-    "format": "yarn prettier --write",
-    "format:android": "ktlint -F ./android",
-    "format:ios": "swiftlint --fix ./ios",
-    "build": "yarn clean && yarn compile",
-    "clean": "rimraf -rf ./build",
-    "compile": "tsc -p tsconfig.build.json",
-    "release": "release-it"
-  },
-  "repository": "https://github.com/animo/react-native-ble-didcomm",
-  "author": "Animo <development@animo.id> (https://github.com/animo)",
-  "license": "Apache-2.0",
-  "bugs": {
-    "url": "https://github.com/animo/react-native-ble-didcomm/issues"
-  },
-  "homepage": "https://github.com/animo/react-native-ble-didcomm#readme",
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
-  },
-  "dependencies": {
-    "buffer": "^6.0.3"
-  },
-  "peerDependencies": {
-    "react": "*",
-    "react-native": "*"
-  },
-  "devDependencies": {
-    "@expo/config-plugins": "^7.2.5",
-    "@react-native-community/eslint-config": "^3.2.0",
-    "@types/react": "~18.2.18",
-    "eslint": "^8.49.0",
-    "eslint-config-prettier": "^9.0.0",
-    "eslint-plugin-prettier": "^4.2.1",
-    "prettier": "^3.0.3",
-    "react": "18.2.0",
-    "react-native": "0.72.3",
-    "release-it": "^16.1.5",
-    "rimraf": "^5.0.1",
-    "typescript": "~5.2.2"
-  },
-  "release-it": {
-    "github": {
-      "release": true
-    },
-    "npm": {
-      "skipChecks": true,
-      "ignoreVersion": true,
-      "tag": "latest"
-    },
-    "git": {
-      "push": false,
-      "commit": false,
-      "requireCommits": true,
-      "tagAnnotation": "${version}",
-      "requireBranch": "main"
-    }
-  }
+	"name": "@animo-id/react-native-ble-didcomm",
+	"version": "0.0.0",
+	"description": "React Native Bluetooth Low Energy (BLE) SDK for DIDComm",
+	"main": "build/index",
+	"source": "src/index",
+	"files": [
+		"build",
+		"android/build.gradle",
+		"android/gradle.properties",
+		"android/CMakeLists.txt",
+		"android/src",
+		"ios/**/*.h",
+		"ios/**/*.m",
+		"ios/**/*.swift",
+		"ios/BleDidcomm.xcodeproj/project.pbxproj",
+		"react-native-ble-didcomm.podspec",
+		"app.plugin.js",
+		"README.md",
+		"LICENSE"
+	],
+	"scripts": {
+		"check:types": "tsc --noEmit -p tsconfig.build.json",
+		"example": "pnpm --cwd example",
+		"check": "biome check --unsafe",
+		"check:fix": "pnpm check --write",
+		"format:android": "ktlint -F ./android",
+		"format:ios": "swiftlint --fix ./ios",
+		"build": "pnpm clean && pnpm compile",
+		"clean": "rimraf -rf ./build",
+		"compile": "tsc -p tsconfig.build.json",
+		"release": "release-it"
+	},
+	"repository": "https://github.com/animo/react-native-ble-didcomm",
+	"author": "Animo <development@animo.id> (https://github.com/animo)",
+	"license": "Apache-2.0",
+	"bugs": {
+		"url": "https://github.com/animo/react-native-ble-didcomm/issues"
+	},
+	"homepage": "https://github.com/animo/react-native-ble-didcomm#readme",
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org/"
+	},
+	"dependencies": {
+		"buffer": "^6.0.3"
+	},
+	"peerDependencies": {
+		"react": "*",
+		"react-native": "*"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.1",
+		"@expo/config-plugins": "^7.2.5",
+		"@types/react": "~18.2.18",
+		"react": "18.2.0",
+		"react-native": "0.72.3",
+		"release-it": "^16.1.5",
+		"rimraf": "^5.0.1",
+		"typescript": "~5.2.2"
+	},
+	"release-it": {
+		"github": {
+			"release": true
+		},
+		"npm": {
+			"skipChecks": true,
+			"ignoreVersion": true,
+			"tag": "latest"
+		},
+		"git": {
+			"push": false,
+			"commit": false,
+			"requireCommits": true,
+			"tagAnnotation": "${version}",
+			"requireBranch": "main"
+		}
+	}
 }
