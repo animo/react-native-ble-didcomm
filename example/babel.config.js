@@ -1,4 +1,4 @@
-const path = require('path')
+const path = require('node:path')
 const pak = require('../package.json')
 
 module.exports = {
@@ -9,9 +9,9 @@ module.exports = {
       {
         extensions: ['.tsx', '.ts', '.js', '.json'],
         alias: {
-          [pak.name]: path.join(__dirname, '..', pak.source)
-        }
-      }
-    ]
-  ]
+          [pak.name]: path.join(__dirname, '..', pak.source),
+        },
+      },
+    ],
+  ],
 }

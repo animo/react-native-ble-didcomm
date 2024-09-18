@@ -23,11 +23,7 @@ export class Central implements Ble {
 
   public async setService(options: ServiceOptions): Promise<void> {
     try {
-      await sdk.setCentralService(
-        options.serviceUUID,
-        options.messagingUUID,
-        options.indicationUUID
-      )
+      await sdk.setCentralService(options.serviceUUID, options.messagingUUID, options.indicationUUID)
     } catch (e) {
       throw new Error(`An error occurred during startup: ${e}`)
     }
@@ -37,15 +33,12 @@ export class Central implements Ble {
     try {
       await sdk.shutdownCentral({})
     } catch (e) {
-      throw new Error('Failed to shutdown central: ' + e)
+      throw new Error(`Failed to shutdown central: ${e}`)
     }
   }
 
   registerMessageListener(cb: (data: { message: string }) => void) {
-    const onReceivedNotificationListener = this.bleDidcommEmitter.addListener(
-      'onReceivedNotification',
-      cb
-    )
+    const onReceivedNotificationListener = this.bleDidcommEmitter.addListener('onReceivedNotification', cb)
 
     return onReceivedNotificationListener
   }
@@ -62,39 +55,22 @@ export class Central implements Ble {
     try {
       await sdk.connect(peripheralId)
     } catch (e) {
-      throw new Error(
-        `An error occurred while trying to connect to '${peripheralId}': ${e}`
-      )
+      throw new Error(`An error occurred while trying to connect to '${peripheralId}': ${e}`)
     }
   }
 
-  public registerOnDiscoveredListener(
-    cb: ({ identifier, name }: { identifier: string; name?: string }) => void
-  ) {
-    const onDiscoverPeripheralListener = this.bleDidcommEmitter.addListener(
-      'onDiscoverPeripheral',
-      cb
-    )
+  public registerOnDiscoveredListener(cb: ({ identifier, name }: { identifier: string; name?: string }) => void) {
+    const onDiscoverPeripheralListener = this.bleDidcommEmitter.addListener('onDiscoverPeripheral', cb)
     return onDiscoverPeripheralListener
   }
 
-  public registerOnConnectedListener(
-    cb: ({ identifier, name }: { identifier: string; name?: string }) => void
-  ) {
-    const onConnectedPeripheralListener = this.bleDidcommEmitter.addListener(
-      'onConnectedPeripheral',
-      cb
-    )
+  public registerOnConnectedListener(cb: ({ identifier, name }: { identifier: string; name?: string }) => void) {
+    const onConnectedPeripheralListener = this.bleDidcommEmitter.addListener('onConnectedPeripheral', cb)
     return onConnectedPeripheralListener
   }
 
-  public registerOnDisconnectedListener(
-    cb: ({ identifier }: { identifier: string }) => void
-  ) {
-    const onDisconnectedPeripheralListener = this.bleDidcommEmitter.addListener(
-      'onDisconnectedPeripheral',
-      cb
-    )
+  public registerOnDisconnectedListener(cb: ({ identifier }: { identifier: string }) => void) {
+    const onDisconnectedPeripheralListener = this.bleDidcommEmitter.addListener('onDisconnectedPeripheral', cb)
     return onDisconnectedPeripheralListener
   }
 }

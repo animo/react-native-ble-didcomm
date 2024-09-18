@@ -1,15 +1,13 @@
-import type { Central } from './central'
 import type { PropsWithChildren } from 'react'
 import { useContext } from 'react'
 import * as React from 'react'
+import type { Central } from './central'
 
 interface CentralContextItems {
   central: Central
 }
 
-const CentralContext = React.createContext<CentralContextItems | undefined>(
-  undefined
-)
+const CentralContext = React.createContext<CentralContextItems | undefined>(undefined)
 
 export const useCentral = () => {
   const centralContext = useContext(CentralContext)
@@ -19,12 +17,6 @@ export const useCentral = () => {
   return centralContext
 }
 
-export const CentralProvider: React.FC<
-  PropsWithChildren<{ central: Central }>
-> = ({ central, children }) => {
-  return (
-    <CentralContext.Provider value={{ central }}>
-      {children}
-    </CentralContext.Provider>
-  )
+export const CentralProvider: React.FC<PropsWithChildren<{ central: Central }>> = ({ central, children }) => {
+  return <CentralContext.Provider value={{ central }}>{children}</CentralContext.Provider>
 }

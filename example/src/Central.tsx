@@ -1,18 +1,19 @@
-import React, { PropsWithChildren, useEffect, useMemo, useState } from 'react'
-import { Button } from 'react-native'
 import {
   Central as BleCentral,
   CentralProvider,
-  DEFAULT_DIDCOMM_SERVICE_UUID,
-  DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
   DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
+  DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
+  DEFAULT_DIDCOMM_SERVICE_UUID,
   useCentral,
-  useCentralOnDiscovered,
   useCentralOnConnected,
   useCentralOnDisconnected,
+  useCentralOnDiscovered,
   useCentralOnReceivedMessage,
-  useCentralShutdownOnUnmount
+  useCentralShutdownOnUnmount,
 } from '@animo-id/react-native-ble-didcomm'
+import type React from 'react'
+import { PropsWithChildren, useEffect, useMemo, useState } from 'react'
+import { Button } from 'react-native'
 import { Spacer } from './App'
 
 const msg = 'Hello from Central!'
@@ -67,16 +68,13 @@ const CentralChildren = () => {
     await central.setService({
       serviceUUID: DEFAULT_DIDCOMM_SERVICE_UUID,
       messagingUUID: DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
-      indicationUUID: DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID
+      indicationUUID: DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
     })
   }
 
   const scan = central.scan
 
-  const connect = () =>
-    peripheralId
-      ? central.connect(peripheralId)
-      : console.error('Peripheral id is not defined')
+  const connect = () => (peripheralId ? central.connect(peripheralId) : console.error('Peripheral id is not defined'))
 
   const write = () => central.sendMessage(msg)
 

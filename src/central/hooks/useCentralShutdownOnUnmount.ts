@@ -8,5 +8,5 @@ export const useCentralShutdownOnUnmount = () => {
     return () => {
       void central.shutdown()
     }
-  }, [])
+  }, [central.shutdown])
 }

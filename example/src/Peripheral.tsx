@@ -1,17 +1,18 @@
-import React, { PropsWithChildren, useEffect, useMemo, useState } from 'react'
-import { Button } from 'react-native'
 import {
   Peripheral as BlePeripheral,
-  DEFAULT_DIDCOMM_SERVICE_UUID,
-  DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
   DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
+  DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
+  DEFAULT_DIDCOMM_SERVICE_UUID,
   PeripheralProvider,
+  usePeripheral,
   usePeripheralOnConnected,
   usePeripheralOnDisconnected,
   usePeripheralOnReceivedMessage,
   usePeripheralShutdownOnUnmount,
-  usePeripheral
 } from '@animo-id/react-native-ble-didcomm'
+import type React from 'react'
+import { PropsWithChildren, useEffect, useMemo, useState } from 'react'
+import { Button } from 'react-native'
 import { Spacer } from './App'
 
 const msg = 'Hello from peripheral!'
@@ -58,7 +59,7 @@ const PeripheralChildren = () => {
     await peripheral.setService({
       serviceUUID: DEFAULT_DIDCOMM_SERVICE_UUID,
       messagingUUID: DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID,
-      indicationUUID: DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID
+      indicationUUID: DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID,
     })
   }
 

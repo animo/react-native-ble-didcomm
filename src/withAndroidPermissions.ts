@@ -1,4 +1,4 @@
-import { ConfigPlugin, withAndroidManifest } from '@expo/config-plugins'
+import { type ConfigPlugin, withAndroidManifest } from '@expo/config-plugins'
 import type { ExpoConfig } from '@expo/config-types'
 
 const permissions = [
@@ -10,19 +10,19 @@ const permissions = [
   'android.permission.BLUETOOTH_CONNECT',
   'android.permission.ACCESS_BACKGROUND_LOCATION',
   'android.permission.ACCESS_FINE_LOCATION',
-  'android.permission.ACCESS_COARSE_LOCATION'
+  'android.permission.ACCESS_COARSE_LOCATION',
 ]
 
 const withAndroidPermissions: ConfigPlugin = (expoConfig: ExpoConfig) =>
   withAndroidManifest(expoConfig, (modConfig) => {
-    let androidManifest = modConfig.modResults.manifest
+    const androidManifest = modConfig.modResults.manifest
 
     androidManifest['uses-permission'] = [
       ...permissions.map((permission) => ({
         $: {
-          'android:name': permission
-        }
-      }))
+          'android:name': permission,
+        },
+      })),
     ]
 
     return modConfig

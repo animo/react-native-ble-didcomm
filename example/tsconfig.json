@@ -1,9 +1,9 @@
 {
-  "extends": "@tsconfig/react-native/tsconfig.json",
-  "compilerOptions": {
-    "skipLibCheck": true,
-    "paths": {
-      "@animo-id/react-native-ble-didcomm": ["../"]
-    }
-  }
+	"extends": "@tsconfig/react-native/tsconfig.json",
+	"compilerOptions": {
+		"skipLibCheck": true,
+		"paths": {
+			"@animo-id/react-native-ble-didcomm": ["../"]
+		}
+	}
 }
