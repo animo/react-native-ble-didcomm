@@ -61,3 +61,6 @@ android/keystores/debug.keystore
 
 # Tarballs
 *.tgz
+
+example/ios
+example/android

@@ -1,0 +1,21 @@
+{
+	"extends": "../tsconfig",
+	"compilerOptions": {
+		"module": "commonjs",
+		"target": "ES2017",
+		"declaration": true,
+		"sourceMap": true,
+		"strict": true,
+    "jsx": "react-native",
+		"noEmitOnError": true,
+		"lib": ["ESNext"],
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"resolveJsonModule": true,
+		"outDir": "./build",
+		"skipLibCheck": true,
+		"types": ["react-native"]
+	},
+	"include": ["src/**/*"],
+	"exclude": ["node_modules", "build", "**/build/**", "example"]
+}
