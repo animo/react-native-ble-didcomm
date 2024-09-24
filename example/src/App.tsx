@@ -1,15 +1,8 @@
+import { isBleEnabled } from '@animo-id/react-native-ble-didcomm'
 import * as React from 'react'
-import {
-  StyleSheet,
-  View,
-  Text,
-  Button,
-  PermissionsAndroid,
-  Platform
-} from 'react-native'
+import { Button, PermissionsAndroid, Platform, StyleSheet, Text, View } from 'react-native'
 import { Central } from './Central'
 import { Peripheral } from './Peripheral'
-import { isBleEnabled } from '@animo-id/react-native-ble-didcomm'
 
 export const Spacer = () => <View style={{ height: 20, width: 20 }} />
 
@@ -19,7 +12,7 @@ const requestPermissions = async () => {
     'android.permission.BLUETOOTH_CONNECT',
     'android.permission.BLUETOOTH_SCAN',
     'android.permission.BLUETOOTH_ADVERTISE',
-    'android.permission.ACCESS_COARSE_LOCATION'
+    'android.permission.ACCESS_COARSE_LOCATION',
   ])
 }
 
@@ -33,24 +26,16 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Text>
-        Bluetooth demo screen. role:{' '}
-        {isCentral ? 'central' : isPeripheral ? 'peripheral' : 'none'}
-      </Text>
+      <Text>Bluetooth demo screen. role: {isCentral ? 'central' : isPeripheral ? 'peripheral' : 'none'}</Text>
       <Spacer />
-      <Button
-        title="is ble enabled"
-        onPress={async () => console.log(await isBleEnabled())}
-      />
+      <Button title="is ble enabled" onPress={async () => console.log(await isBleEnabled())} />
       {Platform.OS === 'android' && (
-        <>
-          <Button
-            title="requestPermissions"
-            onPress={async () => {
-              await requestPermissions()
-            }}
-          />
-        </>
+        <Button
+          title="requestPermissions"
+          onPress={async () => {
+            await requestPermissions()
+          }}
+        />
       )}
       <Spacer />
       {(isCentral || isPeripheral) && (
@@ -82,11 +67,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   box: {
     width: 60,
     height: 60,
-    marginVertical: 20
-  }
+    marginVertical: 20,
+  },
 })

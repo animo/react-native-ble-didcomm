@@ -1,5 +1,5 @@
 import React from 'react'
-import { PermissionsAndroid, Button } from 'react-native'
+import { Button, PermissionsAndroid } from 'react-native'
 
 export const RequestPermissions = () => {
   const requestPermissions = async () => {
@@ -8,7 +8,7 @@ export const RequestPermissions = () => {
       'android.permission.BLUETOOTH_CONNECT',
       'android.permission.BLUETOOTH_SCAN',
       'android.permission.BLUETOOTH_ADVERTISE',
-      'android.permission.ACCESS_COARSE_LOCATION'
+      'android.permission.ACCESS_COARSE_LOCATION',
     ])
   }
 

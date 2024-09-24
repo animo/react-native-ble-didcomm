@@ -55,7 +55,7 @@ can listen to incoming messages and send messages to the other participant.
 First, you need to add the dependency to your project:
 
 ```sh
-yarn add @animo-id/react-native-ble-didcomm
+pnpm add @animo-id/react-native-ble-didcomm
 ```
 
 ### Android
@@ -246,14 +246,14 @@ When developing new features, you can use the application inside the `example/` 
 To get started you can run the following commands from the root of the project:
 
 ```sh
-yarn example
+pnpm example
 
-yarn example start
+pnpm example start
 
-yarn example android
+pnpm example android
 
 pod install --project-directory=example/ios
-yarn example ios
+pnpm example ios
 ```
 
 ## Contributing

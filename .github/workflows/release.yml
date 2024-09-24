@@ -24,32 +24,25 @@ jobs:
     name: Validate
     steps:
       - name: Checkout react-native-ble-didcomm
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+      - name: Setup node v20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-      - uses: actions/cache@v2
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+      - uses: pnpm/action-setup@v4
         with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-      - name: Setup node v16
-        uses: actions/setup-node@v2
-        with:
-          node-version: 16
+          version: 9
 
       - name: Install dependencies
-        run: yarn install
+        run: pnpm install
 
-      - name: Prettier
-        run: yarn check-format
+      - name: lint
+        run: pnpm check
 
       - name: Check typescript
-        run: yarn check-types
+        run: pnpm check:types
   release:
     runs-on: ubuntu-20.04
     name: Release
@@ -58,7 +51,7 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.repository == 'animo/react-native-ble-didcomm' && github.event_name == 'workflow_dispatch'
     steps:
       - name: Checkout react-native-ble-didcomm
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -66,31 +59,18 @@ jobs:
         run: |
           git config user.name "@github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
 
-      - uses: actions/cache@v2
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+      - name: Setup node v20
+        uses: actions/setup-node@v4
         with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-      - name: Setup node v16
-        uses: actions/setup-node@v2
+          node-version: 20
+
+      - uses: pnpm/action-setup@v4
         with:
-          node-version: 16
+          version: 9
 
       - name: Install dependencies
-        run: yarn install
-
-      # https://github.com/yarnpkg/yarn/issues/6617#issuecomment-436222106
-      - name: Prepend Node path
-        run: npm config set scripts-prepend-node-path true
-
-      - name: Set Verbose Logging
-        run: npm config set loglevel verbose --global
+        run: pnpm install
 
       - name: Set NPM config
         run: |
@@ -98,13 +78,13 @@ jobs:
           echo "registry=https://registry.npmjs.org/" >> .npmrc
           echo "always-auth=true" >> .npmrc
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Build the library
-        run: yarn build
+        run: pnpm build
 
       # On manual workflow dispatch release stable version
       - name: Release version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: yarn release ${{ github.event.inputs.releaseType }}
+        run: pnpm release ${{ github.event.inputs.releaseType }}
