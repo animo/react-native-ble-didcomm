@@ -1,4 +1,4 @@
-package com.reactnativebledidcomm.central
+package id.animo.bledidcomm.central
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
@@ -21,8 +21,8 @@ import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactContext
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
-import com.reactnativebledidcomm.BleDidcommEvent
-import com.reactnativebledidcomm.Constants
+import id.animo.bledidcomm.BleDidcommEvent
+import id.animo.bledidcomm.Constants
 import java.lang.Integer.min
 import java.util.UUID
 

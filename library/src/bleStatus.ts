@@ -1,6 +1,7 @@
 import { sdk } from './register'
 
 export const isBleEnabled = async () => {
+  return true
   try {
     return await sdk.isBleEnabled({})
   } catch (e) {

@@ -24,6 +24,9 @@
 		"enabled": true,
 		"rules": {
 			"recommended": true,
+			"style": {
+				"useNodejsImportProtocol": "off"
+			},
 			"performance": {
 				"noAccumulatingSpread": "off"
 			}

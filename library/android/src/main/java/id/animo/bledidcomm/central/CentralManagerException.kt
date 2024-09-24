@@ -1,4 +1,4 @@
-package com.reactnativebledidcomm.central
+package id.animo.bledidcomm.central
 
 class CentralManagerException {
     class NoService : Exception("No service defined on the central")

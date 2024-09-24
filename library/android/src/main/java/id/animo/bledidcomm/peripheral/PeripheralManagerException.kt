@@ -1,4 +1,4 @@
-package com.reactnativebledidcomm.peripheral
+package id.animo.bledidcomm.peripheral
 
 class PeripheralManagerException {
     class NoConnectedDevice : Exception("No connected device found")

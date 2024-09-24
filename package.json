@@ -1,6 +1,6 @@
 {
-  "name": "react-native-ble-didcomm",
-  "private": true,
+	"name": "react-native-ble-didcomm",
+	"private": true,
 	"scripts": {
 		"check:types": "tsc --noEmit -p tsconfig.build.json",
 		"check": "biome check --unsafe",
@@ -14,5 +14,14 @@
 		"@biomejs/biome": "^1.9.1",
 		"rimraf": "^5.0.1",
 		"release-it": "^16.1.5"
+	},
+	"pnpm": {
+		"overrides": {
+			"@types/react": "~18.2.18",
+			"expo": "~51.0.28",
+			"react": "18.2.0",
+			"react-native": "0.74.5",
+			"typescript": "~5.3.3"
+		}
 	}
 }

@@ -12,7 +12,7 @@ const permissions = [
   'android.permission.ACCESS_COARSE_LOCATION',
 ]
 
-const withAndroidPermissions: ConfigPlugin = (expoConfig: unknown) => 
+const withAndroidPermissions: ConfigPlugin = (expoConfig: unknown) =>
   //@ts-ignore
   withAndroidManifest(expoConfig, (modConfig) => {
     const androidManifest = modConfig.modResults.manifest

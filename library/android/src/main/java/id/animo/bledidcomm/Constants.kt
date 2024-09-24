@@ -1,4 +1,4 @@
-package com.reactnativebledidcomm
+package id.animo.bledidcomm
 
 object Constants {
     object Regex {

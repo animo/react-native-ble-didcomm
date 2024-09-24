@@ -1,4 +1,4 @@
-package com.reactnativebledidcomm
+package id.animo.bledidcomm
 
 enum class BleDidcommEvent(val token: String) {
     OnDiscoverPeripheral("onDiscoverPeripheral"),

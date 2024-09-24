@@ -6,7 +6,7 @@
 		"declaration": true,
 		"sourceMap": true,
 		"strict": true,
-    "jsx": "react-native",
+		"jsx": "react-native",
 		"noEmitOnError": true,
 		"lib": ["ESNext"],
 		"esModuleInterop": true,

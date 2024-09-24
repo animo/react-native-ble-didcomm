@@ -1,4 +1,4 @@
-package com.reactnativebledidcomm
+package id.animo.bledidcomm
 
 import com.facebook.react.ReactPackage
 import com.facebook.react.bridge.NativeModule

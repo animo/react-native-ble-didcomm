@@ -1,4 +1,4 @@
-package com.reactnativebledidcomm
+package id.animo.bledidcomm
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
@@ -9,10 +9,10 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableMap
-import com.reactnativebledidcomm.central.CentralManager
-import com.reactnativebledidcomm.central.CentralManagerException
-import com.reactnativebledidcomm.peripheral.PeripheralManager
-import com.reactnativebledidcomm.peripheral.PeripheralManagerException
+import id.animo.bledidcomm.central.CentralManager
+import id.animo.bledidcomm.central.CentralManagerException
+import id.animo.bledidcomm.peripheral.PeripheralManager
+import id.animo.bledidcomm.peripheral.PeripheralManagerException
 import java.util.UUID
 
 class BleDidcommModule(private val context: ReactApplicationContext) :
