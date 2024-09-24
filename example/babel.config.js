@@ -1,14 +1,14 @@
 module.exports = (api) => {
-  api.cache(true);
+  api.cache(true)
   return {
-    presets: ["babel-preset-expo"],
+    presets: ['babel-preset-expo'],
     plugins: [
       [
-        "module-resolver",
+        'module-resolver',
         {
-          extensions: [".js", ".jsx", ".json", ".ts", ".tsx"],
+          extensions: ['.js', '.jsx', '.json', '.ts', '.tsx'],
         },
       ],
     ],
-  };
-};
+  }
+}

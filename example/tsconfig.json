@@ -1,8 +1,8 @@
 {
-  "compilerOptions": {
-    "paths": {
-      "@animo-id/react-native-ble-didcomm": ["../library/*"]
-    }
-  },
-  "extends": "expo/tsconfig.base"
+	"compilerOptions": {
+		"paths": {
+			"@animo-id/react-native-ble-didcomm": ["../library/*"]
+		}
+	},
+	"extends": "expo/tsconfig.base"
 }

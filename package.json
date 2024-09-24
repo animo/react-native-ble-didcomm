@@ -2,7 +2,7 @@
 	"name": "react-native-ble-didcomm",
 	"private": true,
 	"scripts": {
-		"check:types": "tsc --noEmit -p tsconfig.build.json",
+		"check:types": "pnpm -C library compile --noEmit",
 		"check": "biome check --unsafe",
 		"check:fix": "pnpm check --write",
 		"format:android": "ktlint -F ./android",
