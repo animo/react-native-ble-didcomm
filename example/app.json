@@ -11,7 +11,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "plugins": [],
+    "plugins": ["@animo-id/react-native-ble-didcomm"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "id.animo.BluetoothDidcommExample"
