@@ -10,13 +10,21 @@
 	},
 	"dependencies": {
 		"@animo-id/react-native-ble-didcomm": "workspace:*",
+		"@credo-ts/askar": "^0.5.11",
+		"@credo-ts/core": "^0.5.11",
+		"@credo-ts/react-native": "^0.5.11",
+		"@hyperledger/aries-askar-react-native": "^0.2.3",
 		"expo": "*",
 		"expo-status-bar": "~1.12.1",
+		"fast-text-encoding": "^1.0.6",
 		"react": "*",
-		"react-native": "*"
+		"react-native": "*",
+		"react-native-fs": "^2.20.0",
+		"react-native-get-random-values": "^1.11.0"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.20.0",
+		"@types/fast-text-encoding": "^1.0.3",
 		"babel-plugin-module-resolver": "^5.0.2",
 		"typescript": "*"
 	},

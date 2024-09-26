@@ -12,4 +12,6 @@ config.resolver.nodeModulesPaths = [
   path.resolve(monorepoRoot, 'node_modules'),
 ]
 
+config.resolver.sourceExts = ['js', 'json', 'ts', 'tsx', 'cjs']
+
 module.exports = config
