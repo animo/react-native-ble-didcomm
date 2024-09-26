@@ -14,7 +14,7 @@ import {
 import type React from 'react'
 import { useMemo, useState } from 'react'
 import { Button } from 'react-native'
-import { Spacer } from './Spacer'
+import { Spacer } from '../Spacer'
 
 const msg = 'Hello from Central!'
 
