@@ -11,9 +11,9 @@ import {
   usePeripheralShutdownOnUnmount,
 } from '@animo-id/react-native-ble-didcomm'
 import type React from 'react'
-import { PropsWithChildren, useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Button } from 'react-native'
-import { Spacer } from './App'
+import { Spacer } from './Spacer'
 
 const msg = 'Hello from peripheral!'
 

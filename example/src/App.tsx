@@ -1,10 +1,9 @@
 import { isBleEnabled } from '@animo-id/react-native-ble-didcomm'
 import * as React from 'react'
-import { Button, PermissionsAndroid, Platform, StyleSheet, Text, View } from 'react-native'
+import { Alert, Button, PermissionsAndroid, Platform, StyleSheet, Text, View } from 'react-native'
 import { Central } from './Central'
 import { Peripheral } from './Peripheral'
-
-export const Spacer = () => <View style={{ height: 20, width: 20 }} />
+import { Spacer } from './Spacer'
 
 const requestPermissions = async () => {
   await PermissionsAndroid.requestMultiple([
@@ -16,7 +15,7 @@ const requestPermissions = async () => {
   ])
 }
 
-export default function App() {
+export const App = () => {
   const [isCentral, setIsCentral] = React.useState<boolean>(false)
   const [isPeripheral, setIsPeripheral] = React.useState<boolean>(false)
 
@@ -26,9 +25,10 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Text>Bluetooth demo screen. role: {isCentral ? 'central' : isPeripheral ? 'peripheral' : 'none'}</Text>
+      <Text>foo Bluetooth demo screen. role: {isCentral ? 'central' : isPeripheral ? 'peripheral' : 'none'}</Text>
       <Spacer />
-      <Button title="is ble enabled" onPress={async () => console.log(await isBleEnabled())} />
+      <Button title="is ble enabled :)" onPress={() => isBleEnabled().then(console.log)} />
+      <Spacer />
       {Platform.OS === 'android' && (
         <Button
           title="requestPermissions"
