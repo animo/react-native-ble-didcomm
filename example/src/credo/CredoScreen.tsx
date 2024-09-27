@@ -2,12 +2,12 @@ import * as React from 'react'
 import { type ReactElement, useEffect, useState } from 'react'
 import { Button, Text } from 'react-native'
 import { Spacer } from '../Spacer'
-import { Issuer } from './Issuer'
+import { Prover } from './Prover'
 import { Verifier } from './Verifier'
 import { type AppAgent, setupAgent } from './agent'
 
 export const CredoScreen = () => {
-  const [role, setRole] = useState<'issuer' | 'verifier'>()
+  const [role, setRole] = useState<'prover' | 'verifier'>()
   const [agent, setAgent] = useState<AppAgent>()
 
   useEffect(() => {
@@ -19,7 +19,7 @@ export const CredoScreen = () => {
   if (!role) {
     component = (
       <>
-        <Button title="issuer" onPress={() => setRole('issuer')} />
+        <Button title="prover" onPress={() => setRole('prover')} />
         <Spacer />
         <Button title="verifier" onPress={() => setRole('verifier')} />
       </>
@@ -30,8 +30,8 @@ export const CredoScreen = () => {
     component = <Text>Setting up agent...</Text>
   }
 
-  if (role === 'issuer' && agent) {
-    component = <Issuer agent={agent} />
+  if (role === 'prover' && agent) {
+    component = <Prover agent={agent} />
   }
 
   if (role === 'verifier' && agent) {

@@ -1,0 +1,13 @@
+diff --git a/android/build.gradle b/android/build.gradle
+index 9017d77eb32573415c7922cd83dae5cd792a885f..44e3e7dd39c215b096a552fae934f3d49061c1bc 100644
+--- a/android/build.gradle
++++ b/android/build.gradle
+@@ -81,7 +81,7 @@ android {
+   }
+   
+   defaultConfig {
+-    minSdkVersion 21 
++    minSdkVersion 23
+     targetSdkVersion getExt('targetSdkVersion')
+     
+     externalNativeBuild {

@@ -11,7 +11,15 @@
 			"resizeMode": "contain",
 			"backgroundColor": "#ffffff"
 		},
-		"plugins": ["@animo-id/react-native-ble-didcomm"],
+		"plugins": [
+			"@animo-id/react-native-ble-didcomm",
+			[
+				"expo-camera",
+				{
+					"cameraPermission": "Allow $(PRODUCT_NAME) to access your camera"
+				}
+			]
+		],
 		"ios": {
 			"supportsTablet": true,
 			"bundleIdentifier": "id.animo.BluetoothDidcommExample"
