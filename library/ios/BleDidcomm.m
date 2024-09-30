@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <React/RCTBridgeModule.h>
 #import <React/RCTEventEmitter.h>
-#import "React/RCTEventDispatcher.h"
+#import <React/RCTEventDispatcher.h>
 
 @interface RCT_EXTERN_MODULE(BleDidcomm, RCTEventEmitter)
 

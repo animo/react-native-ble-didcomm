@@ -35,13 +35,18 @@
 		"registry": "https://registry.npmjs.org/"
 	},
 	"dependencies": {
-		"buffer": "^6.0.3"
+		"buffer": "^6.0.3",
+		"@credo-ts/transport-ble": "^0.3.0"
 	},
 	"peerDependencies": {
 		"react": "*",
-		"react-native": "*"
+		"react-native": "*",
+		"@credo-ts/anoncreds": "*",
+		"@credo-ts/core": "*"
 	},
 	"devDependencies": {
+		"@credo-ts/anoncreds": "*",
+		"@credo-ts/core": "*",
 		"@expo/config-plugins": "^8.0.8",
 		"@types/react": "*",
 		"react": "*",

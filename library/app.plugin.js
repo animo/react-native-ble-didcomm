@@ -1,1 +1,1 @@
-module.exports = require('./build/withAndroidPermissions.js')
+module.exports = require('./build/plugin.js')

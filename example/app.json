@@ -12,7 +12,12 @@
 			"backgroundColor": "#ffffff"
 		},
 		"plugins": [
-			"@animo-id/react-native-ble-didcomm",
+			[
+				"@animo-id/react-native-ble-didcomm",
+				{
+					"bluetoothAlwaysPermission": "Allow $(PRODUCT_NAME) to connect to bluetooth devices for DIDComm"
+				}
+			],
 			[
 				"expo-camera",
 				{

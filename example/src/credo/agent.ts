@@ -1,20 +1,19 @@
-import { AnonCredsCredentialFormatService, AnonCredsModule } from '@credo-ts/anoncreds'
+import { AnonCredsCredentialFormatService, AnonCredsModule, AnonCredsProofFormatService } from '@credo-ts/anoncreds'
 import { AskarModule } from '@credo-ts/askar'
 import {
   Agent,
   AutoAcceptCredential,
+  AutoAcceptProof,
   ConnectionsModule,
   ConsoleLogger,
-  CredentialEventTypes,
-  CredentialState,
-  CredentialStateChangedEvent,
   CredentialsModule,
   DidsModule,
   HttpOutboundTransport,
   LogLevel,
   MediationRecipientModule,
-  MediatorPickupStrategy,
+  ProofsModule,
   V2CredentialProtocol,
+  V2ProofProtocol,
   WsOutboundTransport,
 } from '@credo-ts/core'
 import {
@@ -37,7 +36,7 @@ export const setupAgent = async () => {
         id: 'react-native-ble-didcomm-agent',
         key: 'react-native-ble-didcomm-key',
       },
-      logger: new ConsoleLogger(LogLevel.off),
+      logger: new ConsoleLogger(LogLevel.info),
     },
     modules: {
       askar: new AskarModule({ ariesAskar }),
@@ -65,6 +64,14 @@ export const setupAgent = async () => {
         credentialProtocols: [
           new V2CredentialProtocol({
             credentialFormats: [new AnonCredsCredentialFormatService()],
+          }),
+        ],
+      }),
+      proofs: new ProofsModule({
+        autoAcceptProofs: AutoAcceptProof.ContentApproved,
+        proofProtocols: [
+          new V2ProofProtocol({
+            proofFormats: [new AnonCredsProofFormatService()],
           }),
         ],
       }),
