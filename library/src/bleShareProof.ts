@@ -44,6 +44,7 @@ export const bleShareProof = async ({
 
     const proofRecord = await shareProof(agent, central, serviceUuid)
     await handleAck(agent, central, proofRecord)
+    return proofRecord.id
   } catch (e) {
     if (e instanceof Error) {
       agent.config.logger.error(e.message, { cause: e })

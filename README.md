@@ -40,6 +40,9 @@
 
 ---
 
+> Refer to [docs](./docs) for some more in-depth documentation in the newer, and easier to use, API.
+> The [example](./example) application shows how this can be used.
+
 ## Introduction
 
 This package can be used as a transport for [DIDComm](https://didcomm.org) messages over Bluetooth Low Energy (BLE).
