@@ -1,13 +1,21 @@
-import React, { type ReactElement, useState } from 'react'
-import { Button, StyleSheet, View } from 'react-native'
+import React, { type ReactElement, useState, useEffect } from 'react'
+import { Button, Platform, StyleSheet, View } from 'react-native'
 
+import { requestPermissions } from './RequestPermissions'
 import { Spacer } from './Spacer'
+import { CredoScreen } from './credo/CredoScreen'
 import { RegularScreen } from './regular/Screen'
 
 export const App = () => {
   const [flow, setFlow] = useState<'regular' | 'credo'>(undefined)
 
   let component: ReactElement
+
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      void requestPermissions()
+    }
+  }, [])
 
   if (!flow) {
     component = (
@@ -24,7 +32,7 @@ export const App = () => {
   }
 
   if (flow === 'credo') {
-    component = <RegularScreen />
+    component = <CredoScreen />
   }
 
   return (

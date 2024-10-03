@@ -3,6 +3,7 @@
 	"version": "1.0.0",
 	"main": "index.js",
 	"scripts": {
+		"issue": "ts-node scripts/issueCredential.ts",
 		"start": "expo start",
 		"android": "expo run:android",
 		"prebuild": "expo prebuild",
@@ -10,14 +11,38 @@
 	},
 	"dependencies": {
 		"@animo-id/react-native-ble-didcomm": "workspace:*",
+		"@credo-ts/anoncreds": "^0.5.11",
+		"@credo-ts/askar": "^0.5.11",
+		"@credo-ts/core": "^0.5.11",
+		"@credo-ts/indy-vdr": "^0.5.11",
+		"@credo-ts/node": "^0.5.11",
+		"@credo-ts/react-hooks": "^0.6.1",
+		"@credo-ts/react-native": "^0.5.11",
+		"@credo-ts/transport-ble": "^0.3.0",
+		"@hyperledger/anoncreds-nodejs": "^0.2.4",
+		"@hyperledger/anoncreds-react-native": "^0.2.4",
+		"@hyperledger/aries-askar-nodejs": "^0.2.3",
+		"@hyperledger/aries-askar-react-native": "^0.2.3",
+		"@hyperledger/indy-vdr-nodejs": "^0.2.2",
+		"@hyperledger/indy-vdr-react-native": "^0.2.2",
 		"expo": "*",
+		"expo-camera": "~15.0.16",
 		"expo-status-bar": "~1.12.1",
+		"fast-text-encoding": "^1.0.6",
+		"qrcode": "^1.5.4",
+		"qrcode-terminal": "^0.12.0",
 		"react": "*",
-		"react-native": "*"
+		"react-native": "*",
+		"react-native-fs": "^2.20.0",
+		"react-native-get-random-values": "^1.11.0"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.20.0",
+		"@types/fast-text-encoding": "^1.0.3",
+		"@types/qrcode": "^1.5.5",
+		"@types/qrcode-terminal": "^0.12.2",
 		"babel-plugin-module-resolver": "^5.0.2",
+		"ts-node": "^10.9.2",
 		"typescript": "*"
 	},
 	"private": true
