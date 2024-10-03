@@ -81,10 +81,12 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build the library
+        working-directory: library
         run: pnpm build
 
       # On manual workflow dispatch release stable version
       - name: Release version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: library
         run: pnpm release ${{ github.event.inputs.releaseType }}
