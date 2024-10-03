@@ -36,7 +36,7 @@ export const setupAgent = async () => {
         id: 'react-native-ble-didcomm-agent',
         key: 'react-native-ble-didcomm-key',
       },
-      logger: new ConsoleLogger(LogLevel.info),
+      logger: new ConsoleLogger(LogLevel.off),
     },
     modules: {
       askar: new AskarModule({ ariesAskar }),

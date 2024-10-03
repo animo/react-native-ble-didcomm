@@ -2,6 +2,7 @@ import type { AnonCredsProofFormat } from '@credo-ts/anoncreds'
 import {
   type Agent,
   AutoAcceptProof,
+  JsonTransformer,
   MessageReceiver,
   ProofEventTypes,
   type ProofExchangeRecord,
@@ -54,10 +55,9 @@ export const bleRequestProof = async ({
     )
 
     const messageListener = startMessageReceiver(agent, peripheral)
-    await returnWhenProofReceived(proofRecordId, agent)
+    await returnWhenProofReceived(proofRecordId, agent, peripheral)
     messageListener.remove()
 
-    await shutdownProcess(agent, peripheral)
     return proofRecordId
   } catch (e) {
     if (e instanceof Error) {
@@ -66,7 +66,6 @@ export const bleRequestProof = async ({
       agent.config.logger.error(e as string)
     }
     onFailure()
-    await shutdownProcess(agent, peripheral)
     throw e
   }
 }
@@ -88,16 +87,6 @@ const startPeripheral = async (peripheral: Peripheral, agent: Agent, serviceUuid
 
   await peripheral.advertise()
   agent.config.logger.info(`[PERIPHERAL]: Advertising on service UUID '${serviceUuid}'`)
-}
-
-const shutdownProcess = async (agent: Agent, peripheral: Peripheral) => {
-  for (const ot of agent.outboundTransports) {
-    if (ot instanceof BleOutboundTransport) {
-      void agent.unregisterOutboundTransport(ot)
-    }
-  }
-
-  await peripheral.shutdown()
 }
 
 const sendMessageWhenConnected = async (
@@ -138,17 +127,24 @@ const startMessageReceiver = (agent: Agent, peripheral: Peripheral) => {
   })
 }
 
-const returnWhenProofReceived = (id: string, agent: Agent): Promise<ProofExchangeRecord> => {
+const returnWhenProofReceived = (id: string, agent: Agent, peripheral: Peripheral): Promise<ProofExchangeRecord> => {
   return new Promise((resolve, reject) => {
-    const listener = ({ payload }: ProofStateChangedEvent) => {
+    const listener = async ({ payload: { proofRecord } }: ProofStateChangedEvent) => {
       const off = () => agent.events.off(ProofEventTypes.ProofStateChanged, listener)
-      if (payload.proofRecord.id === id) {
-        if (payload.proofRecord.state === ProofState.PresentationReceived) {
+      if (proofRecord.id === id) {
+        if (proofRecord.state === ProofState.PresentationReceived) {
+          console.log('')
+          const proofProtocol = agent.proofs.config.proofProtocols.find((pp) => pp.version === 'v2')
+          if (!proofProtocol) throw new Error('No V2 proof protocol registered on the agent')
+          const { message } = await proofProtocol.acceptPresentation(agent.context, { proofRecord })
+          const serializedMessage = JsonTransformer.serialize(message)
+          await peripheral.sendMessage(serializedMessage)
+        } else if (proofRecord.state === ProofState.Done) {
           off()
-          resolve(payload.proofRecord)
-        } else if ([ProofState.Abandoned, ProofState.Declined].includes(payload.proofRecord.state)) {
+          resolve(proofRecord)
+        } else if ([ProofState.Abandoned, ProofState.Declined].includes(proofRecord.state)) {
           off()
-          reject(new Error(`Proof could not be shared because it has been ${payload.proofRecord.state}`))
+          reject(new Error(`Proof could not be shared because it has been ${proofRecord.state}`))
         }
       }
     }
@@ -164,7 +160,7 @@ const createBleProofRequestMessage = async (
   const { proofRecord, message } = await agent.proofs.createRequest({
     proofFormats: requestMessage,
     protocolVersion: 'v2',
-    autoAcceptProof: AutoAcceptProof.Always,
+    autoAcceptProof: AutoAcceptProof.Never,
   })
 
   const routing = await agent.mediationRecipient.getRouting({

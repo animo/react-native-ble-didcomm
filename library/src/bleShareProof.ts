@@ -7,6 +7,7 @@ import {
   ProofRepository,
   ProofState,
   type ProofStateChangedEvent,
+  V2PresentationAckMessage,
 } from '@credo-ts/core'
 import { BleInboundTransport, BleOutboundTransport } from '@credo-ts/transport-ble'
 import type { Central } from './central'
@@ -43,8 +44,8 @@ export const bleShareProof = async ({
 
     await connectedNotifier(agent, central, onConnected)
 
-    await shareProof(agent, central, serviceUuid)
-    await shutdownProcess(agent, central)
+    const proofRecord = await shareProof(agent, central, serviceUuid)
+    await handleAck(agent, central, proofRecord)
   } catch (e) {
     if (e instanceof Error) {
       agent.config.logger.error(e.message, { cause: e })
@@ -53,7 +54,6 @@ export const bleShareProof = async ({
     }
 
     onFailure()
-    await shutdownProcess(agent, central)
     throw e
   }
 }
@@ -108,30 +108,12 @@ const disconnctedNotifier = (agent: Agent, central: Central, onDisconnected?: ()
   })
 }
 
-const shutdownProcess = async (agent: Agent, central: Central) => {
-  for (const it of agent.inboundTransports) {
-    if (it instanceof BleInboundTransport) {
-      void agent.unregisterInboundTransport(it)
-    }
-  }
-
-  for (const ot of agent.outboundTransports) {
-    if (ot instanceof BleOutboundTransport) {
-      void agent.unregisterOutboundTransport(ot)
-    }
-  }
-
-  await central.shutdown()
-}
-
 const shareProof = async (agent: Agent, central: Central, serviceUuid: string) =>
-  new Promise<void>((resolve) => {
+  new Promise<ProofExchangeRecord>((resolve) => {
     const receivedMessageListener = central.registerMessageListener(async ({ message }) => {
       agent.config.logger.info(`[CENTRAL]: received message ${message.slice(0, 16)}...`)
 
       const parsedMessage = JsonTransformer.deserialize(message, OutOfBandInvitation)
-
-      const responder = autoRespondToBleProofRequest(agent)
 
       const routing = await agent.mediationRecipient.getRouting({
         useDefaultMediator: false,
@@ -141,18 +123,17 @@ const shareProof = async (agent: Agent, central: Central, serviceUuid: string) =
         routing: { ...routing, endpoints: [`ble://${serviceUuid}`] },
       })
 
-      const { id } = await responder
-
-      await waitForSharedProof(id, agent)
+      const proofExchangeRecord = await autoRespondToBleProofRequest(agent)
 
       receivedMessageListener.remove()
-      resolve()
+      resolve(proofExchangeRecord)
     })
   })
 
 const autoRespondToBleProofRequest = (agent: Agent): Promise<ProofExchangeRecord> => {
   return new Promise((resolve, reject) => {
     const listener = async ({ payload: { proofRecord } }: ProofStateChangedEvent) => {
+      const off = () => agent.events.off(ProofEventTypes.ProofStateChanged, listener)
       if (proofRecord.state === ProofState.RequestReceived) {
         const formatData = await agent.proofs.getFormatData(proofRecord.id)
 
@@ -162,34 +143,29 @@ const autoRespondToBleProofRequest = (agent: Agent): Promise<ProofExchangeRecord
         }
 
         await agent.proofs.acceptRequest({ proofRecordId: proofRecord.id })
-
         resolve(proofRecord)
-      } else if (proofRecord.state === ProofState.Done || proofRecord.state === ProofState.PresentationSent) {
-        const formatData = await agent.proofs.getFormatData(proofRecord.id)
-        const proofRepository = agent.dependencyManager.resolve(ProofRepository)
-        proofRecord.metadata.set(METADATA_KEY_FORMAT_DATA, formatData)
-        await proofRepository.update(agent.context, proofRecord)
-        agent.events.off(ProofEventTypes.ProofStateChanged, listener)
-        resolve(proofRecord)
+        off()
       }
     }
     agent.events.on<ProofStateChangedEvent>(ProofEventTypes.ProofStateChanged, listener)
   })
 }
 
-const waitForSharedProof = (id: string, agent: Agent): Promise<ProofExchangeRecord> =>
-  new Promise((resolve, reject) => {
-    const listener = ({ payload }: ProofStateChangedEvent) => {
-      const off = () => agent.events.off(ProofEventTypes.ProofStateChanged, listener)
-      if (payload.proofRecord.id === id) {
-        if (payload.proofRecord.state === ProofState.PresentationReceived) {
-          off()
-          resolve(payload.proofRecord)
-        } else if ([ProofState.Abandoned, ProofState.Declined].includes(payload.proofRecord.state)) {
-          off()
-          reject(new Error(`Proof could not be shared because it has been ${payload.proofRecord.state}`))
-        }
-      }
-    }
-    agent.events.on<ProofStateChangedEvent>(ProofEventTypes.ProofStateChanged, listener)
+const handleAck = async (agent: Agent, central: Central, proofRecord: ProofExchangeRecord) =>
+  new Promise<void>((resolve) => {
+    const listener = central.registerMessageListener(async ({ message }) => {
+      if (!message.includes('@type')) throw new Error(`Received invalid message '${message}'`)
+
+      const deserializedMessage = JsonTransformer.deserialize(message, V2PresentationAckMessage)
+      if (deserializedMessage.threadId !== proofRecord.threadId) throw new Error('Received Ack with invalid thread id')
+
+      const proofRepository = agent.dependencyManager.resolve(ProofRepository)
+      proofRecord.state = ProofState.Done
+      const formatData = await agent.proofs.getFormatData(proofRecord.id)
+      proofRecord.metadata.set(METADATA_KEY_FORMAT_DATA, formatData)
+      await proofRepository.update(agent.context, proofRecord)
+
+      listener.remove()
+      resolve()
+    })
   })
