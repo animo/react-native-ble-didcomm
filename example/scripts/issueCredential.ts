@@ -70,7 +70,7 @@ void (async () => {
       label: 'nodejs-register-agent',
       walletConfig: { id: 'nodejs-register-agent', key: 'nodejs-register-key' },
       logger: new ConsoleLogger(LogLevel.off),
-      endpoints: ['https://65a0-84-241-194-48.ngrok-free.app'],
+      endpoints: ['https://44a5-94-157-0-163.ngrok-free.app'],
     },
     modules,
     dependencies: agentDependencies,

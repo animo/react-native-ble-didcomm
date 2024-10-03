@@ -13,8 +13,6 @@ import { BleInboundTransport, BleOutboundTransport } from '@credo-ts/transport-b
 import type { Central } from './central'
 import { DEFAULT_DIDCOMM_INDICATE_CHARACTERISTIC_UUID, DEFAULT_DIDCOMM_MESSAGE_CHARACTERISTIC_UUID } from './constants'
 
-const METADATA_KEY_FORMAT_DATA = 'FORMAT_DATA'
-
 export type BleShareProofOptions = {
   agent: Agent
   central: Central
@@ -38,7 +36,7 @@ export const bleShareProof = async ({
 
     await startCentral(central, agent, serviceUuid)
 
-    disconnctedNotifier(agent, central, onDisconnected)
+    disconnectedNotifier(agent, central, onDisconnected)
 
     await discoverAndConnect(agent, central)
 
@@ -100,7 +98,7 @@ const connectedNotifier = async (agent: Agent, central: Central, onConnected?: (
     })
   })
 
-const disconnctedNotifier = (agent: Agent, central: Central, onDisconnected?: () => Promise<void> | void) => {
+const disconnectedNotifier = (agent: Agent, central: Central, onDisconnected?: () => Promise<void> | void) => {
   const disconnectedListener = central.registerOnDisconnectedListener(async ({ identifier }) => {
     agent.config.logger.info(`[CENTRAL]: Disconnected from device ${identifier}`)
     if (onDisconnected) await onDisconnected()
@@ -161,8 +159,6 @@ const handleAck = async (agent: Agent, central: Central, proofRecord: ProofExcha
 
       const proofRepository = agent.dependencyManager.resolve(ProofRepository)
       proofRecord.state = ProofState.Done
-      const formatData = await agent.proofs.getFormatData(proofRecord.id)
-      proofRecord.metadata.set(METADATA_KEY_FORMAT_DATA, formatData)
       await proofRepository.update(agent.context, proofRecord)
 
       listener.remove()

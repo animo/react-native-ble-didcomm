@@ -131,21 +131,20 @@ const returnWhenProofReceived = (id: string, agent: Agent, peripheral: Periphera
   return new Promise((resolve, reject) => {
     const listener = async ({ payload: { proofRecord } }: ProofStateChangedEvent) => {
       const off = () => agent.events.off(ProofEventTypes.ProofStateChanged, listener)
-      if (proofRecord.id === id) {
-        if (proofRecord.state === ProofState.PresentationReceived) {
-          console.log('')
-          const proofProtocol = agent.proofs.config.proofProtocols.find((pp) => pp.version === 'v2')
-          if (!proofProtocol) throw new Error('No V2 proof protocol registered on the agent')
-          const { message } = await proofProtocol.acceptPresentation(agent.context, { proofRecord })
-          const serializedMessage = JsonTransformer.serialize(message)
-          await peripheral.sendMessage(serializedMessage)
-        } else if (proofRecord.state === ProofState.Done) {
-          off()
-          resolve(proofRecord)
-        } else if ([ProofState.Abandoned, ProofState.Declined].includes(proofRecord.state)) {
-          off()
-          reject(new Error(`Proof could not be shared because it has been ${proofRecord.state}`))
-        }
+      if (proofRecord.id !== id) return
+      if (proofRecord.state === ProofState.PresentationReceived) {
+        console.log('')
+        const proofProtocol = agent.proofs.config.proofProtocols.find((pp) => pp.version === 'v2')
+        if (!proofProtocol) throw new Error('No V2 proof protocol registered on the agent')
+        const { message } = await proofProtocol.acceptPresentation(agent.context, { proofRecord })
+        const serializedMessage = JsonTransformer.serialize(message)
+        await peripheral.sendMessage(serializedMessage)
+      } else if (proofRecord.state === ProofState.Done) {
+        off()
+        resolve(proofRecord)
+      } else if ([ProofState.Abandoned, ProofState.Declined].includes(proofRecord.state)) {
+        off()
+        reject(new Error(`Proof could not be shared because it has been ${proofRecord.state}`))
       }
     }
     agent.events.on<ProofStateChangedEvent>(ProofEventTypes.ProofStateChanged, listener)
