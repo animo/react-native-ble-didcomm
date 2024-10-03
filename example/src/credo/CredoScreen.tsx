@@ -3,7 +3,7 @@ import AgentProvider from '@credo-ts/react-hooks'
 import CredentialProvider from '@credo-ts/react-hooks/build/CredentialProvider'
 import ProofProvider from '@credo-ts/react-hooks/build/ProofProvider'
 import * as React from 'react'
-import { type ReactElement, useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Button, Text } from 'react-native'
 import { Spacer } from '../Spacer'
 import { Prover } from './Prover'
@@ -16,33 +16,41 @@ export const CredoScreen = () => {
   const [role, setRole] = useState<'prover' | 'verifier'>()
   const [agent, setAgent] = useState<AppAgent>()
 
-  useEffect(() => {
-    setupAgent().then(setAgent)
-  }, [])
-
-  let component: ReactElement
-
   if (!role) {
-    component = (
+    return (
       <>
-        <Button title="prover" onPress={() => setRole('prover')} />
+        <Button
+          title="prover"
+          onPress={async () => {
+            setRole('prover')
+            const a = await setupAgent()
+            setAgent(a)
+          }}
+        />
         <Spacer />
-        <Button title="verifier" onPress={() => setRole('verifier')} />
+        <Button
+          title="verifier"
+          onPress={async () => {
+            setRole('verifier')
+            const a = await setupAgent()
+            setAgent(a)
+          }}
+        />
       </>
     )
   }
 
   if (!agent) {
-    component = <Text>Setting up agent...</Text>
+    return <Text>Setting up agent...</Text>
   }
 
   if (role === 'prover' && agent) {
-    component = (
+    return (
       <AgentProvider agent={agent}>
         <CredentialProvider agent={agent}>
           <ProofProvider agent={agent}>
             <CentralProvider central={new Central()}>
-              <Prover agent={agent} serviceUuid={uuid} />
+              <Prover serviceUuid={uuid} />
             </CentralProvider>
           </ProofProvider>
         </CredentialProvider>
@@ -51,16 +59,14 @@ export const CredoScreen = () => {
   }
 
   if (role === 'verifier' && agent) {
-    component = (
+    return (
       <AgentProvider agent={agent}>
         <ProofProvider agent={agent}>
           <PeripheralProvider peripheral={new Peripheral()}>
-            <Verifier agent={agent} serviceUuid={uuid} />
+            <Verifier serviceUuid={uuid} />
           </PeripheralProvider>
         </ProofProvider>
       </AgentProvider>
     )
   }
-
-  return component
 }

@@ -1,15 +1,15 @@
+import { useAgent } from '@credo-ts/react-hooks'
 import { type FunctionComponent, type ReactElement, useState } from 'react'
 import { Button } from 'react-native'
 import { BleProver } from './BleProver'
 import { Camera } from './Camera'
-import type { AppAgent } from './agent'
 
 type ProverProps = {
-  agent: AppAgent
   serviceUuid: string
 }
 
-export const Prover: FunctionComponent<ProverProps> = ({ agent, serviceUuid }) => {
+export const Prover: FunctionComponent<ProverProps> = ({ serviceUuid }) => {
+  const { agent } = useAgent()
   const [showCamera, setShowCamera] = useState(false)
   const [bleFlowInProgress, setBleFlowInProgress] = useState(false)
 

@@ -1,15 +1,15 @@
+import { useAgent } from '@credo-ts/react-hooks'
 import { type FunctionComponent, type ReactElement, useState } from 'react'
 import { Button, Text } from 'react-native'
 import { BleVerifier } from './BleVerifier'
-import type { AppAgent } from './agent'
 
 type VerifierProps = {
-  agent: AppAgent
   serviceUuid: string
 }
 
-export const Verifier: FunctionComponent<VerifierProps> = ({ agent, serviceUuid }) => {
+export const Verifier: FunctionComponent<VerifierProps> = ({ serviceUuid }) => {
   const [bleFlowInProgress, setBleFlowInProgress] = useState(false)
+  const { agent } = useAgent()
 
   let component: ReactElement
 
