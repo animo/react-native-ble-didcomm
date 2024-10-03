@@ -21,7 +21,8 @@
 	],
 	"scripts": {
 		"build": "pnpm compile",
-		"compile": "tsc -p tsconfig.build.json"
+		"compile": "tsc -p tsconfig.build.json",
+		"release": "release-it"
 	},
 	"repository": "https://github.com/animo/react-native-ble-didcomm",
 	"author": "Animo <development@animo.id> (https://github.com/animo)",
@@ -51,6 +52,7 @@
 		"@types/react": "*",
 		"react": "*",
 		"react-native": "*",
+		"release-it": "^16.1.5",
 		"typescript": "*"
 	},
 	"release-it": {

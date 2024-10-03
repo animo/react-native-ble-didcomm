@@ -23,9 +23,6 @@ importers:
       '@biomejs/biome':
         specifier: ^1.9.1
         version: 1.9.3
-      release-it:
-        specifier: ^16.1.5
-        version: 16.3.0(typescript@5.3.3)
       rimraf:
         specifier: ^5.0.1
         version: 5.0.10
@@ -157,6 +154,9 @@ importers:
       react-native:
         specifier: 0.74.5
         version: 0.74.5(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(@types/react@18.2.79)(react@18.2.0)
+      release-it:
+        specifier: ^16.1.5
+        version: 16.3.0(typescript@5.3.3)
       typescript:
         specifier: ~5.3.3
         version: 5.3.3
@@ -1052,7 +1052,7 @@ packages:
     resolution: {integrity: sha512-2cVUSRPzd37vR0BW9dmJDjP2JjI/M3vhZXTthwJK+S/7Vu8uj48tBg3hi1rstE3ut0+2bqoFhUduzDM0l0L8HA==}
     peerDependencies:
       '@animo-id/react-native-ble-didcomm': ^0.5.1
-      '@credo-ts/core': ^0.5.0
+      '@credo-ts/core': ^0.5.11
       react-native: 0.74.5
 
   '@cspotcode/source-map-support@0.8.1':
@@ -11404,7 +11404,7 @@ snapshots:
       got: 12.6.1
       registry-auth-token: 5.0.2
       registry-url: 6.0.1
-      semver: 7.5.4
+      semver: 7.6.3
 
   pako@2.1.0: {}
 
@@ -11986,7 +11986,7 @@ snapshots:
 
   semver-diff@4.0.0:
     dependencies:
-      semver: 7.5.4
+      semver: 7.6.3
 
   semver@5.7.2: {}
 
@@ -12594,7 +12594,7 @@ snapshots:
       is-yarn-global: 0.4.1
       latest-version: 7.0.0
       pupa: 3.1.0
-      semver: 7.5.4
+      semver: 7.6.3
       semver-diff: 4.0.0
       xdg-basedir: 5.1.0
 
