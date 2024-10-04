@@ -80,9 +80,9 @@ jobs:
                   git config --global user.name "Animo Development"
 
                   if [ ${{ inputs.release-type }} == 'alpha' ]; then
-                    pnpm release --pre-dist-tag alpha prerelease --yes
+                    pnpm release --pre-dist-tag alpha prerelease --yes --no-git-tag-version
                   else
-                    pnpm release ${{ inputs.release-type }} --force-publish --no-private --yes
+                    pnpm release ${{ inputs.release-type }} --force-publish --no-private --yes --no-git-tag-version
                   fi
 
                   version=$(node -p "require('./lerna.json').version")
