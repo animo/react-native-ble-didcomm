@@ -16,7 +16,7 @@
 		"ios/BleDidcomm.xcodeproj/project.pbxproj",
 		"react-native-ble-didcomm.podspec",
 		"app.plugin.js",
-    "README.md",
+		"README.md",
 		"LICENSE"
 	],
 	"scripts": {

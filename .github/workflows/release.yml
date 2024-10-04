@@ -12,7 +12,7 @@ on:
             release-type:
                 description: 'Type of release (major, minor, patch, alpha)'
                 required: true
-                default: alpha
+                default: patch
                 type: choice
                 options:
                     - major
@@ -80,9 +80,9 @@ jobs:
                   git config --global user.name "Animo Development"
 
                   if [ ${{ inputs.release-type }} == 'alpha' ]; then
-                    pnpm release --pre-dist-tag alpha prerelease --yes --no-git-tag-version
+                    pnpm release --pre-dist-tag alpha prerelease --yes
                   else
-                    pnpm release ${{ inputs.release-type }} --force-publish --no-private --yes --no-git-tag-version
+                    pnpm release ${{ inputs.release-type }} --force-publish --no-private --yes
                   fi
 
                   version=$(node -p "require('./lerna.json').version")
