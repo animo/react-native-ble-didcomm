@@ -1,7 +1,7 @@
 {
 	"name": "bluetoothdidcommexample",
 	"version": "0.0.0",
-  "private": true,
+	"private": true,
 	"main": "index.js",
 	"scripts": {
 		"issue": "ts-node scripts/issueCredential.ts",
@@ -45,6 +45,5 @@
 		"babel-plugin-module-resolver": "^5.0.2",
 		"ts-node": "^10.9.2",
 		"typescript": "*"
-	},
-	"private": true
+	}
 }
