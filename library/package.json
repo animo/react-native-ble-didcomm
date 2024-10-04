@@ -1,6 +1,6 @@
 {
 	"name": "@animo-id/react-native-ble-didcomm",
-	"version": "0.0.0",
+	"version": "0.2.0",
 	"description": "React Native Bluetooth Low Energy (BLE) SDK for DIDComm",
 	"main": "build/index",
 	"source": "src/index",
@@ -35,14 +35,14 @@
 		"registry": "https://registry.npmjs.org/"
 	},
 	"dependencies": {
-		"buffer": "^6.0.3",
-		"@credo-ts/transport-ble": "^0.3.0"
+		"@credo-ts/transport-ble": "^0.3.0",
+		"buffer": "^6.0.3"
 	},
 	"peerDependencies": {
-		"react": "*",
-		"react-native": "*",
 		"@credo-ts/anoncreds": "*",
-		"@credo-ts/core": "*"
+		"@credo-ts/core": "*",
+		"react": "*",
+		"react-native": "*"
 	},
 	"devDependencies": {
 		"@credo-ts/anoncreds": "*",
