@@ -7,10 +7,12 @@
 		"check:fix": "pnpm check --write",
 		"format:android": "ktlint -F ./android",
 		"format:ios": "swiftlint --fix ./ios",
-		"clean": "rimraf -rf **/build"
+		"clean": "rimraf -rf **/build",
+		"release": "lerna publish"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.1",
+		"lerna": "8.1.8",
 		"rimraf": "^5.0.1"
 	},
 	"pnpm": {

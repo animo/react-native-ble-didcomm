@@ -1,92 +1,98 @@
 name: Continuous Deployment
 
 on:
-  workflow_dispatch:
-    inputs:
-      releaseType:
-        description: The type of release. Should be one of "major", "minor", "patch"
-        required: true
-        default: 'patch'
-  pull_request:
-    branches:
-      - main
+    push:
+        branches: [main]
 
-# Make sure we're not running multiple release steps at the same time as this can give issues with determining the next npm version to release.
-# Ideally we only add this to the 'release' job so it doesn't limit PR runs, but github can't guarantee the job order in that case:
-# "When concurrency is specified at the job level, order is not guaranteed for jobs or runs that queue within 5 minutes of each other."
-concurrency:
-  group: react-native-ble-didcomm${{ github.ref }}-${{ github.repository }}-{{ github.event_name }}
-  cancel-in-progress: true
+    pull_request:
+        types: [opened, synchronize]
+
+    workflow_dispatch:
+        inputs:
+            release-type:
+                description: 'Type of release (major, minor, patch, alpha)'
+                required: true
+                default: alpha
+                type: choice
+                options:
+                    - major
+                    - minor
+                    - patch
+                    - alpha
 
 jobs:
-  validate:
-    runs-on: ubuntu-20.04
-    name: Validate
-    steps:
-      - name: Checkout react-native-ble-didcomm
-        uses: actions/checkout@v4
+  continous-integration:
+      name: 'Continuous Integration'
+      runs-on: ubuntu-latest
 
-      - name: Setup node v20
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
+      steps:
+          - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
+          - uses: pnpm/action-setup@v4
+            with:
+                version: 9
 
-      - name: Install dependencies
-        run: pnpm install
+          - name: Install dependencies
+            run: pnpm install
 
-      - name: lint
-        run: pnpm check
+          - name: Check formatting
+            run: pnpm check
 
-      - name: Check typescript
-        run: pnpm check:types
-  release:
-    runs-on: ubuntu-20.04
-    name: Release
-    needs: [validate]
-    # Only run on workflow dispatch to main branch
-    if: github.ref == 'refs/heads/main' && github.repository == 'animo/react-native-ble-didcomm' && github.event_name == 'workflow_dispatch'
-    steps:
-      - name: Checkout react-native-ble-didcomm
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+          - name: Build
+            run: pnpm build
 
-      - name: git config
-        run: |
-          git config user.name "@github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          - name: Check types
+            run: pnpm check:types
 
-      - name: Setup node v20
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
+  continious-deployment:
+        if: github.event_name == 'workflow_dispatch'
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
+        name: 'Continous Deployment'
+        runs-on: ubuntu-latest
+        needs: ['continous-integration']
 
-      - name: Install dependencies
-        run: pnpm install
+        steps:
+            - uses: actions/checkout@v4
 
-      - name: Set NPM config
-        run: |
-          echo "//registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN }}" >> .npmrc
-          echo "registry=https://registry.npmjs.org/" >> .npmrc
-          echo "always-auth=true" >> .npmrc
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+            - uses: pnpm/action-setup@v4
+              with:
+                  version: 9
 
-      - name: Build the library
-        working-directory: library
-        run: pnpm build
+            - name: Install dependencies
+              run: pnpm install
 
-      # On manual workflow dispatch release stable version
-      - name: Release version
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        working-directory: library
-        run: pnpm release ${{ github.event.inputs.releaseType }}
+            - name: Build
+              run: pnpm build
+
+            - name: Initialise the NPM config
+              env:
+                  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+              run: npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
+
+            - name: Publish
+              id: publish
+              env:
+                  GH_TOKEN: ${{ secrets.GH_TOKEN }}
+                  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+              run: |
+                  echo ${{ inputs.release-type }}
+                  git config --global user.email "development@animo.id"
+                  git config --global user.name "Animo Development"
+
+                  if [ ${{ inputs.release-type }} == 'alpha' ]; then
+                    pnpm release --pre-dist-tag alpha prerelease --yes
+                  else
+                    pnpm release ${{ inputs.release-type }} --force-publish --no-private --yes
+                  fi
+
+                  version=$(node -p "require('./lerna.json').version")
+                  echo "LERNA_VERSION=$version" >> "$GITHUB_OUTPUT"
+
+            - name: Create Github Release
+              uses: softprops/action-gh-release@v2
+              with:
+                  generate_release_notes: true
+                  prerelease: ${{ inputs.release-type == 'alpha' }}
+                  token: ${{ secrets.GH_TOKEN }}
+                  tag_name: v${{ steps.publish.outputs.LERNA_VERSION }}
+                  name: Release v${{ steps.publish.outputs.LERNA_VERSION }}
