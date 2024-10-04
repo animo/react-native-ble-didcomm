@@ -8,6 +8,7 @@
 		"format:android": "ktlint -F ./android",
 		"format:ios": "swiftlint --fix ./ios",
 		"clean": "rimraf -rf **/build",
+		"build": "pnpm -C library build",
 		"release": "lerna publish"
 	},
 	"devDependencies": {
