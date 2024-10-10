@@ -36,7 +36,7 @@ jobs:
             run: pnpm install
 
           - name: Check formatting
-            run: pnpm check
+            run: pnpm style 
 
           - name: Build
             run: pnpm build

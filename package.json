@@ -3,8 +3,8 @@
 	"private": true,
 	"scripts": {
 		"check:types": "pnpm -C library compile --noEmit",
-		"check": "biome check --unsafe",
-		"check:fix": "pnpm check --write",
+		"style": "biome check --unsafe",
+		"style:fix": "pnpm style --write",
 		"format:android": "ktlint -F ./android",
 		"format:ios": "swiftlint --fix ./ios",
 		"clean": "rimraf -rf **/build",
