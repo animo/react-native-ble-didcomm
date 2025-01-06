@@ -3,14 +3,7 @@ import Foundation
 import os
 
 extension CentralManager: CBCentralManagerDelegate {
-    func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        switch central.state {
-        case .poweredOn:
-            isPoweredOn = true
-        default:
-            os_log("Unknown state")
-        }
-    }
+  func centralManagerDidUpdateState(_ central: CBCentralManager) {}
 
   func centralManager(
     _: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData _: [String: Any],
