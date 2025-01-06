@@ -17,10 +17,11 @@ extension PeripheralManager: CBPeripheralManagerDelegate {
   }
 
   func peripheralManager(
-    _ peripheral: CBPeripheralManager, central: CBCentral, didUnsubscribeFrom characteristic: CBCharacteristic
+    _ peripheral: CBPeripheralManager, central: CBCentral,
+    didUnsubscribeFrom characteristic: CBCharacteristic
   ) {
     connectedCentral = nil
-    sendEvent("onDisconnectedCentral", ["identifier": central.identifier.uuidString ])
+    sendEvent("onDisconnectedCentral", ["identifier": central.identifier.uuidString])
   }
 
   func peripheralManager(
@@ -32,7 +33,7 @@ extension PeripheralManager: CBPeripheralManagerDelegate {
       os_log("Error already connected to a single central")
       return
     }
-    sendEvent("onConnectedCentral", ["identifier": central.identifier.uuidString ])
+    sendEvent("onConnectedCentral", ["identifier": central.identifier.uuidString])
     connectedCentral = central
   }
 

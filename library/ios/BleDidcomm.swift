@@ -13,9 +13,8 @@ class BleDidcomm: React.RCTEventEmitter {
     resolve: RCTPromiseResolveBlock,
     reject _: RCTPromiseRejectBlock
   ) {
-      let cm = CBCentralManager(delegate: nil, queue: .main)
-      Thread.sleep(forTimeInterval: 0.05)
-      resolve(cm.state == .poweredOn)
+    let cm = CentralManager(sendEvent: self.sendEvent)
+    resolve(cm.centralManager.state == .poweredOn)
   }
 
   @objc func startPeripheral(
@@ -51,9 +50,9 @@ class BleDidcomm: React.RCTEventEmitter {
       return
     }
     peripheralManager.setService(
-        serviceUUID: serviceUUID,
-        writeCharacteristicUUID: writeCharacteristicUUID,
-        indicationCharacteristicUUID: indicationCharacteristicUUID)
+      serviceUUID: serviceUUID,
+      writeCharacteristicUUID: writeCharacteristicUUID,
+      indicationCharacteristicUUID: indicationCharacteristicUUID)
     resolve(nil)
 
   }
@@ -159,7 +158,7 @@ class BleDidcomm: React.RCTEventEmitter {
     } catch CentralManager.CentralManagerError.noDefinedService {
       reject("error", "Set the service before calling the scan function", nil)
     } catch {
-        reject("error", "unexpected error", nil)
+      reject("error", "unexpected error", nil)
     }
   }
 

@@ -10,7 +10,6 @@ class CentralManager: NSObject {
     case noDefinedService
   }
 
-  var isPoweredOn = false
   var serviceUUID: CBUUID?
   var writeCharacteristicUUID: CBUUID?
   var indicationCharacteristicUUID: CBUUID?
@@ -36,7 +35,7 @@ class CentralManager: NSObject {
       queue: .main
     )
 
-    while !isPoweredOn { Thread.sleep(forTimeInterval: 0.05) }
+    while centralManager.state == .unknown { Thread.sleep(forTimeInterval: 0.05) }
   }
 
   func shutdownCentral() {
@@ -85,8 +84,8 @@ class CentralManager: NSObject {
     }
 
     self.centralManager.scanForPeripherals(
-        withServices: [serviceUUID],
-        options: [CBCentralManagerScanOptionAllowDuplicatesKey: false])
+      withServices: [serviceUUID],
+      options: [CBCentralManagerScanOptionAllowDuplicatesKey: false])
 
   }
 
